@@ -203,10 +203,17 @@ export default function Assess() {
       // Recompute through the deterministic engine: Deep Look can only downgrade.
       setVerdict(computeVerdict(scores, db, { region, deepLook: out.json }));
     } catch (err) {
-      setDeepLookText(`Deep Look could not finish: ${err instanceof Error ? err.message : String(err)}. The Tier 1 verdict above stands.`);
+      const msg = err instanceof Error ? err.message : String(err);
+      setDeepLookText(
+        /abort/i.test(msg) ? "Deep Look cancelled." : `Deep Look could not finish: ${msg}. The Tier 1 verdict above stands.`,
+      );
     } finally {
       setDeepLooking(false);
     }
+  }
+
+  function cancelDeepLook() {
+    gemmaClient.abortDeepLook();
   }
 
   async function captureGps() {
@@ -348,7 +355,7 @@ export default function Assess() {
           </p>
         )}
       </section>
-      <DeepLookPanel streaming={deepLookText} result={deepLookJson} />
+      <DeepLookPanel streaming={deepLookText} result={deepLookJson} cancellable={deepLooking} onCancel={cancelDeepLook} />
 
       <section aria-labelledby="save-h" className="grid gap-2 rounded-2xl border border-black/10 p-4">
         <h2 id="save-h" className="text-xl font-bold">

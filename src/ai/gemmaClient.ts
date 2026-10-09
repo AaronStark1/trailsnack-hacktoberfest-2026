@@ -46,6 +46,7 @@ class GemmaClient {
   private pending = new Map<string, PendingRequest>();
   private initSingleFlight = new Map<Tier, Promise<void>>();
   private chosenDevice: Device | null = null;
+  private activeDeepLookId: string | null = null;
 
   private ensureWorker(): Worker {
     if (typeof window !== "undefined" && (window as unknown as { __TRAILSNACK_TEST__?: boolean }).__TRAILSNACK_TEST__ && testHook.enabled) {
@@ -222,20 +223,41 @@ class GemmaClient {
     onToken?: (text: string) => void,
   ): Promise<{ json: import("../workers/protocol.ts").DeepLookJson; inferenceMs: number }> {
     const requestId = newId();
-    const res = await this.send(
-      { type: "deep-look", requestId, image, candidates },
-      {
-        timeoutMs: 600_000,
-        onEvent: (ev) => {
-          if (ev.type === "deep-look-token") onToken?.(ev.text);
+    this.activeDeepLookId = requestId;
+    try {
+      const res = await this.send(
+        { type: "deep-look", requestId, image, candidates },
+        {
+          timeoutMs: 600_000,
+          onEvent: (ev) => {
+            if (ev.type === "deep-look-token") onToken?.(ev.text);
+          },
         },
-      },
-    );
-    if (res.type === "deep-look-result") {
-      return { json: res.json, inferenceMs: res.inferenceMs };
+      );
+      if (res.type === "deep-look-result") {
+        return { json: res.json, inferenceMs: res.inferenceMs };
+      }
+      if (res.type === "error") throw new Error(res.message);
+      throw new Error(`Unexpected response: ${res.type}`);
+    } finally {
+      if (this.activeDeepLookId === requestId) this.activeDeepLookId = null;
     }
-    if (res.type === "error") throw new Error(res.message);
-    throw new Error(`Unexpected response: ${res.type}`);
+  }
+
+  /**
+   * Ask the worker to stop the in-flight Deep Look. Posted directly (no
+   * pending entry, no timeout): the worker answers through the original
+   * deep-look request, which then rejects with the abort error.
+   */
+  abortDeepLook(): boolean {
+    const id = this.activeDeepLookId;
+    if (!id || !this.worker) return false;
+    try {
+      this.worker.postMessage({ type: "abort", requestId: id });
+      return true;
+    } catch {
+      return false;
+    }
   }
 
   modelIds(): { tier1: string; tier2: string } {

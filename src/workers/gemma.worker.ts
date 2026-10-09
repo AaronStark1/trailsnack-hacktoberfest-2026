@@ -1,5 +1,5 @@
 /// <reference lib="webworker" />
-import { AutoConfig, AutoModel, AutoProcessor, env, RawImage } from "@huggingface/transformers";
+import { AutoConfig, AutoModel, AutoProcessor, env, InterruptableStoppingCriteria, RawImage } from "@huggingface/transformers";
 import { StructuredOutputProcessor } from "@huggingface/transformers-structured-output";
 import { TextStreamer } from "@huggingface/transformers";
 import type { Device, Tier, WorkerEvent, WorkerRequest } from "./protocol.ts";
@@ -58,7 +58,7 @@ let indexDims = 768;
 let indexSpeciesIds: string[] = [];
 let indexPromptOffsets: number[] = [];
 
-const abortFlags = new Map<string, { aborted: boolean }>();
+const deepLookAborts = new Map<string, { aborted: boolean; criteria: InterruptableStoppingCriteria | null }>();
 
 interface ProgressEvent {
   status: string;
@@ -291,8 +291,9 @@ async function deepLook(
   const t0 = performance.now();
   const ok = await loadTier2(requestId);
   if (!ok || !tier2Model || !tier2Processor) return;
-  const flag = { aborted: false };
-  abortFlags.set(requestId, flag);
+  const stopCriteria = new InterruptableStoppingCriteria();
+  const flag = { aborted: false, criteria: stopCriteria as InterruptableStoppingCriteria | null };
+  deepLookAborts.set(requestId, flag);
 
   const list = candidates
     .map((c) => `- ${c.commonName} (${c.scientificName}) [${c.id}]: ${c.checklist.join("; ")}`)
@@ -332,8 +333,6 @@ async function deepLook(
   });
 
   try {
-    const { StoppingCriteria } = await import("@huggingface/transformers");
-    void StoppingCriteria;
     const output = await (
       tier2Model as unknown as {
         generate: (opts: Record<string, unknown>) => Promise<unknown>;
@@ -343,6 +342,7 @@ async function deepLook(
       max_new_tokens: 400,
       do_sample: false,
       streamer,
+      stopping_criteria: stopCriteria,
       ...(constraint ? { logits_processor: constraint } : {}),
     });
     // generate returns the full sequence (prompt + new tokens): slice the
@@ -365,7 +365,7 @@ async function deepLook(
       post({ type: "error", requestId, tier: "deep-look", code: "unknown", message, recoverable: true });
     }
   } finally {
-    abortFlags.delete(requestId);
+    deepLookAborts.delete(requestId);
   }
 }
 
@@ -426,7 +426,11 @@ self.onmessage = async (ev: MessageEvent<WorkerRequest>) => {
         break;
       }
       case "abort": {
-        abortFlags.get(msg.requestId)!.aborted = true;
+        const pendingAbort = deepLookAborts.get(msg.requestId);
+        if (pendingAbort) {
+          pendingAbort.aborted = true;
+          pendingAbort.criteria?.interrupt();
+        }
         break;
       }
       case "dispose": {
