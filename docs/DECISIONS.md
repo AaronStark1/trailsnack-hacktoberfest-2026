@@ -58,3 +58,10 @@ Format: ID · date · decision · rationale · alternatives rejected.
 - **D-009 · 2026-10-09 · Added `@eslint/js@10.0.1` (not in the spec's pin list).**
   Rationale: ESLint 10 flat config requires `@eslint/js`; latest available is
   10.0.1 (no 10.12.0 exists for that package). Pinned exactly and recorded here.
+- **D-010 · 2026-10-09 · verify-build: CDN string allowed in bundles only next to the /ort/ override.**
+  Rationale: the bundled `@huggingface/transformers` ships its upstream jsdelivr
+  default-URL constant as a string literal, so a blanket dist-wide ban can never
+  pass. Enforcement instead: (1) no first-party `src/` file may reference the CDN,
+  (2) the worker must contain the self-hosted `/ort/` wasmPaths override, (3) any
+  dist file mentioning the CDN must also contain the override marker. Runtime
+  proof comes from `check-offline.mjs`, which fails on any actual CDN request.

@@ -1,7 +1,11 @@
 # Fixture attributions
 
-- blackberry.jpg: https://upload.wikimedia.org/wikipedia/commons/thumb/2/29/Blackberries_%28Rubus_fruticosus%29.jpg/640px-Blackberries_%28Rubus_fruticosus%29.jpg — author: Wikimedia Commons, license: CC / public domain (see ATTRIBUTION.md)
-- fly-agaric.jpg: https://upload.wikimedia.org/wikipedia/commons/thumb/3/32/Amanita_muscaria_%28fly_agaric%29.JPG/640px-Amanita_muscaria_%28fly_agaric%29.JPG — author: Wikimedia Commons, license: CC / public domain (see ATTRIBUTION.md)
-- poison-ivy.jpg: https://upload.wikimedia.org/wikipedia/commons/thumb/9/90/Poison_ivy_leaves.jpg/640px-Poison_ivy_leaves.jpg — author: Wikimedia Commons, license: CC / public domain (see ATTRIBUTION.md)
+Smoke-test fixtures in `fixtures/images/` (Tier 1 Node smoke test):
 
-If any download failed, that fixture is a deterministic synthetic image and calibration against real photos is pending.
+- blackberry.jpg: https://commons.wikimedia.org/wiki/Special:FilePath/Blackberries%20%28Rubus%20fruticosus%29.jpg — Wikimedia Commons contributors, blackberry cluster (real photo, downloaded 2026-10-09).
+- fly-agaric.jpg: https://commons.wikimedia.org/wiki/Special:FilePath/Amanita%20muscaria%20%28fly%20agaric%29.JPG — Wikimedia Commons contributors, Amanita muscaria (real photo, downloaded 2026-10-09).
+- poison-ivy.jpg: synthetic fallback (deterministic JPEG generated with sharp; the Special:FilePath download returned 404). Calibration against a real poison-ivy photo is pending.
+
+License note: Wikimedia Commons files are used under their respective Creative
+Commons / public-domain dedications; see each file's Commons page for the exact
+license and author. Synthetic fixtures carry no license burden.
