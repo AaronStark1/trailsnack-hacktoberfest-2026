@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { computeVerdict } from "../../src/engine/safetyEngine.ts";
+import { computeVerdict, isEdibleNeighborhood } from "../../src/engine/safetyEngine.ts";
 import type { FloraDB, Species } from "../../src/engine/types.ts";
 
 function sp(partial: Partial<Species> & { id: string }): Species {
@@ -168,6 +168,34 @@ describe("safety engine verdict rules", () => {
     });
     expect(withDl.confidence).toBe("moderate");
     expect(withDl.badge).toBe("CAUTION");
+  });
+
+  it("berry top with an edible-with-caution mushroom in the band caps at CAUTION", () => {
+    const db = dbWith([
+      sp({ id: "lowbush-blueberry", edibility: "edible_with_caution" }),
+      sp({ id: "black-huckleberry", edibility: "edible_with_caution" }),
+      sp({ id: "oyster-mushroom", category: "mushroom", edibility: "edible_with_caution" }),
+    ]);
+    const v = computeVerdict(
+      [
+        { speciesId: "lowbush-blueberry", similarity: 0.75 },
+        { speciesId: "oyster-mushroom", similarity: 0.72 },
+        { speciesId: "black-huckleberry", similarity: 0.6 },
+      ],
+      db,
+    );
+    expect(v.badge).toBe("CAUTION");
+    expect(v.badge).not.toBe("EDIBLE");
+  });
+
+  it("edible neighborhood rejects any mushroom, even an edible-with-caution one", () => {
+    const berry = sp({ id: "lowbush-blueberry", edibility: "edible_with_caution" });
+    const mushroom = sp({ id: "oyster-mushroom", category: "mushroom", edibility: "edible_with_caution" });
+    expect(isEdibleNeighborhood([berry])).toBe(true);
+    // Without the mushroom clause this would be true and a future threshold
+    // set could promote it to EDIBLE; the clause keeps it closed.
+    expect(isEdibleNeighborhood([berry, mushroom])).toBe(false);
+    expect(isEdibleNeighborhood([mushroom])).toBe(false);
   });
 
   it("toxic species in the plausible set forces TOXIC", () => {

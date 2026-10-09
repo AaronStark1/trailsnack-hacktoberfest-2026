@@ -21,6 +21,20 @@ function confidenceOf(top1: number, top2: number): Confidence {
   return "low";
 }
 
+/**
+ * Edible-gate neighborhood check, exported for direct testing: every
+ * plausible species must be edible_with_caution AND none may be a mushroom.
+ * The mushroom clause is defense-in-depth — with the current thresholds a
+ * mushroom in the band always costs confidence first, but post-calibration
+ * thresholds could reopen the hole.
+ */
+export function isEdibleNeighborhood(plausible: Species[]): boolean {
+  return (
+    plausible.every((s) => s.edibility === "edible_with_caution") &&
+    plausible.every((s) => s.category !== "mushroom")
+  );
+}
+
 function headlineFor(badge: Badge): string {
   switch (badge) {
     case "EDIBLE":
@@ -167,13 +181,10 @@ export function computeVerdict(
   } else if (topSpecies?.category === "mushroom") {
     badge = "CAUTION";
     reasons.push("Category rule: top candidate is a mushroom; verdict capped at CAUTION (no app confirms wild mushrooms).");
-  } else if (
-    confidence === "confident" &&
-    topSpecies &&
-    plausible.every((s) => s.edibility === "edible_with_caution")
-  ) {
-    // (Not a mushroom here: the mushroom category branch above already returned
-    // CAUTION, so reaching this branch implies a non-mushroom top candidate.)
+  } else if (confidence === "confident" && topSpecies && isEdibleNeighborhood(plausible)) {
+    // (The mushroom category branch above already capped mushroom tops at
+    // CAUTION; the every(category !== mushroom) check additionally closes the
+    // hole where a non-mushroom top has a mushroom inside the plausible set.)
     badge = "EDIBLE";
     reasons.push("Edible gate: confident, every plausible species edible_with_caution, no hazardous confusables, not a mushroom → EDIBLE (still verify every checklist item).");
   } else {
