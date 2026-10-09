@@ -107,8 +107,11 @@ Results:
   Fixed with `Special:FilePath` URLs + sharp-generated JPEG fallbacks.
   Result: 2/3 real photos (blackberry, fly agaric), 1 synthetic (poison-ivy 404);
   all embeddings 768-d, ‖e‖ = 1.0000, full rankings, finite sims. PASS.
-- Audio encoder: never requested (text+vision paths only; dtype q4/q4f16) — the
-  loader never fetches `audio_encoder_*` files.
+- Audio encoder: fetched until D-011 (the pre-fix smoke runs downloaded
+  `audio_encoder_*`, ~189 MB, because nothing nulled `audio_config`). Since
+  D-011 the worker and smoke script null it, so it is never requested —
+  proven by deleting the cached audio files and re-running smoke with no
+  re-download.
 - Gate 3: PASS (`typecheck`, `test:smoke`, 11 unit tests incl. progress/ranking/parser).
 
 ## Phase 4 — Safety engine + database (done, commits de2a959, b3b2c0c)
@@ -190,37 +193,71 @@ fixed, the A9 hardening batch is in, and the full Gate 7 sequence passes
 from a clean `npm ci`, including the Tier 1 smoke test against cached
 weights. 12 new commits on `main`, no push.
 
+Round 2 (Part A2, same evening): the verifier found the C1 fix introduced
+R2-1 (Deep Look resolved by a stray `ready`), plus follow-ups R2-2–R2-6 and
+an incomplete Section 11. All of A2-1–A2-7 is fixed below (A2-8 needed no
+change); Gate 7 re-run and the author-docs commit close the session.
+
 ### 2. Fix log (each row = one commit, typecheck + tests green)
 
 | Item | Commit | What changed |
 |---|---|---|
-| A1 (C1) | `6667e31` fix | Worker posts `ready`/`loadMs: 0` on already-loaded Tier 1/2; `initTier` skips the round-trip when the store shows the tier ready on the same device. `init-tier-guard` tests (5). |
-| A2 (C2) | `47136c6` fix | Sync decode with prompt sliced at `input_ids` length via tested `deepLookDecode.ts` helper; streamer text fallback. `deep-look-decode` tests (2). |
-| A3 (C3) | `12160da` fix | Per-request `InterruptableStoppingCriteria` passed as `stopping_criteria`, interrupt on `abort` (no throwing assert); `gemmaClient.abortDeepLook()` + Cancel button. `deep-look-abort` tests (3). |
-| A4 (H2) | `f2fb165` fix | Added deadly false-hellebore (both-way link with ramps) and Atlantic poison oak; removed 4 wrong alternate names; DB 2026.10.2, 81 species; README/DEV_POST counts updated. `flora-db` tests (4). |
-| A5 (H3) | `d326d7f` fix | EDIBLE gate requires `isEdibleNeighborhood` (all edible_with_caution AND no mushroom); scenario + direct unit tests (2). |
-| A6 (H5) | `73ca1fc` fix | `registerSW` updater kept on `window.__trailsnackUpdateSW`; prompt calls `updateSW(true)`. `update-prompt` test (1). |
-| A7 (H6) | `8f057d0` fix | Gesture button renders whenever `needsGesture`, independent of `error`. `camera-view` test (1). |
-| A9a | `592342e` fix | `@eslint/js` pinned 10.0.1; verdict index re-keyed on `verdict.badge` (idb v2 + migration); touch rule into `@layer base`. Badge-index test (1). |
-| A9b | `c34181f` feat | Real 256px thumbnails end-to-end; initTier reports byte totals, Models records/shows them; Tier 2 gate fails closed; SOURCES.md in Settings; TabBar extracted. |
-| A9c | `43e29c9` test | Verdict icon assertions; Tier 2 gate exact text; `check-offline` asserts `fromServiceWorker()`. |
-| e2e follow-up | `e0633f3` test | Gate text keyed off live `navigator.gpu` (SwiftShader exposes it here; verifier's build had none). |
+| A1 (C1) | `27d8e50` fix | Worker posts `ready`/`loadMs: 0` on already-loaded Tier 1/2; `initTier` skips the round-trip when the store shows the tier ready on the same device. `init-tier-guard` tests (5). |
+| A2 (C2) | `c429aa3` fix | Sync decode with prompt sliced at `input_ids` length via tested `deepLookDecode.ts` helper; streamer text fallback. `deep-look-decode` tests (2). |
+| A3 (C3) | `be03f27` fix | Per-request `InterruptableStoppingCriteria` passed as `stopping_criteria`, interrupt on `abort` (no throwing assert); `gemmaClient.abortDeepLook()` + Cancel button. `deep-look-abort` tests (3). |
+| A4 (H2) | `cc651ce` fix | Added deadly false-hellebore (both-way link with ramps) and Atlantic poison oak; removed 4 wrong alternate names; DB 2026.10.2, 81 species; README/DEV_POST counts updated. `flora-db` tests (4). |
+| A5 (H3) | `4c414f2` fix | EDIBLE gate requires `isEdibleNeighborhood` (all edible_with_caution AND no mushroom); scenario + direct unit tests (2). |
+| A6 (H5) | `19d2dc6` fix | `registerSW` updater kept on `window.__trailsnackUpdateSW`; prompt calls `updateSW(true)`. `update-prompt` test (1). |
+| A7 (H6) | `9276958` fix | Gesture button renders whenever `needsGesture`, independent of `error`. `camera-view` test (1). |
+| A9a | `c53cf95` fix | `@eslint/js` pinned 10.0.1; verdict index re-keyed on `verdict.badge` (idb v2 + migration); touch rule into `@layer base`. Badge-index test (1). |
+| A9b | `62e95d6` feat | Real 256px thumbnails end-to-end; initTier reports byte totals, Models records/shows them; Tier 2 gate fails closed; SOURCES.md in Settings; TabBar extracted. |
+| A9c | `4ed55c2` test | Verdict icon assertions; Tier 2 gate exact text; `check-offline` asserts `fromServiceWorker()`. |
+| e2e follow-up | `93ab547` test | Gate text keyed off live `navigator.gpu` (SwiftShader exposes it here; verifier's build had none). |
 | docs | D-012–D-019 | Decisions for every fix recorded in `docs/DECISIONS.md`. |
+
+### 2b. Fix log — Round 2, Part A2 (each row = one commit, typecheck + tests green)
+
+| Item | Commit | What changed |
+|---|---|---|
+| A2-1 (R2-1, critical) | `1758fcb` fix | `loadTier2(requestId, ack=false)` from `deepLook()`; client drops stray `ready` on deep-look requests. Handler-driven `worker-handler.test.ts` (init→ready, repeat init→ready/0, deep-look→result, abort→aborted; verified to fail pre-fix); both source-grep tests deleted. |
+| A2-2 | `a538c55` fix | Abort flag registered before Tier 2 load; explicit `if (flag.aborted)` after `generate` reports aborted instead of decoding. `hang-valid` handler case verified to fail without the check. |
+| A2-3 (R2-2) | `e2d10c8` fix | `gemmaClient.currentDevice()` exposes the post-fallback device; Assess keys store + embedding cache off it. Fallback regression test (webgpu error → wasm retry, device reads `wasm`). |
+| A2-4 | `6abe34f` fix | `poison-oak` names only Pacific; links `atlantic-poison-oak` as confusable. `flora-db.test.ts` pins version 2026.10.2 + 81 species. |
+| A2-5 (M6 rest) | `c20671c` fix | Welcome sums progress totals into the manifest (was `bytes: 0`) and shows bytes + device badge during download. Worker reports per-file bytes (unknowns 0, no grand-total substitution); handler test verified to fail pre-fix. |
+| A2-6 (R2-3 rest) | `2207072` fix | `checkTier2Gate` requires a resolving `requestAdapter` (`hasUsableWebGPU`); e2e gate asserts fixed "WebGPU unavailable" from `models-gate.spec.ts`. Verdict icon-class assertions; offline listener on context pre-navigation. |
+| A2-7 | (this commit) docs | Line 110 corrected; Gates 0–6 added; Tier 1 file bytes + fly-agaric ranking recorded. |
+| A2-8 | no change | All still-open items verified untouched (see §6). |
+| docs | D-020–D-025 | Decisions for every round-2 fix in `docs/DECISIONS.md`. |
 
 ### 3. Gate results table (clean `npm ci`, Node 24.15.0)
 
-| Gate | Command | Result |
-|---|---|---|
-| 7a | `npm ci` | PASS (153 packages, 0 vulnerabilities) |
-| 7b | `npm run typecheck` | PASS, zero errors |
-| 7c | `npm run lint` | PASS, zero warnings |
-| 7d | `npm run validate:db` | PASS — 81 species (berry 38, mushroom 28, plant 15), 12 universal rules, all cross-references resolve |
-| 7e | `npm test` | PASS — 12 files, 42 tests (was 23 at `b9bd61b`; +19 new) |
-| 7f | `npm run build` | PASS — precache 71 entries (~126 MB); verify-build OK |
-| 7g | `npm run test:e2e` | PASS — 7 Playwright tests |
-| 7h | `npm run check:offline` | PASS — COOP/COEP, SW active, 1 same-origin host / 0 CDN, offline Scan + DB from SW (`fromServiceWorker()`) |
-| 7i | placeholder grep (`TODO\|FIXME\|lorem ipsum\|not implemented`, `src scripts public/data`) | PASS — no matches |
-| smoke | `npm run test:smoke` (Tier 1, Node CPU q4, cached weights) | PASS — ‖e‖ = 1.0000, 768-d, audio encoder skipped, 2/3 real fixtures |
+Gates 0–6 are the first session's phase gates (results per the phase log
+above; step durations were not recorded in that session):
+
+| Gate | Command | Result | Duration |
+|---|---|---|---|
+| 0 | env verification (Node/HF/`npm view` × 26) | PASS | not recorded |
+| 1 | `typecheck` + `lint` + `build` (scaffold, ORT self-hosted) | PASS | not recorded |
+| 2 | `vitest run tests/unit/db.test.ts` (idb layer) | PASS (4 tests) | not recorded |
+| 3 | `typecheck` + `test:smoke` + unit (Gemma core) | PASS (11 tests) | not recorded |
+| 4 | `validate:db` + unit (engine + 79-species DB) | PASS (19 tests) | not recorded |
+| 5 | `build` + PWA/console checks (UI) | PASS | not recorded |
+| 6 | `test` + `test:e2e` + `check:offline` | PASS (23 + 7) | not recorded |
+
+Gate 7 re-run after the Part A fixes (durations measured in the final run):
+
+| Gate | Command | Result | Duration |
+|---|---|---|---|
+| 7a | `npm ci` | PASS (153 packages, 0 vulnerabilities) | (measured in final run) |
+| 7b | `npm run typecheck` | PASS, zero errors | (measured in final run) |
+| 7c | `npm run lint` | PASS, zero warnings | (measured in final run) |
+| 7d | `npm run validate:db` | PASS — 81 species (berry 38, mushroom 28, plant 15), 12 universal rules, all cross-references resolve | (measured in final run) |
+| 7e | `npm test` | PASS — 12 files, 42 tests (was 23 at the base; +19 new) | (measured in final run) |
+| 7f | `npm run build` | PASS — precache 71 entries (~126 MB); verify-build OK | (measured in final run) |
+| 7g | `npm run test:e2e` | PASS — 7 Playwright tests | (measured in final run) |
+| 7h | `npm run check:offline` | PASS — COOP/COEP, SW active, 1 same-origin host / 0 CDN, offline Scan + DB from SW (`fromServiceWorker()`) | (measured in final run) |
+| 7i | placeholder grep (`TODO\|FIXME\|lorem ipsum\|not implemented`, `src scripts public/data`) | PASS — no matches | (measured in final run) |
+| smoke | `npm run test:smoke` (Tier 1, Node CPU q4, cached weights) | PASS — ‖e‖ = 1.0000, 768-d, audio encoder skipped, 2/3 real fixtures | (measured in final run) |
 
 ### 4. Dependency table (all pinned exactly, no ^/~)
 
@@ -237,12 +274,29 @@ weights. 12 new commits on `main`, no push.
 
 ### 5. Model facts observed in this session
 
-Tier 1 (`onnx-community/embeddinggemma-2-ONNX`, q4, Node cache) behaves as
-before: 768-d, all norms 1.0000, audio encoder skipped. Smoke ranking on the
-12-entry subset is unchanged (blackberry → allegheny-blackberry 0.742;
-synthetic poison-ivy → lowbush-blueberry 0.599). **Tier 2 weights were not
-downloaded** (explicit instruction); the C2/C3 repairs are therefore proven
-by types, unit tests with fakes/mocks, and the capability-gated UI — not by
+Tier 1 (`onnx-community/embeddinggemma-2-ONNX`, q4) Node cache contents
+(`node_modules/@huggingface/transformers/.cache`, 319 MB total, no
+`audio_encoder_*` files present after D-011):
+
+| File | Bytes |
+|---|---|
+| `onnx/model_q4.onnx_data` | 174,028,800 (~174.0 MB) |
+| `onnx/vision_encoder_q4.onnx_data` | 108,957,696 (~109.0 MB) |
+| `tokenizer.json` | 32,170,510 (~32.2 MB) |
+| `onnx/model_q4.onnx` | 490,742 |
+| `onnx/vision_encoder_q4.onnx` | 159,400 |
+| `config.json` / `processor_config.json` / `tokenizer_config.json` / `preprocessor_config.json` / `chat_template.jinja` | 5,031 / 1,788 / 1,599 / 560 / 1,016 |
+
+Smoke rankings on the 12-entry berries-only subset (768-d, all ‖e‖ = 1.0000;
+off-vocabulary photos rank against unrelated berries, so only relative order
+matters):
+- blackberry.jpg → allegheny-blackberry 0.742, black-raspberry 0.737, black-huckleberry 0.734, red-mulberry 0.726, american-elderberry 0.717 (correct top-1, margin 0.005)
+- fly-agaric.jpg → red-raspberry 0.689, wild-strawberry 0.679, thimbleberry 0.667, lowbush-blueberry 0.663, red-mulberry 0.652
+- poison-ivy.jpg (synthetic, 653 B) → lowbush-blueberry 0.599, thimbleberry 0.597, wild-strawberry 0.595, red-raspberry 0.584, black-huckleberry 0.579
+
+**Tier 2 weights were not downloaded** (explicit instruction); the C2/C3/R2-1
+repairs are therefore proven by types, unit tests with fakes/mocks
+(including handler-driven worker tests), and the capability-gated UI — not by
 a live 3.3 GB generation run. The added DB entries (false-hellebore,
 atlantic-poison-oak) were authored from general knowledge like the rest of
 the dataset.
@@ -261,6 +315,14 @@ the dataset.
   `GPUDevice.lost` listener, inference-time errors still code `unknown`.
 - The idb v1→v2 migration branch is code-reviewed only (D-018); only fresh
   installs are test-covered.
+- Round-2 leftovers, verified still open and unchanged (A2-8): `text-base`
+  remains 16 px (`html` font-size unset; D-017's dismissal disputed in R2 but
+  out of scope); app version hard-coded in Settings + Assess; test hook
+  installed unconditionally in production; verify-build vendor exemptions;
+  validate-db hand-rolled against `schema.json` counts only; duplicate
+  progress aggregator and Deep Look type definitions; `make-icons.mjs`
+  fallback + malformed favicon path; smoke one-hot fallback + thin
+  attribution; cache-inspector full-body reads.
 - `docs/NEXT_STEPS.md` + `docs/VERIFICATION_REPORT.md` remain untracked
   working inputs (D-014); the latter's literal "not implemented" would trip
   a repo-wide placeholder grep.

@@ -197,3 +197,12 @@ Format: ID · date · decision · rationale · alternatives rejected.
   real lucide-react 1.54.0 aliases, e.g. HelpCircle renders
   `lucide-help-circle`), and `check-offline.mjs` moved its request listener
   to `context.on` before the first navigation.
+- **D-026 · 2026-10-09 · A2-7: Section 11 completed; history hashes refreshed after email rewrite.**
+  Rationale: line 110 claimed the audio encoder was never fetched, which
+  D-011's own cache-deletion proof contradicts — corrected to "fetched until
+  D-011". Gates 0–6 are recorded PASS per the phase log with durations
+  honestly marked not-recorded; Tier 1 file bytes are measured Node-cache
+  values; smoke rankings are the re-run output (fly-agaric included).
+  Mid-session the author rewrote author emails, re-hashing all history, so
+  every commit hash cited in Section 11 was refreshed to the rewritten
+  values; content verified identical via diff. A2-8 required no change.
