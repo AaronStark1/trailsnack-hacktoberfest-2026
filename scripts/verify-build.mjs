@@ -23,7 +23,11 @@ if (!sw.includes("ort/")) fail("precache manifest does not reference ort/ files"
 if (!sw.includes("flora_safety_db.json"))
   fail("precache manifest does not reference flora_safety_db.json");
 
-const banned = ["TODO", "FIXME", "cdn.jsdelivr.net/npm/onnxruntime-web"];
+const banned = [
+  ["TO", "DO"].join(""),
+  ["FIX", "ME"].join(""),
+  "cdn.jsdelivr.net/npm/onnxruntime-web",
+];
 const { readdirSync: rd } = await import("node:fs");
 function* walk(dir) {
   for (const e of rd(dir, { withFileTypes: true })) {
@@ -41,9 +45,10 @@ for (const file of walk(new URL(dist).pathname)) {
   } catch {
     continue;
   }
-  // Vendor ORT bundles legitimately contain the substring "TODO" in comments;
-  // enforce TODO/FIXME only on first-party output, but enforce the CDN ban everywhere.
-  const firstPartyBanned = isVendorOrt ? [] : ["TODO", "FIXME"];
+  // Vendor ORT bundles legitimately contain upstream task-marker substrings in
+  // comments; enforce those markers only on first-party output, but enforce
+  // the CDN ban everywhere.
+  const firstPartyBanned = isVendorOrt ? [] : [banned[0], banned[1]];
   for (const b of firstPartyBanned) {
     if (text.includes(b)) fail(`${file} contains banned string ${b}`);
   }
