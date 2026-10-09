@@ -121,6 +121,11 @@ class GemmaClient {
     return this.chosenDevice;
   }
 
+  /** Device actually in effect after init (accounts for the WebGPU→WASM fallback). */
+  currentDevice(): Device | null {
+    return this.chosenDevice;
+  }
+
   async initTier(
     tier: Tier,
     opts?: { device?: Device | "auto"; onProgress?: (pct: number, file: string, loadedBytes?: number, totalBytes?: number) => void },

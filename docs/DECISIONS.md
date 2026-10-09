@@ -158,3 +158,11 @@ Format: ID · date · decision · rationale · alternatives rejected.
   decoding. Covered by a `hang-valid` handler case (generate returns good
   JSON after the interrupt; the test asserts no `deep-look-result` and an
   `aborted` error), verified to fail without the check.
+- **D-022 · 2026-10-09 · A2-3: Assess uses the post-fallback device for store and cache key.**
+  Rationale: after the WebGPU→WASM fallback inside `initTier`, Assess kept the
+  pre-init device for the store badge and the embedding cache dtype, so a WASM
+  session cached its species index under the `q4f16` key. `gemmaClient` now
+  exposes `currentDevice()` (the tracked `chosenDevice`, which the fallback
+  rewrites) and Assess reads it after `initTier` resolves. Covered by a client
+  test where the first init fails `webgpu-unavailable` and the retry succeeds:
+  two inits posted (webgpu then wasm) and `currentDevice()` reports `wasm`.

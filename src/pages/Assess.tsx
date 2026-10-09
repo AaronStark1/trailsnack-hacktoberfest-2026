@@ -111,10 +111,13 @@ export default function Assess() {
           return;
         }
         if (cancelled) return;
-        setTier("field-id", { status: "ready", progressPct: 100, device });
+        // initTier may have fallen back from WebGPU to WASM: use the device
+        // actually in effect, or the embedding cache key gets the wrong dtype.
+        const actual = gemmaClient.currentDevice() ?? device;
+        setTier("field-id", { status: "ready", progressPct: 100, device: actual });
 
         // Species index: idb cache or compute in worker.
-        const dtype = device === "webgpu" ? "q4f16" : "q4";
+        const dtype = actual === "webgpu" ? "q4f16" : "q4";
         const cacheKey = makeCacheKey(gemmaClient.modelIds().tier1, dtype, hash);
         setStatusLine("Preparing species index…");
         const cached = await getSpeciesEmbeddings(cacheKey).catch(() => undefined);

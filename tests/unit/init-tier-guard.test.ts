@@ -13,6 +13,8 @@ interface PostedMsg {
 class MockWorker {
   static instances: MockWorker[] = [];
   static posted: PostedMsg[] = [];
+  static failWebgpuOnce = false;
+  private webgpuFailed = false;
   onmessage: ((ev: { data: unknown }) => void) | null = null;
   onerror: ((e: unknown) => void) | null = null;
   constructor(_url: unknown, _opts: unknown) {
@@ -24,6 +26,15 @@ class MockWorker {
       const requestId = msg.requestId ?? "";
       const tier = msg.tier ?? "field-id";
       const device = msg.device ?? "wasm";
+      if (MockWorker.failWebgpuOnce && device === "webgpu" && !this.webgpuFailed) {
+        this.webgpuFailed = true;
+        queueMicrotask(() => {
+          this.onmessage?.({
+            data: { type: "error", requestId, tier, code: "webgpu-unavailable", message: "no gpu", recoverable: true },
+          });
+        });
+        return;
+      }
       queueMicrotask(() => {
         this.onmessage?.({ data: { type: "ready", requestId, tier, device, loadMs: 5 } });
       });
@@ -55,6 +66,7 @@ beforeEach(() => {
   globalThis.Worker = MockWorker as unknown as typeof Worker;
   MockWorker.instances = [];
   MockWorker.posted = [];
+  MockWorker.failWebgpuOnce = false;
   resetClient();
   useModelStore.getState().resetTier("field-id");
   useModelStore.getState().resetTier("deep-look");
@@ -93,5 +105,15 @@ describe("initTier already-ready guard (C1: second scan must not hang)", () => {
     await gemmaClient.initTier("field-id", { device: "wasm" });
     expect(MockWorker.posted).toHaveLength(1);
     expect(MockWorker.posted[0]).toMatchObject({ type: "init", device: "wasm" });
+  });
+
+  it("falls back to wasm and reports the real device (R2-2)", async () => {
+    MockWorker.failWebgpuOnce = true;
+    await gemmaClient.initTier("field-id", { device: "webgpu" });
+    expect(MockWorker.posted).toHaveLength(2);
+    expect(MockWorker.posted[0]).toMatchObject({ type: "init", device: "webgpu" });
+    expect(MockWorker.posted[1]).toMatchObject({ type: "init", device: "wasm" });
+    // Assess must key the embedding cache off this, not the requested device.
+    expect(gemmaClient.currentDevice()).toBe("wasm");
   });
 });
