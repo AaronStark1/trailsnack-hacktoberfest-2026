@@ -2,7 +2,18 @@
   "version": "2026.10.1",
   "disclaimer": "Educational reference only. Never eat any wild plant, berry, or fungus based on an app. Confirm with a qualified local expert.",
   "universal_rules": [
-    { "id": "no-app-confirmation", "applies_to": ["berry", "mushroom", "plant"], "text": "No wild mushroom is ever confirmed by an app." }
+    { "id": "no-app-confirmation", "applies_to": ["berry", "mushroom", "plant"], "text": "No wild mushroom is ever confirmed by an app; treat every mushroom ID as provisional until a qualified expert confirms it in person." },
+    { "id": "edibility-test-myth", "applies_to": ["berry", "mushroom", "plant"], "text": "The so-called universal edibility test is a myth that kills; some deadly toxins take hours to act and are not detected by skin, lip, or tiny-taste steps." },
+    { "id": "white-gills-ring-cup", "applies_to": ["mushroom"], "text": "White-gilled mushrooms with a ring on the stem and a cup at the base are treated as deadly Amanitas until proven otherwise." },
+    { "id": "amatoxin-latency", "applies_to": ["mushroom", "berry", "plant"], "text": "Amatoxin poisoning has a deceptive 6–24 hour latent period where the victim feels better before liver failure begins." },
+    { "id": "milky-sap", "applies_to": ["berry", "plant"], "text": "Never eat anything with milky sap unless positively identified by an expert; many milky-sapped plants are toxic." },
+    { "id": "umbellifers-off-limits", "applies_to": ["plant"], "text": "Umbellifers (carrot family) are off-limits without expert confirmation: water hemlock and poison hemlock kill in small amounts and resemble edible relatives." },
+    { "id": "elderberry-raw", "applies_to": ["berry"], "text": "Raw elderberry fruit, stems, leaves, and unripe fruit contain cyanogenic compounds; only cooked ripe fruit of verified species is used, and only with expert guidance." },
+    { "id": "children-pets", "applies_to": ["berry", "mushroom", "plant"], "text": "Children and pets are at higher risk: smaller doses are dangerous, and attractive berries invite accidental ingestion. Supervise closely and teach no-taste rules." },
+    { "id": "photograph-first", "applies_to": ["berry", "mushroom", "plant"], "text": "Photograph the whole organism, fruit or cap close-up, leaves or gills, and growth habit before touching anything." },
+    { "id": "gloves-wash", "applies_to": ["berry", "mushroom", "plant"], "text": "Wear gloves around contact hazards (poison ivy, hogweed, nettles), avoid touching face, and wash hands, tools, and clothing afterward." },
+    { "id": "one-specimen", "applies_to": ["berry", "mushroom", "plant"], "text": "Assess one specimen at a time; mixed patches and partial specimens cause the most dangerous misidentifications." },
+    { "id": "cooking-myth", "applies_to": ["mushroom", "berry", "plant"], "text": "Cooking does not destroy amatoxins, many alkaloids, or cyanogenic compounds in pits and seeds; heat is not a safety test." }
   ],
   "species": [
     {
@@ -11,30 +22,2633 @@
       "scientific_name": "Vaccinium angustifolium",
       "category": "berry",
       "edibility": "edible_with_caution",
-      "toxicity_mechanism": "None when ripe and correctly identified; gastrointestinal upset if large quantities of unripe fruit eaten.",
+      "toxicity_mechanism": "None when ripe and correctly identified; unripe fruit may cause mild gastrointestinal upset.",
       "regions": ["north-america"],
       "seasons": ["summer"],
-      "habitat": "Acidic barrens and open woods.",
+      "habitat": "Acidic barrens, open woods, and hillsides in northeastern North America.",
       "visual_prompts": [
         "Whole lowbush blueberry shrub with small oval leaves and clusters of round dusty-blue berries",
-        "Close-up of ripe round blue berries with crown-like calyx scar on blueberry bush",
-        "Detail of small oval finely toothed blueberry leaves turning red in autumn",
-        "Low spreading blueberry barrens growth habit with many stems"
+        "Close-up of ripe round blue berries with a five-pointed crown calyx scar on a blueberry bush",
+        "Detail of small oval finely toothed blueberry leaves, green in summer and red in autumn",
+        "Low spreading blueberry barrens with many thin woody stems and bell-shaped white-pink flowers in spring"
       ],
       "verification_checklist": [
-        "Berries are round, dusty blue with a pale bloom",
-        "Calyx forms a five-pointed crown on the blossom end",
-        "Leaves are small, oval, finely toothed",
-        "Shrub is low and spreading, not a tall vine",
-        "No thorns on stems",
-        "Berries grow singly or in small clusters, not in elongated racemes"
+        "Berries are round, dusty blue with a pale waxy bloom",
+        "Blossom end shows a five-pointed crown (calyx scar)",
+        "Leaves are small, oval, finely toothed, alternate",
+        "Shrub is low and spreading, not a vine and not thorny",
+        "Flowers are small white-to-pink bells (in season)",
+        "Berries grow on woody shrubs, not on herbaceous nightshade plants"
+      ],
+      "confusable_with": [
+        { "species_id": "black-huckleberry", "how_to_tell_apart": "Huckleberry seeds are large and crunchy (10 seeds); blueberry seeds are tiny and soft. Both edible with caution — confusion is low-risk." },
+        { "species_id": "deadly-nightshade", "how_to_tell_apart": "Nightshade berries are shiny black single berries on herbaceous plants with purple flowers, never dusty-blue with a crown scar." }
+      ],
+      "symptoms_if_ingested": "None expected for ripe fruit.",
+      "onset": "N/A for ripe fruit.",
+      "first_aid": ["Rinse mouth.", "Observe for symptoms.", "Contact poison control if identification is uncertain."],
+      "contact_precautions": "None.",
+      "notes": "Classic trail nibble, but only after every checklist item passes and lookalikes are excluded."
+    },
+    {
+      "id": "black-huckleberry",
+      "common_names": ["Black huckleberry"],
+      "scientific_name": "Gaylussacia baccata",
+      "category": "berry",
+      "edibility": "edible_with_caution",
+      "toxicity_mechanism": "None when ripe and correctly identified.",
+      "regions": ["north-america"],
+      "seasons": ["summer"],
+      "habitat": "Oak woods, barrens, and moors of eastern North America.",
+      "visual_prompts": [
+        "Black huckleberry bush with glossy oval leaves and black berries",
+        "Close-up of shiny black huckleberries without a strong waxy bloom",
+        "Detail of huckleberry leaves with resinous golden dots underneath",
+        "Upright branching huckleberry shrub in sandy oak woodland"
+      ],
+      "verification_checklist": [
+        "Berries are black, glossy, less bloomy than blueberries",
+        "Crushed berry reveals about ten large crunchy seeds",
+        "Leaf undersides show tiny golden resin dots",
+        "Shrub is upright and branching with shreddy bark",
+        "Berries single in leaf axils rather than dense terminal clusters only",
+        "No thorns, no milky sap"
+      ],
+      "confusable_with": [
+        { "species_id": "lowbush-blueberry", "how_to_tell_apart": "Blueberry seeds are tiny; huckleberry seeds are large and crunchy. Both edible with caution." },
+        { "species_id": "pokeweed", "how_to_tell_apart": "Pokeweed berries hang in long drooping racemes on smooth purple-red stalks of a tall herb, never on a woody shrub." }
+      ],
+      "symptoms_if_ingested": "None expected for ripe fruit.",
+      "onset": "N/A for ripe fruit.",
+      "first_aid": ["Rinse mouth.", "Save a sample if uncertain.", "Call poison control if any doubt."],
+      "contact_precautions": "None.",
+      "notes": "Distinguished from blueberry by seed crunch and resin-dotted leaves."
+    },
+    {
+      "id": "allegheny-blackberry",
+      "common_names": ["Allegheny blackberry", "Himalayan blackberry (lookalike)"],
+      "scientific_name": "Rubus allegheniensis",
+      "category": "berry",
+      "edibility": "edible_with_caution",
+      "toxicity_mechanism": "None when ripe and correctly identified; thorns cause mechanical injury.",
+      "regions": ["north-america", "europe"],
+      "seasons": ["summer"],
+      "habitat": "Thickets, trail edges, and clearings; Himalayan blackberry (R. armeniacus) invasive in the west.",
+      "visual_prompts": [
+        "Arching thorny blackberry canes with compound leaves and clusters of black aggregate berries",
+        "Close-up of ripe black aggregate berry composed of many small drupelets with a white core when picked",
+        "Detail of palmately compound blackberry leaves with toothed leaflets and prickly stems",
+        "Dense blackberry bramble thicket with white five-petaled flowers in early summer"
+      ],
+      "verification_checklist": [
+        "Fruit is an aggregate of many small drupelets, black when fully ripe",
+        "Picked berry retains a soft white core (unlike raspberry which is hollow)",
+        "Stems are arching, angled, armed with stout prickles",
+        "Leaves are compound with 3–5 toothed leaflets",
+        "Unripe berries are red and hard — only eat fully black soft ones",
+        "Flowers have five white petals (in season)"
+      ],
+      "confusable_with": [
+        { "species_id": "black-raspberry", "how_to_tell_apart": "Black raspberry is hollow when picked (thimble-like); blackberry keeps its core. Both edible with caution." },
+        { "species_id": "pokeweed", "how_to_tell_apart": "Pokeweed has smooth round purple-black berries in racemes on unarmed stalks, never aggregate drupelets on thorny canes." }
+      ],
+      "symptoms_if_ingested": "None expected for ripe fruit; unripe fruit may upset the stomach.",
+      "onset": "N/A for ripe fruit.",
+      "first_aid": ["Rinse mouth.", "Remove thorns and clean scratches.", "Call poison control if uncertain."],
+      "contact_precautions": "Thorns scratch; wear gloves and long sleeves in brambles.",
+      "notes": "Himalayan blackberry is a near-identical edible lookalike; both need the same checklist."
+    },
+    {
+      "id": "red-raspberry",
+      "common_names": ["Red raspberry"],
+      "scientific_name": "Rubus idaeus",
+      "category": "berry",
+      "edibility": "edible_with_caution",
+      "toxicity_mechanism": "None when ripe and correctly identified.",
+      "regions": ["north-america", "europe", "uk-ireland"],
+      "seasons": ["summer"],
+      "habitat": "Cool woods edges, clearings, and disturbed ground across the north temperate zone.",
+      "visual_prompts": [
+        "Red raspberry canes with pinnate leaves and conical red aggregate berries",
+        "Close-up of hollow red raspberry that slips off its white receptacle leaving a cup",
+        "Detail of raspberry leaflets white-felty underneath with bristly prickles on stems",
+        "Raspberry patch with nodding fruit clusters under arching biennial canes"
+      ],
+      "verification_checklist": [
+        "Fruit is red, conical, made of drupelets, and hollow inside when picked",
+        "A small white cone (receptacle) stays on the plant after picking",
+        "Leaflets are 3–7, green above and pale felty below",
+        "Stems have slender bristles rather than heavy rose-like thorns",
+        "Canes are biennial: green primocanes and brown floricanes",
+        "Fruit separates easily only when fully ripe"
+      ],
+      "confusable_with": [
+        { "species_id": "salmonberry", "how_to_tell_apart": "Salmonberry fruits are larger, orange to salmon, less coherent; both edible with caution but check color and cohesion." }
+      ],
+      "symptoms_if_ingested": "None expected for ripe fruit.",
+      "onset": "N/A for ripe fruit.",
+      "first_aid": ["Rinse mouth.", "Call poison control if identification is uncertain."],
+      "contact_precautions": "Bristles may irritate skin; wash hands.",
+      "notes": "Hollowness at picking is the key raspberry test."
+    },
+    {
+      "id": "black-raspberry",
+      "common_names": ["Black raspberry", "Blackcap"],
+      "scientific_name": "Rubus occidentalis",
+      "category": "berry",
+      "edibility": "edible_with_caution",
+      "toxicity_mechanism": "None when ripe and correctly identified.",
+      "regions": ["north-america"],
+      "seasons": ["summer"],
+      "habitat": "Fencerows, open woods, and thickets of eastern North America.",
+      "visual_prompts": [
+        "Black raspberry canes with a whitish bloom and small black hollow cup-shaped berries",
+        "Close-up of blackcap berry showing the hollow cup where the receptacle stayed behind",
+        "Detail of three-parted black raspberry leaves with whitened cane stems",
+        "Arching black raspberry canes rooting at the tips in a thicket"
+      ],
+      "verification_checklist": [
+        "Ripe berries are purplish-black and thimble-like (hollow)",
+        "Canes show a whitish waxy bloom and curved prickles",
+        "Leaves mostly three-parted with toothed leaflets",
+        "Cane tips arch down and may root where they touch soil",
+        "Unripe red stage is hard — wait for full black",
+        "No single smooth round berries on unarmed stalks (that would be nightshade/pokeweed)"
+      ],
+      "confusable_with": [
+        { "species_id": "allegheny-blackberry", "how_to_tell_apart": "Blackberry keeps its core when picked; black raspberry is hollow. Both edible with caution." },
+        { "species_id": "deadly-nightshade", "how_to_tell_apart": "Nightshade berries are smooth single spheres with a leafy cap, never hollow aggregates." }
+      ],
+      "symptoms_if_ingested": "None expected for ripe fruit.",
+      "onset": "N/A for ripe fruit.",
+      "first_aid": ["Rinse mouth.", "Call poison control if uncertain."],
+      "contact_precautions": "Prickles scratch; wear gloves.",
+      "notes": "Blackcaps are a top-tier trail berry once hollowness is confirmed."
+    },
+    {
+      "id": "thimbleberry",
+      "common_names": ["Thimbleberry"],
+      "scientific_name": "Rubus parviflorus",
+      "category": "berry",
+      "edibility": "edible_with_caution",
+      "toxicity_mechanism": "None when ripe and correctly identified; soft fruit spoils fast.",
+      "regions": ["north-america"],
+      "seasons": ["summer"],
+      "habitat": "Moist forest openings and streambanks in western and northern North America.",
+      "visual_prompts": [
+        "Thimbleberry shrub with large soft maple-like leaves and flat red cap-shaped berries",
+        "Close-up of scarlet thimble-shaped berry that is hollow and very soft",
+        "Detail of large five-lobed thimbleberry leaf with velvety texture and no prickles",
+        "Thimbleberry patch with white rose-like flowers larger than other Rubus"
+      ],
+      "verification_checklist": [
+        "Leaves are large, maple-like, softly hairy, without prickles",
+        "Stems are thornless (peeling bark), unlike most blackberries",
+        "Fruit is scarlet, dome-shaped, hollow, extremely soft",
+        "Flowers are large white rose-like blooms (in season)",
+        "Fruit crushes easily — handle gently",
+        "Grows in moist shade, not dry bramble thickets"
+      ],
+      "confusable_with": [
+        { "species_id": "red-raspberry", "how_to_tell_apart": "Red raspberry has prickly stems and smaller firmer fruit; thimbleberry is thornless with huge soft leaves. Both edible with caution." }
+      ],
+      "symptoms_if_ingested": "None expected for ripe fruit.",
+      "onset": "N/A for ripe fruit.",
+      "first_aid": ["Rinse mouth.", "Call poison control if uncertain."],
+      "contact_precautions": "None.",
+      "notes": "Thornless stems plus giant maple-like leaves make it distinctive."
+    },
+    {
+      "id": "salmonberry",
+      "common_names": ["Salmonberry"],
+      "scientific_name": "Rubus spectabilis",
+      "category": "berry",
+      "edibility": "edible_with_caution",
+      "toxicity_mechanism": "None when ripe and correctly identified; flavor varies bush to bush.",
+      "regions": ["north-america"],
+      "seasons": ["spring", "summer"],
+      "habitat": "Wet coastal woods and salmon streams from Alaska to California.",
+      "visual_prompts": [
+        "Salmonberry bush with trifoliate leaves and large orange salmon-pink raspberry-like fruits",
+        "Close-up of salmon-orange aggregate berry larger and looser than a raspberry",
+        "Detail of salmonberry magenta-pink flowers blooming before leaves fully expand",
+        "Moist streamside salmonberry thicket with golden-brown shreddy canes"
+      ],
+      "verification_checklist": [
+        "Fruit is salmon to orange-red, large, raspberry-like but looser",
+        "Stems are golden-brown with small prickles, often shreddy",
+        "Leaves are trifoliate with a much larger central leaflet",
+        "Flowers are deep pink-magenta (early season)",
+        "Habitat is wet coastal woods or streambanks",
+        "Fruit pulls with a soft core, not a hard pit"
+      ],
+      "confusable_with": [
+        { "species_id": "red-raspberry", "how_to_tell_apart": "Red raspberry fruit is smaller, firmer, deeper red; salmonberry is larger and orange-salmon. Both edible with caution." }
+      ],
+      "symptoms_if_ingested": "None expected for ripe fruit; large amounts may loosen stool.",
+      "onset": "N/A for ripe fruit.",
+      "first_aid": ["Rinse mouth.", "Call poison control if uncertain."],
+      "contact_precautions": "None.",
+      "notes": "First coastal berry of the season; taste varies, identification is by structure."
+    },
+    {
+      "id": "wild-strawberry",
+      "common_names": ["Wild strawberry"],
+      "scientific_name": "Fragaria virginiana",
+      "category": "berry",
+      "edibility": "edible_with_caution",
+      "toxicity_mechanism": "None when ripe and correctly identified.",
+      "regions": ["north-america", "europe"],
+      "seasons": ["spring", "summer"],
+      "habitat": "Meadows, trail edges, and open woods; tiny fruits on ground runners.",
+      "visual_prompts": [
+        "Low wild strawberry patch with trifoliate toothed leaves and tiny red heart-shaped berries",
+        "Close-up of small wild strawberry with seeds dotted on the outside and a leafy green cap",
+        "Detail of strawberry trifoliate leaf with a toothless bluish stalk between stem and leaflets",
+        "Strawberry runners rooting along the ground with white five-petaled flowers"
+      ],
+      "verification_checklist": [
+        "Fruit is small (fingernail size), red, with external seeds (achenes)",
+        "A leafy green cap (calyx) sits on top of the berry",
+        "Leaves are basal trifoliate with toothed leaflets",
+        "Plants spread by ground runners, not upright shrubs",
+        "Strong strawberry scent when crushed",
+        "Flowers are white with five petals and a yellow center (in season)"
       ],
       "confusable_with": [],
-      "symptoms_if_ingested": "None expected for ripe fruit; unripe fruit may cause mild stomach upset.",
+      "symptoms_if_ingested": "None expected for ripe fruit.",
       "onset": "N/A for ripe fruit.",
-      "first_aid": ["Rinse mouth.", "Observe for symptoms.", "Contact poison control if uncertain of identification."],
+      "first_aid": ["Rinse mouth.", "Call poison control if uncertain."],
       "contact_precautions": "None.",
-      "notes": "Scaffold entry; full database lands in Phase 4."
+      "notes": "Scent plus white flowers plus tiny size separates it from lookalikes."
+    },
+    {
+      "id": "serviceberry",
+      "common_names": ["Serviceberry", "Saskatoon", "Juneberry"],
+      "scientific_name": "Amelanchier alnifolia",
+      "category": "berry",
+      "edibility": "edible_with_caution",
+      "toxicity_mechanism": "Ripe fruit pulp is eaten; seeds and leaves contain cyanogenic compounds — do not chew large quantities of seeds.",
+      "regions": ["north-america"],
+      "seasons": ["summer"],
+      "habitat": "Open woods, bluffs, and prairie edges across northern North America.",
+      "visual_prompts": [
+        "Serviceberry shrub with oval finely toothed leaves and clusters of red-to-purple pome fruits",
+        "Close-up of round purple serviceberries with a crown of persistent sepals on top",
+        "Detail of serviceberry white starry five-petaled flowers blooming very early in spring",
+        "Upright multi-stemmed serviceberry bush with smooth gray bark"
+      ],
+      "verification_checklist": [
+        "Fruit is a pome (apple-like), purple-black when ripe, with a sepal crown",
+        "Leaves are oval, finely toothed mostly above the middle",
+        "Bark is smooth gray; shrub or small tree form",
+        "Early white starry blossoms before most leaves (in spring)",
+        "Fruit in open clusters, not tight grape-like bunches",
+        "Do not chew seeds; spit them"
+      ],
+      "confusable_with": [
+        { "species_id": "canada-moonseed", "how_to_tell_apart": "Moonseed is a vine with crescent-shaped seeds and grape-like clusters; serviceberry is a woody shrub/tree with crowned pomes." },
+        { "species_id": "chokecherry", "how_to_tell_apart": "Chokecherry fruits are in elongated racemes with pits and astringent flesh; serviceberry fruits have sepal crowns and multiple small seeds. Both need full checklists." }
+      ],
+      "symptoms_if_ingested": "Ripe pulp is well tolerated; chewed seeds in quantity may cause nausea from cyanogenic compounds.",
+      "onset": "Hours if seeds chewed heavily.",
+      "first_aid": ["Spit seeds.", "Rinse mouth.", "Call poison control if large amounts of seeds chewed."],
+      "contact_precautions": "None.",
+      "notes": "Saskatoon staple; the sepal crown plus pome structure are diagnostic."
+    },
+    {
+      "id": "american-elderberry",
+      "common_names": ["American elderberry", "Black elderberry"],
+      "scientific_name": "Sambucus canadensis",
+      "category": "berry",
+      "edibility": "edible_with_caution",
+      "toxicity_mechanism": "Raw fruit, stems, leaves, roots, and unripe fruit contain cyanogenic glycosides and lectins; only cooked ripe fruit is traditionally used, with expert guidance.",
+      "regions": ["north-america"],
+      "seasons": ["summer"],
+      "habitat": "Moist thickets, ditches, and forest edges of eastern North America.",
+      "visual_prompts": [
+        "Elderberry shrub with pinnate leaves and huge flat-topped white flower or dark berry clusters",
+        "Close-up of tiny dark purple-black elderberries on reddish stalks in a flat umbel-like cluster",
+        "Detail of opposite pinnate elder leaves with 5–9 toothed lance-shaped leaflets",
+        "Elderberry stems showing warty lenticels and soft white pith inside"
+      ],
+      "verification_checklist": [
+        "Flowers or fruit form large flat-topped clusters (not elongated cones)",
+        "Leaves are opposite and pinnately compound with 5–9 leaflets",
+        "Stems have warty bumps and soft white pith",
+        "Ripe berries are near-black and tiny with red-purple juice",
+        "All green parts and stems are avoided; raw berries are NOT eaten",
+        "Red-berried elders in the same area are a warning to stop and re-check"
+      ],
+      "confusable_with": [
+        { "species_id": "pokeweed", "how_to_tell_apart": "Pokeweed has alternate simple leaves and raceme (not flat-topped) berry clusters on smooth purple stalks; elderberry has opposite compound leaves and flat clusters." },
+        { "species_id": "water-hemlock", "how_to_tell_apart": "Water hemlock is an herbaceous umbellifer with chambered tuberous roots, never a woody elder shrub — but its white flower heads confuse beginners; check woodiness and leaves." }
+      ],
+      "symptoms_if_ingested": "Raw fruit or other parts: nausea, vomiting, diarrhea, dizziness.",
+      "onset": "30 minutes to 3 hours.",
+      "first_aid": ["Do not eat more.", "Save a sample.", "Call poison control (US: 1-800-222-1222).", "Seek care for vomiting or dizziness."],
+      "contact_precautions": "Juice stains; stems and leaves are toxic if ingested.",
+      "notes": "Cooked-ripe-only rule; this app never clears raw tasting."
+    },
+    {
+      "id": "riverbank-grape",
+      "common_names": ["Riverbank grape", "Wild grape"],
+      "scientific_name": "Vitis riparia",
+      "category": "berry",
+      "edibility": "edible_with_caution",
+      "toxicity_mechanism": "None when ripe and correctly identified; tart and seedy; leaves also used traditionally.",
+      "regions": ["north-america"],
+      "seasons": ["summer", "autumn"],
+      "habitat": "Riverbanks, fencerows, and woods edges where vines climb high.",
+      "visual_prompts": [
+        "Woody grape vine climbing trees with lobed toothed leaves and hanging blue-black berry clusters",
+        "Close-up of frosted blue-black wild grapes with a whitish bloom in a conical cluster",
+        "Detail of grape leaf with toothed lobes and curling forked tendrils opposite leaves",
+        "Shreddy brown grape bark on a thick old vine trunk"
+      ],
+      "verification_checklist": [
+        "Vine is woody with shreddy bark and forked tendrils",
+        "Leaves are alternately arranged, lobed, sharply toothed",
+        "Fruit hangs in conical clusters, blue-black with bloom when ripe",
+        "Cut seed is rounded or pear-shaped, NOT crescent-shaped",
+        "Tendrils grow opposite leaves (grape) not from leaf axils only",
+        "Taste is tart; only fully colored soft fruit"
+      ],
+      "confusable_with": [
+        { "species_id": "canada-moonseed", "how_to_tell_apart": "Moonseed has a single crescent-shaped seed per berry and no forked tendrils; grape seeds are rounded. Cut a berry and check the seed — this is the life-or-death test." },
+        { "species_id": "virginia-creeper", "how_to_tell_apart": "Virginia creeper berries are in open clusters on red stalks with 5-parted leaves and adhesive pads, not forked tendrils." }
+      ],
+      "symptoms_if_ingested": "None expected for ripe grapes; unripe fruit is sharply acidic.",
+      "onset": "N/A for ripe fruit.",
+      "first_aid": ["Cut and check seeds if uncertain.", "Call poison control if moonseed cannot be excluded."],
+      "contact_precautions": "None.",
+      "notes": "The seed-shape test against moonseed is mandatory every time."
+    },
+    {
+      "id": "red-mulberry",
+      "common_names": ["Red mulberry"],
+      "scientific_name": "Morus rubra",
+      "category": "berry",
+      "edibility": "edible_with_caution",
+      "toxicity_mechanism": "Ripe fruit is eaten; unripe fruit and milky sap may cause stomach upset and skin irritation.",
+      "regions": ["north-america"],
+      "seasons": ["summer"],
+      "habitat": "Rich woods and floodplains of eastern North America; a tree, not a bramble.",
+      "visual_prompts": [
+        "Mulberry tree with variable lobed and unlobed rough leaves and cylindrical blackberry-like fruits",
+        "Close-up of elongated red-to-black mulberry fruit hanging on a slender stem",
+        "Detail of sandpapery mulberry leaf with a drip tip and milky sap from a broken stalk",
+        "Mature mulberry trunk with gray-brown furrowed bark"
+      ],
+      "verification_checklist": [
+        "Fruit hangs on a tree (not a thorny cane) on a slender individual stalk",
+        "Leaves are alternate, rough above, variable in lobing on the same tree",
+        "Broken leaf stalk oozes white milky sap",
+        "Only fully black soft fruits; red unripe ones are avoided",
+        "Fruit is elongated like a blackberry but tree-borne",
+        "No thorns on the plant"
+      ],
+      "confusable_with": [
+        { "species_id": "allegheny-blackberry", "how_to_tell_apart": "Blackberry grows on thorny arching canes; mulberry grows on a tree with milky sap. Habitat plus woodiness separates them." }
+      ],
+      "symptoms_if_ingested": "Unripe fruit: nausea and cramps; ripe fruit is well tolerated.",
+      "onset": "1–3 hours for unripe fruit.",
+      "first_aid": ["Eat only ripe fruit.", "Rinse mouth.", "Call poison control if uncertain."],
+      "contact_precautions": "Milky sap may irritate skin and eyes; wash hands.",
+      "notes": "Tree habit plus milky sap plus elongated fruit is the triple check."
+    },
+    {
+      "id": "chokecherry",
+      "common_names": ["Chokecherry"],
+      "scientific_name": "Prunus virginiana",
+      "category": "berry",
+      "edibility": "edible_with_caution",
+      "toxicity_mechanism": "Flesh is tart but used; pits, wilted leaves, and bark contain cyanogenic compounds — never chew pits.",
+      "regions": ["north-america"],
+      "seasons": ["summer", "autumn"],
+      "habitat": "Fencerows, coulees, and open woods across North America.",
+      "visual_prompts": [
+        "Chokecherry shrub with oval finely toothed leaves and dangling spikes of dark red-black cherries",
+        "Close-up of small dark cherries in an elongated raceme with a single hard pit inside each",
+        "Detail of chokecherry leaf with two small glands on the stalk near the blade",
+        "Chokecherry bark with horizontal lenticels like other cherries"
+      ],
+      "verification_checklist": [
+        "Fruit hangs in elongated cylindrical racemes (not flat clusters, not single berries)",
+        "Each cherry holds one hard round pit — never chew or crush pits",
+        "Leaf stalks show two tiny glands near the blade",
+        "Leaves are oval, finely and sharply toothed",
+        "Ripe fruit is dark red to black and very astringent raw",
+        "Bitter-almond smell in crushed pits or wilted leaves is a stop signal"
+      ],
+      "confusable_with": [
+        { "species_id": "virginia-creeper", "how_to_tell_apart": "Virginia creeper is a vine with 5-parted leaves and blue-black berries on red stalks; chokecherry is a woody shrub/tree with single-pit cherries in racemes." },
+        { "species_id": "common-privet", "how_to_tell_apart": "Privet is an unarmed hedge shrub with black berries in upright spikes and opposite leaves; chokecherry is a tree/shrub with single-pit cherries in dangling racemes. When in doubt, do not eat." }
+      ],
+      "symptoms_if_ingested": "Pit chewing: headache, dizziness, nausea, difficulty breathing in severe cases.",
+      "onset": "30 minutes to 3 hours.",
+      "first_aid": ["Spit pits immediately.", "Do not induce vomiting.", "Call poison control (US: 1-800-222-1222)."],
+      "contact_precautions": "None for flesh; pits are the hazard.",
+      "notes": "Flesh-only rule with pits spat; astringency is normal, almond smell is not."
+    },
+    {
+      "id": "highbush-cranberry",
+      "common_names": ["Highbush cranberry"],
+      "scientific_name": "Viburnum trilobum",
+      "category": "berry",
+      "edibility": "edible_with_caution",
+      "toxicity_mechanism": "Ripe fruit is tart and eaten cooked; raw large amounts may upset the stomach.",
+      "regions": ["north-america"],
+      "seasons": ["autumn", "winter"],
+      "habitat": "Wet woods, streambanks, and swamps of northern North America.",
+      "visual_prompts": [
+        "Viburnum shrub with maple-like three-lobed leaves and flat clusters of bright red translucent berries",
+        "Close-up of red highbush-cranberry fruits each holding one flat oval seed",
+        "Detail of three-lobed viburnum leaf with glands on the stalk",
+        "Persistent red berry clusters hanging into winter with lacecap white flowers in spring"
+      ],
+      "verification_checklist": [
+        "Leaves are opposite and three-lobed like a small maple",
+        "Fruit is bright red, translucent, in flat-topped clusters",
+        "Each berry holds a single flat oval seed",
+        "Leaf stalks have small glands near the top",
+        "Bark is gray and tight; shrub, not vine",
+        " Berries persist into winter and smell pungent when crushed"
+      ],
+      "confusable_with": [
+        { "species_id": "hawthorn", "how_to_tell_apart": "Hawthorn is a thorny tree with lobed leaves and red pome fruits; highbush cranberry is an unarmed shrub with opposite three-lobed leaves and flat seed. Both need cooking and expert confirmation. When in doubt, do not eat." }
+      ],
+      "symptoms_if_ingested": "Large raw amounts: vomiting or diarrhea.",
+      "onset": "1–4 hours.",
+      "first_aid": ["Eat only cooked ripe fruit.", "Call poison control if uncertain."],
+      "contact_precautions": "None.",
+      "notes": "Single flat seed plus opposite maple-like leaves is diagnostic."
+    },
+    {
+      "id": "salal",
+      "common_names": ["Salal"],
+      "scientific_name": "Gaultheria shallon",
+      "category": "berry",
+      "edibility": "edible_with_caution",
+      "toxicity_mechanism": "None when ripe and correctly identified; leathery leaves traditionally used as tea with guidance.",
+      "regions": ["north-america"],
+      "seasons": ["summer", "autumn"],
+      "habitat": "Pacific Northwest coastal woods, the dominant evergreen understory shrub.",
+      "visual_prompts": [
+        "Evergreen salal shrub with leathery oval leaves and clusters of dusty blue-black berries",
+        "Close-up of salal berries with a star-shaped calyx and fine hairs",
+        "Detail of thick leathery salal leaf with a heart-shaped base",
+        "Salal urn-shaped white-pink flowers hanging in one-sided sprays"
+      ],
+      "verification_checklist": [
+        "Leaves are evergreen, thick, leathery, oval with a heart-shaped base",
+        "Berries are blue-black with a dusty bloom and fine hairs",
+        "Flowers are urn-shaped bells in one-sided sprays (in season)",
+        "Shrub forms dense coastal understory thickets",
+        "Berries have many tiny seeds, not a single pit",
+        "No thorns, no milky sap"
+      ],
+      "confusable_with": [
+        { "species_id": "oregon-grape", "how_to_tell_apart": "Oregon grape has holly-like spiny leaflets and yellow inner wood with blue berries in upright clusters; salal has leathery untoothed leaves and urn flowers. Both edible with caution." }
+      ],
+      "symptoms_if_ingested": "None expected for ripe fruit.",
+      "onset": "N/A for ripe fruit.",
+      "first_aid": ["Rinse mouth.", "Call poison control if uncertain."],
+      "contact_precautions": "None.",
+      "notes": "Pacific coast staple berry of deep woods."
+    },
+    {
+      "id": "oregon-grape",
+      "common_names": ["Oregon grape"],
+      "scientific_name": "Mahonia aquifolium",
+      "category": "berry",
+      "edibility": "edible_with_caution",
+      "toxicity_mechanism": "Ripe berries are very tart and eaten in small amounts; roots and bark contain berberine alkaloids — not eaten raw in quantity.",
+      "regions": ["north-america"],
+      "seasons": ["summer", "autumn"],
+      "habitat": "Dry to moist woods west of the Cascades and Rockies.",
+      "visual_prompts": [
+        "Oregon grape shrub with stiff holly-like pinnate leaves and upright clusters of dusty blue berries",
+        "Close-up of blue Oregon grape berries with a gray bloom above spiny leaflets",
+        "Detail of holly-like leaflets with spiny teeth and yellow inner bark on a scraped stem",
+        "Bright yellow Oregon grape flower clusters in early spring"
+      ],
+      "verification_checklist": [
+        "Leaves are pinnate with 5–9 holly-like spiny-toothed leaflets",
+        "Scraped stem shows bright yellow inner wood and roots",
+        "Berries are blue with bloom in upright grape-like clusters",
+        "Flowers are bright yellow in spring (in season)",
+        "Shrub is evergreen and low to medium height",
+        "Berries are intensely tart — small tastes only with confirmation"
+      ],
+      "confusable_with": [
+        { "species_id": "salal", "how_to_tell_apart": "Salal has leathery untoothed evergreen leaves and urn-shaped flowers; Oregon grape has spiny holly-like leaflets and yellow wood. Both edible with caution." },
+        { "species_id": "american-holly", "how_to_tell_apart": "American holly has alternate simple spiny leaves and red berries; Oregon grape has pinnate leaves and blue berries. Red berries here are a stop signal." }
+      ],
+      "symptoms_if_ingested": "Large raw amounts: nausea and stomach cramps.",
+      "onset": "1–3 hours.",
+      "first_aid": ["Eat small amounts only.", "Call poison control if uncertain."],
+      "contact_precautions": "Spiny leaflets scratch; wear gloves.",
+      "notes": "Yellow wood plus holly-like pinnate leaves is unmistakable."
+    },
+    {
+      "id": "rose-hips",
+      "common_names": ["Rose hips"],
+      "scientific_name": "Rosa woodsii",
+      "category": "berry",
+      "edibility": "edible_with_caution",
+      "toxicity_mechanism": "Hip flesh is eaten; seeds inside are irritating with fine hairs and should not be eaten.",
+      "regions": ["north-america", "europe", "uk-ireland"],
+      "seasons": ["autumn", "winter"],
+      "habitat": "Open slopes, trailsides, and thickets; wild roses across the north.",
+      "visual_prompts": [
+        "Wild rose bush with pinnate thorny stems and bright red-orange oval hip fruits",
+        "Close-up of oval rose hip with a dried sepal crown on top",
+        "Detail of rose pinnate leaves with toothed oval leaflets and paired thorns",
+        "Pink five-petaled wild rose flowers with yellow centers in summer"
+      ],
+      "verification_checklist": [
+        "Fruit is a red-orange oval hip with a dried sepal tuft on the end",
+        "Stems are thorny with pinnate leaves of 5–7 toothed leaflets",
+        "Cut hip shows many hard hairy seeds inside — flesh only",
+        "Flowers are pink, five-petaled, rose-scented (in season)",
+        "Hips persist into winter and soften after frost",
+        "No single smooth berries on unarmed stalks"
+      ],
+      "confusable_with": [
+        { "species_id": "hawthorn", "how_to_tell_apart": "Hawthorn is a thorny small tree with lobed leaves and apple-like fruits with hard nutlets; rose hips are on rose bushes with pinnate leaves and hairy seeds." }
+      ],
+      "symptoms_if_ingested": "Seeds: throat and stomach irritation from hairs.",
+      "onset": "Minutes to hours.",
+      "first_aid": ["Eat flesh only; spit seeds.", "Drink water.", "Call poison control if uncertain."],
+      "contact_precautions": "Thorns scratch; seed hairs irritate skin.",
+      "notes": "Vitamin-rich trail fruit once seeds are excluded."
+    },
+    {
+      "id": "hawthorn",
+      "common_names": ["Hawthorn"],
+      "scientific_name": "Crataegus monogyna",
+      "category": "berry",
+      "edibility": "edible_with_caution",
+      "toxicity_mechanism": "Ripe fruit flesh is eaten; hard seeds should not be chewed in quantity.",
+      "regions": ["north-america", "europe", "uk-ireland"],
+      "seasons": ["autumn"],
+      "habitat": "Hedgerows, pastures, and wood edges; thorny small trees.",
+      "visual_prompts": [
+        "Thorny hawthorn small tree with lobed leaves and clusters of red apple-like haws",
+        "Close-up of red haw fruits each with a dimpled blossom end and hard nutlets inside",
+        "Detail of deeply lobed hawthorn leaves with stout thorns at the nodes",
+        "Hawthorn white five-petaled flower clusters with a fishy scent in spring"
+      ],
+      "verification_checklist": [
+        "Tree or tall shrub armed with stout straight thorns",
+        "Leaves are wedge-shaped and deeply lobed",
+        "Fruit is red, apple-like (pome) with a dimpled end",
+        "Cut fruit shows 1–5 hard nutlets, not a single plum pit",
+        "Bark is gray-brown and scaly on older trunks",
+        "Fruit in clusters on a woody tree, not a vine"
+      ],
+      "confusable_with": [
+        { "species_id": "rose-hips", "how_to_tell_apart": "Rose hips grow on rose bushes with pinnate leaves; haws grow on thorny trees with lobed leaves. Both need seed-spitting care." }
+      ],
+      "symptoms_if_ingested": "Seed chewing in quantity: nausea; flesh is well tolerated.",
+      "onset": "Hours.",
+      "first_aid": ["Spit seeds.", "Call poison control if uncertain."],
+      "contact_precautions": "Thorns puncture deeply; watch eyes and handle with care.",
+      "notes": "Hedgerow fruit; thorns plus lobed leaves plus pome fruit is the check."
+    },
+    {
+      "id": "pokeweed",
+      "common_names": ["Pokeweed", "Pokeberry"],
+      "scientific_name": "Phytolacca americana",
+      "category": "berry",
+      "edibility": "toxic",
+      "toxicity_mechanism": "Phytolaccatoxin and related triterpene saponins in berries, roots, and mature stems; toxicity increases with maturity.",
+      "regions": ["north-america"],
+      "seasons": ["summer", "autumn"],
+      "habitat": "Disturbed ground, fencerows, and clearings; tall smooth herb to 3 m.",
+      "visual_prompts": [
+        "Tall smooth pokeweed stalk with lance-shaped alternate leaves and drooping spikes of dark purple berries",
+        "Close-up of pokeberry raceme with round berries ripening green to red to glossy purple-black",
+        "Detail of thick smooth reddish-purple pokeweed stem with alternate simple leaves",
+        "Pokeweed root crown with huge white fleshy taproot (most toxic part)"
+      ],
+      "verification_checklist": [
+        "Tall herbaceous plant (not woody), smooth reddish-purple stalks",
+        "Berries hang in elongated drooping racemes, never flat clusters",
+        "Leaves are alternate, simple, lance-shaped with smooth margins",
+        "Crushed berry stains deep magenta with many small seeds",
+        "Huge white taproot at the base",
+        "Young spring shoots are still not approved by this app — treat whole plant as toxic"
+      ],
+      "confusable_with": [
+        { "species_id": "allegheny-blackberry", "how_to_tell_apart": "Blackberry has aggregate drupelets on thorny canes; pokeweed has smooth single berries in racemes on unarmed stalks." },
+        { "species_id": "american-elderberry", "how_to_tell_apart": "Elderberry has opposite compound leaves and flat-topped clusters on woody shrubs; pokeweed has alternate simple leaves and racemes on herbs." }
+      ],
+      "symptoms_if_ingested": "Nausea, vomiting, crampy diarrhea, dizziness; severe cases with fluid loss.",
+      "onset": "1–6 hours.",
+      "first_aid": ["Do not eat more.", "Save a sample.", "Call poison control (US: 1-800-222-1222).", "Seek care for vomiting or diarrhea."],
+      "contact_precautions": "Sap may irritate skin; wash hands and avoid eye contact.",
+      "notes": "The classic deadly-lookalike of blackberries and elderberries for beginners."
+    },
+    {
+      "id": "deadly-nightshade",
+      "common_names": ["Deadly nightshade", "Belladonna"],
+      "scientific_name": "Atropa belladonna",
+      "category": "berry",
+      "edibility": "deadly",
+      "toxicity_mechanism": "Tropane alkaloids (atropine, scopolamine): anticholinergic blockade; a few berries can kill an adult.",
+      "regions": ["europe", "uk-ireland", "north-america"],
+      "seasons": ["summer", "autumn"],
+      "habitat": "Chalky disturbed ground, ruins, and wood edges; bushy herb with dull green leaves.",
+      "visual_prompts": [
+        "Bushy nightshade herb with dull oval leaves and shiny black cherry-like berries in green leafy cups",
+        "Close-up of glossy black belladonna berry with a five-lobed green calyx cap",
+        "Detail of solitary purple-brown bell-shaped nightshade flowers with yellow stamens",
+        "Whole belladonna plant with paired unequal leaves and single berries in leaf axils"
+      ],
+      "verification_checklist": [
+        "Berries are shiny black, cherry-sized, single in leaf axils (not clustered)",
+        "Each berry sits in a five-lobed green leafy cup",
+        "Flowers are dull purple-brown bells (in season)",
+        "Leaves are dull green ovals, often in unequal pairs",
+        "Plant is herbaceous and bushy, never a woody vine or thorny cane",
+        "Any shiny black single berry on such a plant is a full stop"
+      ],
+      "confusable_with": [
+        { "species_id": "lowbush-blueberry", "how_to_tell_apart": "Blueberry is dusty blue with a crown scar on a woody shrub; belladonna is glossy black with a leafy cap on an herb." },
+        { "species_id": "black-raspberry", "how_to_tell_apart": "Black raspberry is a hollow aggregate on thorny canes; belladonna is a smooth single sphere." }
+      ],
+      "symptoms_if_ingested": "Dilated pupils, blurred vision, dry mouth, rapid pulse, confusion, hallucinations, coma.",
+      "onset": "30 minutes to 4 hours.",
+      "first_aid": ["Call emergency services immediately.", "Save a sample.", "Do not induce vomiting.", "Call poison control."],
+      "contact_precautions": "Do not touch face after handling; wash hands thoroughly.",
+      "notes": "Two to five berries can be fatal; the highest-stakes berry in this database."
+    },
+    {
+      "id": "bittersweet-nightshade",
+      "common_names": ["Bittersweet nightshade", "Woody nightshade"],
+      "scientific_name": "Solanum dulcamara",
+      "category": "berry",
+      "edibility": "toxic",
+      "toxicity_mechanism": "Steroidal glycoalkaloids (solanine-like): gastrointestinal and neurological toxicity, worse in unripe berries.",
+      "regions": ["north-america", "europe", "uk-ireland"],
+      "seasons": ["summer", "autumn"],
+      "habitat": "Wet thickets, ditches, and fencerows; scrambling semi-woody vine.",
+      "visual_prompts": [
+        "Scrambling nightshade vine with arrow-shaped leaves and clusters of oval berries ripening green to orange to red",
+        "Close-up of glossy oval bittersweet berries like tiny red eggs in a loose cluster",
+        "Detail of purple star-shaped nightshade flowers with yellow cones",
+        "Woody-based vine climbing through shrubs with mixed green and red berries"
+      ],
+      "verification_checklist": [
+        "Vine with arrowhead or lobed leaves, often with ear-like basal lobes",
+        "Berries are oval (not round), ripening through orange to bright red",
+        "Flowers are purple stars with yellow beaks (in season)",
+        "Stems woody at the base, scrambling rather than twining tight",
+        "Crushed foliage smells rank and tomato-like",
+        "Oval red berries on such a vine are a stop signal"
+      ],
+      "confusable_with": [
+        { "species_id": "red-raspberry", "how_to_tell_apart": "Raspberry is a hollow aggregate on canes; bittersweet berries are smooth ovals with seeds inside." },
+        { "species_id": "jerusalem-cherry", "how_to_tell_apart": "Jerusalem cherry is an upright houseplant/wilding with round cherry-tomato fruits; bittersweet is a vine with oval fruits. Both toxic." }
+      ],
+      "symptoms_if_ingested": "Vomiting, diarrhea, drowsiness, slowed pulse; worse from unripe berries.",
+      "onset": "2–6 hours.",
+      "first_aid": ["Do not eat more.", "Save a sample.", "Call poison control.", "Seek care for persistent vomiting."],
+      "contact_precautions": "Wash hands after handling; keep children away.",
+      "notes": "Oval shape plus vine habit plus purple star flowers is the tell."
+    },
+    {
+      "id": "red-baneberry",
+      "common_names": ["Red baneberry"],
+      "scientific_name": "Actaea rubra",
+      "category": "berry",
+      "edibility": "toxic",
+      "toxicity_mechanism": "Protoanemonin-related irritants and cardiogenic toxins; berries and roots toxic.",
+      "regions": ["north-america"],
+      "seasons": ["summer", "autumn"],
+      "habitat": "Rich moist woods; low herb with divided leaves and white flower spikes.",
+      "visual_prompts": [
+        "Low woodland herb with twice-divided toothed leaves and a dense spike of glossy red berries",
+        "Close-up of red baneberries with a tiny black dot (stigma scar) on each tip",
+        "Detail of sharply toothed divided baneberry leaves on a smooth stem",
+        "White fluffy bottlebrush baneberry flower spike in spring"
+      ],
+      "verification_checklist": [
+        "Berries are glossy red ovals packed in a dense upright spike",
+        "Each berry tip shows a tiny black dot",
+        "Leaves are twice-divided with sharp teeth",
+        "Flowers are white fluffy spikes (in spring)",
+        "Plant is a low woodland herb, never a vine or shrub",
+        "Red berries with black dots in a spike are a stop signal"
+      ],
+      "confusable_with": [
+        { "species_id": "red-raspberry", "how_to_tell_apart": "Raspberry is a hollow aggregate on canes; baneberry fruits are smooth single berries with black dots on an herb." },
+        { "species_id": "white-baneberry", "how_to_tell_apart": "White baneberry has white berries with black pupils on red stalks; red baneberry has red berries. Both toxic." }
+      ],
+      "symptoms_if_ingested": "Burning mouth, vomiting, dizziness, possible cardiac effects.",
+      "onset": "30 minutes to 3 hours.",
+      "first_aid": ["Rinse mouth.", "Save a sample.", "Call poison control.", "Seek care for dizziness or vomiting."],
+      "contact_precautions": "Sap may blister skin; wear gloves.",
+      "notes": "Black-dot tip plus spike arrangement is diagnostic."
+    },
+    {
+      "id": "white-baneberry",
+      "common_names": ["White baneberry", "Doll's eyes"],
+      "scientific_name": "Actaea pachypoda",
+      "category": "berry",
+      "edibility": "toxic",
+      "toxicity_mechanism": "Same cardiogenic and irritant toxins as red baneberry; white berries equally toxic.",
+      "regions": ["north-america"],
+      "seasons": ["summer", "autumn"],
+      "habitat": "Rich hardwood forests of eastern North America.",
+      "visual_prompts": [
+        "Woodland herb with white eyeball-like berries each with a black pupil dot on thick red stalks",
+        "Close-up of doll's-eyes berries showing the black stigma pupil on white fruit",
+        "Detail of thick red baneberry fruit stalks holding white berries",
+        "Divided toothed baneberry foliage with white flower spikes in spring"
+      ],
+      "verification_checklist": [
+        "Berries are white with a stark black dot, like doll's eyes",
+        "Fruit stalks are thick and bright red",
+        "Leaves are divided with sharp teeth",
+        "Berries in a loose cluster on red stalks, not a drooping raceme",
+        "White berries with black pupils are an instant stop",
+        "Roots and foliage are also toxic — do not handle casually"
+      ],
+      "confusable_with": [
+        { "species_id": "red-baneberry", "how_to_tell_apart": "Red baneberry has red berries with black dots on green stalks; doll's eyes has white berries on red stalks. Both toxic." }
+      ],
+      "symptoms_if_ingested": "Burning mouth and throat, vomiting, dizziness, possible cardiac disturbance.",
+      "onset": "30 minutes to 3 hours.",
+      "first_aid": ["Rinse mouth.", "Save a sample.", "Call poison control.", "Seek emergency care for cardiac symptoms."],
+      "contact_precautions": "Wear gloves; sap irritates skin.",
+      "notes": "The most visually unmistakable toxic berry in North American woods."
+    },
+    {
+      "id": "pacific-yew",
+      "common_names": ["Pacific yew", "English yew"],
+      "scientific_name": "Taxus brevifolia",
+      "category": "berry",
+      "edibility": "deadly",
+      "toxicity_mechanism": "Taxine alkaloids in needles, bark, wood, and seeds cause cardiac arrest; the red aril flesh alone is not safe to test.",
+      "regions": ["north-america", "europe", "uk-ireland"],
+      "seasons": ["autumn"],
+      "habitat": "Shady conifer woods and churchyards; evergreen tree or shrub with flat needles.",
+      "visual_prompts": [
+        "Evergreen yew with flat dark needles and bright red cup-shaped arils holding a single hard seed",
+        "Close-up of red yew aril open at the end exposing the brown seed inside",
+        "Detail of flat flexible yew needles with a pale stripe, arranged in two flat ranks",
+        "Yew trunk with thin scaly reddish bark in deep shade"
+      ],
+      "verification_checklist": [
+        "Evergreen with flat soft needles in two flat ranks (not stiff round pine needles)",
+        "Red fleshy cups (arils) open at one end with a hard brown seed showing",
+        "No cones; seeds sit singly in cups",
+        "Bark is thin, scaly, reddish",
+        "Every green part and the seed are deadly — no tasting",
+        "Red cups on needle evergreens are an instant stop"
+      ],
+      "confusable_with": [
+        { "species_id": "red-mulberry", "how_to_tell_apart": "Mulberry is a broadleaf tree with milky sap and aggregate fruits; yew is a needle evergreen with cup arils. Totally different foliage." }
+      ],
+      "symptoms_if_ingested": "Dizziness, trembling, collapse, cardiac arrest with little warning.",
+      "onset": "30 minutes to a few hours; sudden collapse is characteristic.",
+      "first_aid": ["Call emergency services immediately.", "Save a sample.", "Do not induce vomiting.", "Begin CPR if trained and needed."],
+      "contact_precautions": "Do not handle needles or seeds casually; wash hands.",
+      "notes": "Chewing even a few needles or seeds can be fatal; there is no field test."
+    },
+    {
+      "id": "american-holly",
+      "common_names": ["American holly", "English holly"],
+      "scientific_name": "Ilex opaca",
+      "category": "berry",
+      "edibility": "toxic",
+      "toxicity_mechanism": "Ilicin, saponins, and methylxanthines in red berries and spiny leaves cause violent vomiting and diarrhea.",
+      "regions": ["north-america", "europe", "uk-ireland"],
+      "seasons": ["autumn", "winter"],
+      "habitat": "Woods, hedges, and plantings; evergreen trees with spiny leaves.",
+      "visual_prompts": [
+        "Evergreen holly tree with glossy spiny-toothed leaves and clusters of bright red round berries",
+        "Close-up of red holly berries each with a dark navel dot on top",
+        "Detail of stiff glossy holly leaf with sharp spines around the margin",
+        "Holly branches heavy with winter-persistent red berries"
+      ],
+      "verification_checklist": [
+        "Leaves are evergreen, stiff, glossy, with sharp marginal spines",
+        "Berries are bright red spheres in clusters, persisting into winter",
+        "Each berry shows a small dark navel",
+        "Tree or large shrub form, never a vine",
+        "Cut berry shows several small hard nutlets",
+        "Red winter berries on spiny evergreens are a stop signal"
+      ],
+      "confusable_with": [
+        { "species_id": "hawthorn", "how_to_tell_apart": "Hawthorn is deciduous with lobed leaves and thorns on wood; holly is evergreen with spiny leaf margins. Both need full checklists." }
+      ],
+      "symptoms_if_ingested": "Nausea, vomiting, diarrhea, dehydration; children are frequently poisoned.",
+      "onset": "1–4 hours.",
+      "first_aid": ["Do not eat more.", "Save a sample.", "Call poison control.", "Seek care for dehydration."],
+      "contact_precautions": "Spiny leaves cut skin; wear gloves.",
+      "notes": "A leading cause of holiday child berry poisonings."
+    },
+    {
+      "id": "european-mistletoe",
+      "common_names": ["European mistletoe", "American mistletoe"],
+      "scientific_name": "Viscum album",
+      "category": "berry",
+      "edibility": "toxic",
+      "toxicity_mechanism": "Viscotoxins and lectins in leaves, stems, and white berries; dangerous to heart and digestion.",
+      "regions": ["europe", "uk-ireland", "north-america"],
+      "seasons": ["autumn", "winter"],
+      "habitat": "Parasitic clumps high in apple, oak, poplar, and other host trees.",
+      "visual_prompts": [
+        "Round evergreen mistletoe clump hanging in a bare winter tree fork with white translucent berries",
+        "Close-up of white sticky mistletoe berries among paired leathery untoothed leaves",
+        "Detail of mistletoe forked branching with a woody haustorium entering the host branch",
+        "Winter host tree crown dotted with green mistletoe balls"
+      ],
+      "verification_checklist": [
+        "Grows as a ball-like parasite ON tree branches, never rooted in soil",
+        "Leaves are paired, leathery, untoothed, evergreen",
+        "Berries are white and translucent with sticky pulp",
+        "Branching is repeatedly forked (dichotomous)",
+        "Host branch swells where mistletoe attaches",
+        "White berries in tree crowns are never tasted"
+      ],
+      "confusable_with": [
+        { "species_id": "white-baneberry", "how_to_tell_apart": "Doll's eyes grow on woodland herbs with black pupils and red stalks; mistletoe grows high in trees with plain white sticky berries." }
+      ],
+      "symptoms_if_ingested": "Vomiting, diarrhea, slowed pulse, low blood pressure; dangerous for children and pets.",
+      "onset": "2–6 hours.",
+      "first_aid": ["Call poison control.", "Save a sample.", "Seek care for slow pulse or faintness."],
+      "contact_precautions": "Sticky pulp irritates skin; keep away from eyes.",
+      "notes": "Festive but toxic; every part of the plant counts."
+    },
+    {
+      "id": "virginia-creeper",
+      "common_names": ["Virginia creeper"],
+      "scientific_name": "Parthenocissus quinquefolia",
+      "category": "berry",
+      "edibility": "toxic",
+      "toxicity_mechanism": "Oxalic acid and related irritants in blue-black berries; heavy vomiting and kidney risk in quantity.",
+      "regions": ["north-america"],
+      "seasons": ["summer", "autumn"],
+      "habitat": "Climbing walls, trees, and fences; five-parted leaves turning crimson in fall.",
+      "visual_prompts": [
+        "Climbing vine with five-parted palmate leaves and open clusters of blue-black berries on red stalks",
+        "Close-up of creeper berries with a whitish bloom on bright red stems",
+        "Detail of adhesive pad-tipped tendrils gripping bark",
+        "Brilliant crimson Virginia creeper foliage in autumn"
+      ],
+      "verification_checklist": [
+        "Leaves are palmately divided into five leaflets radiating from one point",
+        "Berry stalks are bright red; berries blue-black with bloom",
+        "Tendrils end in adhesive discs, not coiling spirals or forked grape tendrils",
+        "Climbs flat walls as well as trees",
+        "Fall foliage is intense crimson",
+        "Cut berry holds 2–3 seeds, never a single crescent"
+      ],
+      "confusable_with": [
+        { "species_id": "riverbank-grape", "how_to_tell_apart": "Wild grape has lobed (not five-parted) leaves and forked tendrils without pads; creeper has five leaflets and pad-tipped tendrils." },
+        { "species_id": "canada-moonseed", "how_to_tell_apart": "Moonseed is a slender twining vine with unlobed leaves and single crescent seeds; creeper is a pad-climbing vine with 5-parted leaves." }
+      ],
+      "symptoms_if_ingested": "Burning mouth, vomiting, diarrhea; kidney irritation in large ingestions.",
+      "onset": "1–4 hours.",
+      "first_aid": ["Rinse mouth.", "Save a sample.", "Call poison control."],
+      "contact_precautions": "Sap may blister sensitive skin; wash hands.",
+      "notes": "The five-leaflet plus red-stalk plus wall-climbing combination is the giveaway."
+    },
+    {
+      "id": "canada-moonseed",
+      "common_names": ["Canada moonseed"],
+      "scientific_name": "Menispermum canadense",
+      "category": "berry",
+      "edibility": "deadly",
+      "toxicity_mechanism": "Dauricine and related alkaloids; convulsions and death resemble strychnine poisoning.",
+      "regions": ["north-america"],
+      "seasons": ["summer", "autumn"],
+      "habitat": "Moist woods and streambanks; slender twining vine often tangled with wild grape.",
+      "visual_prompts": [
+        "Slender twining vine with broad unlobed moon-shaped leaves and hanging blue-black grape-like clusters",
+        "Close-up of moonseed berries with a whitish bloom, each hiding one crescent-moon seed",
+        "Detail of round moonseed leaf with a shield-like stem attachment near the middle",
+        "Moonseed vine coiling around a wild grape stem for comparison"
+      ],
+      "verification_checklist": [
+        "Slender vine that twines (no tendrils at all)",
+        "Leaves are broad, unlobed, with stems attached inside the margin",
+        "Berry clusters look exactly like wild grapes — assume danger",
+        "Cut berry: exactly ONE crescent- or moon-shaped seed (grapes have several rounded seeds)",
+        "Often grows intertwined with true grapes",
+        "Any grape-like vine without forked tendrils is a full stop until seeds are cut"
+      ],
+      "confusable_with": [
+        { "species_id": "riverbank-grape", "how_to_tell_apart": "Grape has forked tendrils and multiple rounded seeds; moonseed has no tendrils and one crescent seed. Cut every ambiguous berry." }
+      ],
+      "symptoms_if_ingested": "Convulsions, spasms, rapid collapse.",
+      "onset": "30 minutes to 2 hours.",
+      "first_aid": ["Call emergency services immediately.", "Save vine and berries.", "Do not induce vomiting."],
+      "contact_precautions": "Do not handle casually; wash hands.",
+      "notes": "The single most dangerous grape lookalike; the seed-cut test is non-negotiable."
+    },
+    {
+      "id": "lily-of-the-valley",
+      "common_names": ["Lily of the valley"],
+      "scientific_name": "Convallaria majalis",
+      "category": "berry",
+      "edibility": "deadly",
+      "toxicity_mechanism": "Cardiac glycosides (convallatoxin): digitalis-like heart poisoning from leaves, flowers, and red berries.",
+      "regions": ["north-america", "europe", "uk-ireland"],
+      "seasons": ["spring", "summer", "autumn"],
+      "habitat": "Garden escape in woods; low carpet of paired broad leaves with nodding white bells.",
+      "visual_prompts": [
+        "Low carpet of paired broad oval lily-of-the-valley leaves with nodding white bell flower sprays",
+        "Close-up of white urn-shaped bells hanging in a one-sided cluster",
+        "Red pea-sized lily-of-the-valley berries in autumn among yellowing leaves",
+        "Detail of two basal leaves wrapping a single flower stalk with no true stem leaves"
+      ],
+      "verification_checklist": [
+        "Two broad basal leaves clasp a single leafless flower stalk",
+        "Flowers are white nodding bells in a one-sided spray, intensely sweet",
+        "Autumn berries are red spheres on the same stalk",
+        "No bulbs visible above ground; spreads by rhizomes",
+        "Sweet bell flowers plus paired basal leaves is a stop signal",
+        "Confused with ramps before flowering — check flowers and bulbs"
+      ],
+      "confusable_with": [
+        { "species_id": "ramps", "how_to_tell_apart": "Ramps smell strongly of onion/garlic with a true bulb; lily of the valley has no onion smell and sweet bell flowers. Smell plus flower check saves lives." }
+      ],
+      "symptoms_if_ingested": "Nausea, slow irregular pulse, dizziness, collapse, cardiac arrest.",
+      "onset": "1–6 hours.",
+      "first_aid": ["Call emergency services.", "Save a sample.", "Do not induce vomiting."],
+      "contact_precautions": "Handling foliage then touching mouth is hazardous; wash hands.",
+      "notes": "Kills foragers who pick ramps by leaves alone."
+    },
+    {
+      "id": "oriental-bittersweet",
+      "common_names": ["Oriental bittersweet"],
+      "scientific_name": "Celastrus orbiculatus",
+      "category": "berry",
+      "edibility": "toxic",
+      "toxicity_mechanism": "Celastrine alkaloids and cardenolides in showy red-yellow fruits; vomiting and diarrhea, worse for children.",
+      "regions": ["north-america"],
+      "seasons": ["autumn", "winter"],
+      "habitat": "Invasive twining vine smothering trees and fences across the eastern US.",
+      "visual_prompts": [
+        "Twining vine with round glossy leaves and clusters of yellow capsules splitting to reveal red berries",
+        "Close-up of yellow three-valved capsules folding back from scarlet bittersweet fruits",
+        "Detail of round-toothed bittersweet leaves on a woody twining stem",
+        "Winter vine festooned with persistent red-yellow bittersweet fruits"
+      ],
+      "verification_checklist": [
+        "Woody vine that twines (no tendrils, no pads)",
+        "Fruit is a yellow capsule splitting into three to expose a red berry",
+        "Leaves are round, glossy, alternately arranged",
+        "Fruits ring the leaf axils all along the stem",
+        "Winter-persistent red-yellow display is a stop signal",
+        "Never an aggregate berry on canes"
+      ],
+      "confusable_with": [
+        { "species_id": "bittersweet-nightshade", "how_to_tell_apart": "Nightshade has purple star flowers and oval red berries without yellow capsules; oriental bittersweet has yellow-split capsules. Both toxic." }
+      ],
+      "symptoms_if_ingested": "Vomiting, diarrhea, abdominal pain.",
+      "onset": "2–6 hours.",
+      "first_aid": ["Call poison control.", "Save a sample.", "Seek care for dehydration."],
+      "contact_precautions": "Sap may irritate; wash hands.",
+      "notes": "Decoration wreaths poison children and pets every fall."
+    },
+    {
+      "id": "common-privet",
+      "common_names": ["Common privet"],
+      "scientific_name": "Ligustrum vulgare",
+      "category": "berry",
+      "edibility": "toxic",
+      "toxicity_mechanism": "Ligustrin glycosides and syringin in black berries and leaves; severe gastroenteritis.",
+      "regions": ["north-america", "europe", "uk-ireland"],
+      "seasons": ["autumn", "winter"],
+      "habitat": "Hedges and scrub; semi-evergreen shrub with narrow opposite leaves.",
+      "visual_prompts": [
+        "Dense privet hedge with narrow opposite leaves and upright spikes of black berries",
+        "Close-up of dull black privet berries in a tight upright cluster",
+        "Detail of narrow lance-shaped opposite privet leaves",
+        "White tubular privet flower spikes in early summer"
+      ],
+      "verification_checklist": [
+        "Shrub with opposite narrow leaves (not alternate)",
+        "Black berries in tight upright spikes persisting into winter",
+        "White tubular flowers in spikes (in season)",
+        "Twigs are straight and hedge-like",
+        "Crushed berry stains purple with several seeds",
+        "Hedge berries in spikes are never tasted"
+      ],
+      "confusable_with": [
+        { "species_id": "allegheny-blackberry", "how_to_tell_apart": "Blackberry has aggregate drupelets on thorny canes; privet has single berries with several seeds on an unarmed hedge shrub." }
+      ],
+      "symptoms_if_ingested": "Vomiting, diarrhea, abdominal pain, weakness.",
+      "onset": "2–6 hours.",
+      "first_aid": ["Call poison control.", "Save a sample.", "Seek care for persistent vomiting."],
+      "contact_precautions": "Pollen and sap irritate allergies; wash hands.",
+      "notes": "Hedge-berry poisonings spike when other fruit is gone."
+    },
+    {
+      "id": "jack-in-the-pulpit",
+      "common_names": ["Jack-in-the-pulpit"],
+      "scientific_name": "Arisaema triphyllum",
+      "category": "berry",
+      "edibility": "toxic",
+      "toxicity_mechanism": "Calcium oxalate raphides: needle-like crystals that stab mouth tissue on contact.",
+      "regions": ["north-america"],
+      "seasons": ["summer", "autumn"],
+      "habitat": "Rich wet woods; hooded striped flower giving way to a spike of red berries.",
+      "visual_prompts": [
+        "Woodland herb with three-parted leaves and a spike of glossy red berries on a fleshy stalk",
+        "Close-up of jack-in-the-pulpit berry spike like a red corn cob",
+        "Detail of striped hooded spathe (pulpit) sheltering the finger-like spadix in spring",
+        "Three-parted jack leaves with long stalks in a wet hollow"
+      ],
+      "verification_checklist": [
+        "Berries form a dense spike like a red miniature corn cob",
+        "Leaves are three-parted on long stalks",
+        "Spring flower is a striped hood over a finger (in season)",
+        "Single fleshy stalk holds the berry spike",
+        "Chewing causes instant intense burning — spit immediately",
+        "Red cob-like spikes in wet woods are a stop signal"
+      ],
+      "confusable_with": [
+        { "species_id": "red-baneberry", "how_to_tell_apart": "Baneberry has divided feathery leaves and black-dotted berries; jack has three-parted leaves and a cob-like spike. Both toxic." }
+      ],
+      "symptoms_if_ingested": "Immediate burning, swelling of mouth and throat, drooling, difficulty swallowing.",
+      "onset": "Seconds to minutes.",
+      "first_aid": ["Spit out immediately.", "Rinse with cold water.", "Call poison control.", "Seek emergency care for throat swelling."],
+      "contact_precautions": "Sap burns skin and eyes; wear gloves.",
+      "notes": "Pain is instant and severe; children are the usual victims."
+    },
+    {
+      "id": "cotoneaster",
+      "common_names": ["Cotoneaster"],
+      "scientific_name": "Cotoneaster horizontalis",
+      "category": "berry",
+      "edibility": "toxic",
+      "toxicity_mechanism": "Cyanogenic glycosides in red pomes; nausea and breathing difficulty in quantity.",
+      "regions": ["north-america", "europe", "uk-ireland"],
+      "seasons": ["autumn", "winter"],
+      "habitat": "Planted groundcover and walls escaping into scrub; herringbone branches.",
+      "visual_prompts": [
+        "Low spreading cotoneaster with herringbone branches, small round leaves, and red pome berries",
+        "Close-up of red cotoneaster pomes with a dimpled blossom end",
+        "Detail of small glossy round cotoneaster leaves in two flat ranks",
+        "Cotoneaster cascade over a wall with winter-persistent red fruit"
+      ],
+      "verification_checklist": [
+        "Branches form a flat herringbone pattern",
+        "Leaves are small, round, glossy, in two ranks",
+        "Fruit is a red pome with a dimpled end and mealy flesh",
+        "Cut fruit shows 2–5 hard nutlets",
+        "Low spreading or wall-cascade habit",
+        "Ornamental red pomes are never trail food"
+      ],
+      "confusable_with": [
+        { "species_id": "hawthorn", "how_to_tell_apart": "Hawthorn is a thorny tree with lobed leaves; cotoneaster is a low herringbone shrub with small round leaves. Both need full checklists." }
+      ],
+      "symptoms_if_ingested": "Nausea, vomiting, dizziness in quantity.",
+      "onset": "1–4 hours.",
+      "first_aid": ["Call poison control.", "Save a sample."],
+      "contact_precautions": "None.",
+      "notes": "Garden escape that fools berry-hungry hikers near towns."
+    },
+    {
+      "id": "english-ivy-berry",
+      "common_names": ["English ivy (berries)"],
+      "scientific_name": "Hedera helix",
+      "category": "berry",
+      "edibility": "toxic",
+      "toxicity_mechanism": "Hederin saponins in black berries and leaves; vomiting, diarrhea, and breathing difficulty.",
+      "regions": ["north-america", "europe", "uk-ireland"],
+      "seasons": ["autumn", "winter", "spring"],
+      "habitat": "Climbing walls and trees; evergreen with lobed juvenile leaves and round adult clusters.",
+      "visual_prompts": [
+        "Evergreen ivy climbing a trunk with lobed waxy leaves and round black berry clusters",
+        "Close-up of dull black ivy berries in a spherical umbel on green stalks",
+        "Detail of waxy three-lobed ivy juvenile leaves with pale veins",
+        "Adult ivy branches with unlobed oval leaves holding berry balls high in a tree"
+      ],
+      "verification_checklist": [
+        "Evergreen climbing vine gripping with aerial rootlets (no tendrils)",
+        "Juvenile leaves lobed with pale veins; adult leaves oval",
+        "Berries are dull black balls in spherical umbels",
+        "Stems are woody and cling flat to surfaces",
+        "Crushed leaves smell pungent and resinous",
+        "Black berry balls on clinging evergreens are a stop signal"
+      ],
+      "confusable_with": [
+        { "species_id": "virginia-creeper", "how_to_tell_apart": "Virginia creeper is deciduous with five leaflets and red stalks; ivy is evergreen with rootlets and spherical berry umbels. Both toxic." }
+      ],
+      "symptoms_if_ingested": "Vomiting, diarrhea, stupor; skin blisters from sap.",
+      "onset": "2–6 hours.",
+      "first_aid": ["Call poison control.", "Save a sample.", "Wash skin thoroughly."],
+      "contact_precautions": "Sap causes dermatitis; wear gloves and wash.",
+      "notes": "Berries plus contact dermatitis make ivy a double hazard."
+    },
+    {
+      "id": "daphne",
+      "common_names": ["Daphne", "Spurge laurel"],
+      "scientific_name": "Daphne laureola",
+      "category": "berry",
+      "edibility": "deadly",
+      "toxicity_mechanism": "Mezerein and daphnin: corrosive blistering plus systemic toxicity; a few berries can kill a child.",
+      "regions": ["europe", "uk-ireland", "north-america"],
+      "seasons": ["spring", "summer"],
+      "habitat": "Chalk woods and gardens; evergreen shrub with laurel-like leaves and black berries.",
+      "visual_prompts": [
+        "Evergreen daphne shrub with glossy laurel-like leaves and clusters of black berries",
+        "Close-up of black daphne berries tucked among shiny untoothed leaves",
+        "Detail of pale green daphne tubular flowers in late winter",
+        "Upright daphne stems with leaves clustered at the tips"
+      ],
+      "verification_checklist": [
+        "Evergreen shrub with glossy untoothed laurel-like leaves",
+        "Black single-seeded berries in small clusters",
+        "Bark is tough and stringy, peeling in strips",
+        "Pale tubular flowers in late winter (in season)",
+        "Acrid burning taste is a spit-and-rinse alarm",
+        "Black berries on laurel-leaved evergreens are an instant stop"
+      ],
+      "confusable_with": [
+        { "species_id": "american-holly", "how_to_tell_apart": "Holly has spiny leaf margins and red berries; daphne has smooth leaf margins and black berries. Both toxic." }
+      ],
+      "symptoms_if_ingested": "Burning mouth, blistering, vomiting with blood, collapse.",
+      "onset": "Minutes to hours.",
+      "first_aid": ["Call emergency services.", "Rinse mouth.", "Save a sample.", "Do not induce vomiting."],
+      "contact_precautions": "Bark and sap blister skin severely; wear gloves and wash.",
+      "notes": "One of the few plants where contact alone can blister."
+    },
+    {
+      "id": "cuckoo-pint",
+      "common_names": ["Cuckoo pint", "Lords-and-ladies"],
+      "scientific_name": "Arum maculatum",
+      "category": "berry",
+      "edibility": "toxic",
+      "toxicity_mechanism": "Calcium oxalate raphides plus aroin: burning, swelling, and digestive injury like jack-in-the-pulpit.",
+      "regions": ["europe", "uk-ireland"],
+      "seasons": ["summer", "autumn"],
+      "habitat": "Hedgerows and woods; arrow leaves and a poker-like flower giving red berry spikes.",
+      "visual_prompts": [
+        "Arum plant with glossy arrow-shaped spotted leaves and a spike of orange-red berries",
+        "Close-up of cuckoo-pint berry spike glowing orange-red in a hedgerow",
+        "Detail of purple poker-like spadix inside a pale green hood in spring",
+        "Glossy arrowhead arum leaves with dark spots in a ditch"
+      ],
+      "verification_checklist": [
+        "Leaves are glossy, arrow-shaped, often dark-spotted",
+        "Berries form a dense orange-red spike",
+        "Spring flower is a purple poker in a pale hood (in season)",
+        "Grows in hedgerows and damp woods",
+        "Chewing causes instant burning — spit immediately",
+        "Orange-red spikes in hedges are a stop signal"
+      ],
+      "confusable_with": [
+        { "species_id": "jack-in-the-pulpit", "how_to_tell_apart": "American jack has three-parted leaves and red cob spikes; European arum has arrow leaves and orange-red spikes. Both burn the mouth." }
+      ],
+      "symptoms_if_ingested": "Burning mouth and throat, swelling, vomiting.",
+      "onset": "Seconds to minutes.",
+      "first_aid": ["Spit out.", "Rinse with cold water.", "Call poison control.", "Seek care for swelling."],
+      "contact_precautions": "Sap burns; wear gloves.",
+      "notes": "Europe's jack-in-the-pulpit equivalent."
+    },
+    {
+      "id": "jerusalem-cherry",
+      "common_names": ["Jerusalem cherry", "Horse nettle (wild cousin)"],
+      "scientific_name": "Solanum pseudocapsicum",
+      "category": "berry",
+      "edibility": "toxic",
+      "toxicity_mechanism": "Solanocapsine glycoalkaloids: cherry-tomato-like fruits cause vomiting, drowsiness, and heart effects.",
+      "regions": ["north-america", "europe", "australia-nz", "global"],
+      "seasons": ["autumn", "winter"],
+      "habitat": "Houseplant escape and weedy lots; upright herb with tomato-like fruits.",
+      "visual_prompts": [
+        "Upright small shrub with lance-shaped leaves and round orange-red cherry-tomato fruits",
+        "Close-up of glossy Jerusalem cherry fruits with tiny star calyxes",
+        "Detail of small white star-shaped nightshade flowers",
+        "Potted Jerusalem cherry plant heavy with winter fruits"
+      ],
+      "verification_checklist": [
+        "Upright herb or small shrub, not a vine or cane",
+        "Fruits are round like cherry tomatoes, orange to red",
+        "Flowers are small white stars (in season)",
+        "Leaves are lance-shaped with wavy margins",
+        "Crushed foliage smells tomato-like and rank",
+        "Cherry-tomato fruits on non-tomato plants are a stop signal"
+      ],
+      "confusable_with": [
+        { "species_id": "bittersweet-nightshade", "how_to_tell_apart": "Bittersweet is a vine with oval fruits; Jerusalem cherry is upright with round fruits. Both toxic nightshades." }
+      ],
+      "symptoms_if_ingested": "Vomiting, abdominal pain, drowsiness, slowed heart.",
+      "onset": "2–6 hours.",
+      "first_aid": ["Call poison control.", "Save a sample.", "Seek care for drowsiness or slow pulse."],
+      "contact_precautions": "Wash hands; keep away from children and pets.",
+      "notes": "Holiday houseplant that migrates to trailsides."
+    },
+    {
+      "id": "black-nightshade",
+      "common_names": ["Black nightshade"],
+      "scientific_name": "Solanum nigrum",
+      "category": "berry",
+      "edibility": "toxic",
+      "toxicity_mechanism": "Variable solanine glycoalkaloids; unripe green berries most dangerous, ripe black ones still unsafe without expert ID.",
+      "regions": ["north-america", "europe", "uk-ireland", "australia-nz", "global"],
+      "seasons": ["summer", "autumn"],
+      "habitat": "Gardens, waste ground, and trail edges worldwide.",
+      "visual_prompts": [
+        "Low branching nightshade herb with oval toothed leaves and drooping clusters of black berries",
+        "Close-up of dull black nightshade berries with reflexed star calyxes",
+        "Detail of small white star flowers with yellow centers",
+        "Mixed green and black berries on the same nightshade cluster"
+      ],
+      "verification_checklist": [
+        "Low herb with white star flowers and yellow centers (in season)",
+        "Berries in drooping clusters, green ripening to dull black",
+        "Calyx stars fold back from ripe berries",
+        "Leaves are oval with wavy teeth",
+        "Green berries in the same cluster warn the whole cluster off",
+        "Dull black clusters on low herbs are a stop signal"
+      ],
+      "confusable_with": [
+        { "species_id": "deadly-nightshade", "how_to_tell_apart": "Belladonna has single large glossy berries in leafy cups; black nightshade has small clustered berries with star calyxes. Both dangerous." },
+        { "species_id": "lowbush-blueberry", "how_to_tell_apart": "Blueberry is a woody shrub with crown-scarred berries; nightshade is an herb with star-calyx berries." }
+      ],
+      "symptoms_if_ingested": "Vomiting, diarrhea, drowsiness, slowed breathing in severe cases.",
+      "onset": "2–6 hours.",
+      "first_aid": ["Call poison control.", "Save a sample.", "Seek care for drowsiness."],
+      "contact_precautions": "Wash hands after handling.",
+      "notes": "Ripeness does not make it safe for amateurs; experts disagree, so this app says no."
+    },
+    {
+      "id": "golden-chanterelle",
+      "common_names": ["Golden chanterelle"],
+      "scientific_name": "Cantharellus cibarius",
+      "category": "mushroom",
+      "edibility": "not_recommended",
+      "toxicity_mechanism": "Edible reputation with expert ID, but jack-o'-lantern and false chanterelle confusion causes poisonings; this app never clears any wild mushroom.",
+      "regions": ["north-america", "europe", "uk-ireland"],
+      "seasons": ["summer", "autumn"],
+      "habitat": "Mossy ground under oaks, conifers, and birch; scattered troops, never on wood.",
+      "visual_prompts": [
+        "Golden egg-yolk yellow funnel-shaped chanterelle mushrooms with wavy caps on mossy ground",
+        "Close-up of blunt forked ridge-like false gills running down a chanterelle stem",
+        "Detail of solid chanterelle stem with white flesh inside and faint apricot smell",
+        "Cluster of golden chanterelles growing scattered from soil, not in dense wood tufts"
+      ],
+      "verification_checklist": [
+        "Cap is egg-yolk yellow to orange with a wavy inrolled margin",
+        "Underside shows blunt forked ridges, not sharp knife-blade gills",
+        "Ridges run down the stem (decurrent)",
+        "Flesh is white inside with a faint apricot smell",
+        "Grows from soil scattered, never in dense clusters on wood",
+        "Spore print is pale yellow-white (expert check)"
+      ],
+      "confusable_with": [
+        { "species_id": "jack-o-lantern", "how_to_tell_apart": "Jack-o'-lantern has sharp true gills, grows in dense clusters on wood, and glows faintly; chanterelle has blunt ridges and grows from soil." },
+        { "species_id": "false-chanterelle", "how_to_tell_apart": "False chanterelle has thin sharp gills, a darker orange-brown cap, and hollow darker flesh; true chanterelle ridges are blunt and flesh white." }
+      ],
+      "symptoms_if_ingested": "Confusion with jack-o'-lantern: severe vomiting, cramps, diarrhea.",
+      "onset": "30 minutes to 3 hours for jack-o'-lantern poisoning.",
+      "first_aid": ["Save whole specimens including base.", "Call poison control.", "Seek care for vomiting.", "Do not self-identify and eat."],
+      "contact_precautions": "Carry whole for expert ID; do not mix collections.",
+      "notes": "Even the classic beginner mushroom stays CAUTION-or-worse in this app."
+    },
+    {
+      "id": "jack-o-lantern",
+      "common_names": ["Jack-o'-lantern"],
+      "scientific_name": "Omphalotus illudens",
+      "category": "mushroom",
+      "edibility": "toxic",
+      "toxicity_mechanism": "Illudin sesquiterpenes cause severe gastrointestinal poisoning; famously mistaken for chanterelles.",
+      "regions": ["north-america"],
+      "seasons": ["summer", "autumn"],
+      "habitat": "Dense clusters on buried wood, stumps, and roots in the eastern US.",
+      "visual_prompts": [
+        "Dense cluster of bright orange jack-o'-lantern mushrooms growing on wood with sharp true gills",
+        "Close-up of sharp knife-blade orange gills on a jack-o'-lantern cap",
+        "Detail of jack-o'-lantern stems fused at the base in a tight wood tuft",
+        "Large orange funnel caps of jack-o'-lantern glowing faintly green in darkness"
+      ],
+      "verification_checklist": [
+        "Grows in dense fused clusters directly on wood or buried roots",
+        "Gills are sharp, thin, true blades (not blunt ridges)",
+        "Cap is bright orange with smooth margin",
+        "Faint green glow from fresh gills in full darkness",
+        "Olive-yellow spore deposit (expert check)",
+        "Any orange mushroom clustered on wood is treated as jack-o'-lantern until expert exclusion"
+      ],
+      "confusable_with": [
+        { "species_id": "golden-chanterelle", "how_to_tell_apart": "Chanterelle grows scattered from soil with blunt ridges; jack-o'-lantern clusters on wood with sharp gills." },
+        { "species_id": "honey-mushroom", "how_to_tell_apart": "Honey mushroom has a scaly cap, white spores, and a ring; jack-o'-lantern is smooth orange with no ring." }
+      ],
+      "symptoms_if_ingested": "Violent vomiting, cramps, diarrhea, sweating.",
+      "onset": "30 minutes to 3 hours.",
+      "first_aid": ["Save specimens.", "Call poison control.", "Seek care for dehydration."],
+      "contact_precautions": "Do not taste; carry separately.",
+      "notes": "Number-one chanterelle impostor hospitalizer."
+    },
+    {
+      "id": "false-chanterelle",
+      "common_names": ["False chanterelle"],
+      "scientific_name": "Hygrophoropsis aurantiaca",
+      "category": "mushroom",
+      "edibility": "not_recommended",
+      "toxicity_mechanism": "Causes gastrointestinal upset in many people; too easily confused with true chanterelles.",
+      "regions": ["north-america", "europe", "uk-ireland"],
+      "seasons": ["summer", "autumn"],
+      "habitat": "Conifer litter and heaths; thin-fleshed orange mushrooms.",
+      "visual_prompts": [
+        "Thin orange false chanterelle with a darker brownish center and bright orange rim",
+        "Close-up of thin sharp forked true gills on a false chanterelle",
+        "Detail of slender false chanterelle stem with darker orange-brown flesh",
+        "False chanterelles scattered in pine needles with thin caps"
+      ],
+      "verification_checklist": [
+        "Cap is thin with a darker brownish center and orange rim",
+        "Gills are thin, sharp, bright orange true blades",
+        "Flesh is thin and orange-brown, not thick and white",
+        "Stem is slender and often off-center",
+        "Grows in conifer litter, sometimes on rotten wood",
+        "White spore print (expert check) still does not clear it in this app"
+      ],
+      "confusable_with": [
+        { "species_id": "golden-chanterelle", "how_to_tell_apart": "True chanterelle has thick white flesh and blunt ridges; false chanterelle is thin with sharp bright gills." }
+      ],
+      "symptoms_if_ingested": "Nausea, vomiting, diarrhea in sensitive individuals.",
+      "onset": "1–4 hours.",
+      "first_aid": ["Save specimens.", "Call poison control."],
+      "contact_precautions": "Keep collections separate.",
+      "notes": "Thinness plus sharp gills plus dark center is the warning trio."
+    },
+    {
+      "id": "yellow-morel",
+      "common_names": ["Yellow morel", "Black morel"],
+      "scientific_name": "Morchella esculenta",
+      "category": "mushroom",
+      "edibility": "not_recommended",
+      "toxicity_mechanism": "Eaten traditionally only with expert ID and thorough cooking; raw morels and false morels cause severe poisoning; this app never clears morels.",
+      "regions": ["north-america", "europe", "uk-ireland"],
+      "seasons": ["spring"],
+      "habitat": "Ash, elm, apple ground and burn sites in spring; hollow honeycomb caps.",
+      "visual_prompts": [
+        "Honeycomb-capped morel mushroom with tan ridges and brown pits on a pale hollow stem",
+        "Close-up of morel cap attached directly to the stem with pits and ridges like a sponge",
+        "Sliced morel showing a completely hollow cap and stem in one chamber",
+        "Spring morels fruiting around a dying elm tree"
+      ],
+      "verification_checklist": [
+        "Cap is honeycombed with pits and ridges, attached to the stem at the base",
+        "Sliced top to bottom: cap AND stem fully hollow as one chamber",
+        "Cap shape is conical to oval, not wrinkled-brain or saddle",
+        "Fruits in spring only, on ground (never on wood clusters)",
+        "Smell is earthy, not chemical",
+        "Even true morels must be cooked and expert-cleared; false morels kill"
+      ],
+      "confusable_with": [
+        { "species_id": "false-morel", "how_to_tell_apart": "False morel caps are wrinkled or lobed like brains, often chambered or stuffed inside, and caps hang skirt-like; true morels are hollow honeycombs attached at the base." }
+      ],
+      "symptoms_if_ingested": "Raw true morels: nausea and cramps; false morels: liver injury, seizures, death.",
+      "onset": "2–12 hours (false morel toxin gyromitrin).",
+      "first_aid": ["Save whole specimens.", "Call poison control immediately.", "Seek emergency care for any false-morel suspicion."],
+      "contact_precautions": "Never mix morel collections; keep false suspects separate.",
+      "notes": "Hollow-chamber slice plus honeycomb plus spring is the morel test — still never app-cleared."
+    },
+    {
+      "id": "false-morel",
+      "common_names": ["False morel"],
+      "scientific_name": "Gyromitra esculenta",
+      "category": "mushroom",
+      "edibility": "deadly",
+      "toxicity_mechanism": "Gyromitrin metabolizes to monomethylhydrazine (rocket fuel): liver failure, seizures, death; toxin varies and is never cooked out reliably.",
+      "regions": ["north-america", "europe", "uk-ireland"],
+      "seasons": ["spring"],
+      "habitat": "Sandy conifer woods in spring, often alongside true morels.",
+      "visual_prompts": [
+        "Brain-like wrinkled reddish-brown false morel cap lobed like a walnut on a thick stem",
+        "Close-up of false morel cap edge hanging loose like a skirt over the stem",
+        "Sliced false morel showing chambered stuffed stem, not one clean hollow",
+        "False morels fruiting in sandy pine litter in early spring"
+      ],
+      "verification_checklist": [
+        "Cap is wrinkled, lobed, brain-like — not honeycomb pits",
+        "Cap edge hangs free like a skirt rather than fusing at the base",
+        "Sliced stem shows chambers or cottony stuffing, not one hollow",
+        "Color often reddish-brown with a thick pale stem",
+        "Fruits in spring conifer sand",
+        "Any brain-cap in spring is treated as false morel until expert exclusion"
+      ],
+      "confusable_with": [
+        { "species_id": "yellow-morel", "how_to_tell_apart": "True morel: honeycomb, attached cap, fully hollow. False morel: brain wrinkles, skirt edge, chambered stem." }
+      ],
+      "symptoms_if_ingested": "Vomiting, dizziness, seizures, liver and kidney failure.",
+      "onset": "6–24 hours (deceptive delay).",
+      "first_aid": ["Call emergency services immediately.", "Save specimens.", "Do not wait for symptoms."],
+      "contact_precautions": "Do not inhale cooking fumes of suspect morels; toxins volatilize.",
+      "notes": "Spring's deadliest mushroom trap."
+    },
+    {
+      "id": "giant-puffball",
+      "common_names": ["Giant puffball"],
+      "scientific_name": "Calvatia gigantea",
+      "category": "mushroom",
+      "edibility": "not_recommended",
+      "toxicity_mechanism": "Only pristine white-fleshed young specimens are traditionally eaten with expert ID; confusion with Amanita eggs or earthballs is deadly; this app never clears puffballs.",
+      "regions": ["north-america", "europe", "uk-ireland"],
+      "seasons": ["summer", "autumn"],
+      "habitat": "Lawns, pastures, and wood edges; soccer-ball white orbs.",
+      "visual_prompts": [
+        "Huge white soccer-ball puffball mushroom sitting on grass",
+        "Close-up of smooth white puffball skin with no cap, gills, or stem",
+        "Sliced puffball showing uniform pure-white marshmallow flesh throughout",
+        "Pasture dotted with several giant white puffball orbs"
+      ],
+      "verification_checklist": [
+        "Ball is large, smooth, white, with NO cap, gills, or stem outline",
+        "Sliced top to bottom: uniform pure white with no internal shapes",
+        "Flesh is firm, not powdery, yellow, or olive",
+        "Grows on ground in grass, not on wood",
+        "No sac or cup at the base",
+        "Any internal outline of cap/gills means Amanita egg — stop"
+      ],
+      "confusable_with": [
+        { "species_id": "amanita-egg-stage", "how_to_tell_apart": "Amanita eggs show a cap-and-gill outline and a sac when sliced; true puffballs are featureless white inside." },
+        { "species_id": "common-earthball", "how_to_tell_apart": "Earthballs have thick warty skin and dark purple-black flesh even when young; puffballs are white inside." }
+      ],
+      "symptoms_if_ingested": "Amanita-egg confusion: amatoxin liver failure; earthball: violent vomiting.",
+      "onset": "6–24 hours for amatoxins.",
+      "first_aid": ["Save sliced halves.", "Call poison control immediately.", "Seek emergency care for any Amanita suspicion."],
+      "contact_precautions": "Slice every specimen vertically before any handling decision.",
+      "notes": "Slice test is mandatory on every puffball, every time."
+    },
+    {
+      "id": "common-earthball",
+      "common_names": ["Common earthball"],
+      "scientific_name": "Scleroderma citrinum",
+      "category": "mushroom",
+      "edibility": "toxic",
+      "toxicity_mechanism": "Gastrointestinal irritants cause violent vomiting; firm texture fools puffball hunters.",
+      "regions": ["north-america", "europe", "uk-ireland"],
+      "seasons": ["summer", "autumn"],
+      "habitat": "Hard-packed soil, paths, and banks; warty yellow-brown balls.",
+      "visual_prompts": [
+        "Warty yellow-brown earthball mushrooms half-buried in hard path soil",
+        "Close-up of thick scaly earthball skin cracking into warts",
+        "Sliced earthball showing dark purple-black marbled flesh with white veins",
+        "Earthballs clustered on a gravelly bank"
+      ],
+      "verification_checklist": [
+        "Skin is thick, yellow-brown, coarsely warty",
+        "Sliced flesh is dark purple-black even when young (never pure white)",
+        "Ball is firm and low, often half-buried",
+        "No stem; attached by a rooting base",
+        "Spore mass turns powdery dark with age",
+        "Dark flesh inside any puffball-like ball is an instant stop"
+      ],
+      "confusable_with": [
+        { "species_id": "giant-puffball", "how_to_tell_apart": "Puffballs are white inside when young; earthballs are dark inside from the start with thick warty skin." }
+      ],
+      "symptoms_if_ingested": "Rapid vomiting, cramps, diarrhea.",
+      "onset": "30 minutes to 3 hours.",
+      "first_aid": ["Save specimens.", "Call poison control.", "Seek care for dehydration."],
+      "contact_precautions": "Keep separate from any edible-intent collections.",
+      "notes": "Dark flesh is the instant field rejection."
+    },
+    {
+      "id": "amanita-egg-stage",
+      "common_names": ["Amanita egg stage", "Universal veil button"],
+      "scientific_name": "Amanita spp. (immature)",
+      "category": "mushroom",
+      "edibility": "deadly",
+      "toxicity_mechanism": "Class treatment: any egg-stage Amanita may be a destroying angel or death cap with amatoxins.",
+      "regions": ["north-america", "europe", "uk-ireland", "australia-nz", "global"],
+      "seasons": ["summer", "autumn"],
+      "habitat": "Woodland soil; white egg-like balls that slice to reveal a hidden mushroom.",
+      "visual_prompts": [
+        "White egg-like Amanita button half-buried in woodland soil",
+        "Sliced Amanita egg showing the ghost outline of a cap and gills inside",
+        "Detail of Amanita egg sac (volva) cupping the base of the button",
+        "Young Amanita emerging from its white universal veil sac"
+      ],
+      "verification_checklist": [
+        "Ball sits in a distinct white sac or cup (volva)",
+        "Sliced vertically: shows cap-and-gill outline inside",
+        "Universal veil patches may dot the outside",
+        "Grows from woodland soil near trees",
+        "Never assume puffball without a full vertical slice",
+        "Any internal mushroom outline means Amanita protocol"
+      ],
+      "confusable_with": [
+        { "species_id": "giant-puffball", "how_to_tell_apart": "Puffballs have no sac and no internal outline; Amanita eggs have both. Slice every ball." }
+      ],
+      "symptoms_if_ingested": "Amatoxin course: false recovery then liver failure (see death cap).",
+      "onset": "6–24 hours.",
+      "first_aid": ["Call emergency services.", "Save sliced halves and sac.", "Do not wait for symptoms."],
+      "contact_precautions": "Handle minimally; expert ID only.",
+      "notes": "Generic deadly-class entry: all egg Amanitas get deadly treatment."
+    },
+    {
+      "id": "death-cap",
+      "common_names": ["Death cap"],
+      "scientific_name": "Amanita phalloides",
+      "category": "mushroom",
+      "edibility": "deadly",
+      "toxicity_mechanism": "Amatoxins destroy liver and kidneys; half a cap can kill; no antidote in the field.",
+      "regions": ["north-america", "europe", "uk-ireland", "australia-nz"],
+      "seasons": ["summer", "autumn"],
+      "habitat": "Under oaks and other hardwoods; olive-green capped mushrooms with white gills, ring, and cup.",
+      "visual_prompts": [
+        "Olive-green capped death cap mushroom with white gills, a thin ring, and a white sac at the base",
+        "Close-up of death cap stem showing the skirt-like ring and floppy sac cup",
+        "Detail of white free death cap gills that do not touch the stem",
+        "Death caps fruiting under an oak with olive caps fading to yellow"
+      ],
+      "verification_checklist": [
+        "Cap is olive-green to yellow-green, smooth, often streaky",
+        "Gills are white, crowded, free from the stem",
+        "Stem wears a thin skirt-like ring",
+        "Base sits in a loose white sac (volva) — dig it up to check",
+        "Spore print is white (expert check)",
+        "Any white-gilled mushroom with ring plus cup is treated as deadly"
+      ],
+      "confusable_with": [
+        { "species_id": "green-spored-parasol", "how_to_tell_apart": "Parasol has brown scales, no cup, and a green spore print; death cap is smooth olive with a sac and white spores." },
+        { "species_id": "little-brown-mushroom", "how_to_tell_apart": "LBMs lack the ring-plus-cup combination; death caps show both. Dig up the base." }
+      ],
+      "symptoms_if_ingested": "Violent vomiting and diarrhea, then false recovery, then liver and kidney failure.",
+      "onset": "6–24 hours delayed; the deceptive latent period kills.",
+      "first_aid": ["Call emergency services immediately.", "Save all specimens including the sac.", "Note time of ingestion.", "Do not wait for symptoms."],
+      "contact_precautions": "Do not mix with any food-intent fungi; wash hands and knife.",
+      "notes": "Responsible for most fatal mushroom poisonings worldwide."
+    },
+    {
+      "id": "destroying-angel",
+      "common_names": ["Destroying angel"],
+      "scientific_name": "Amanita bisporigera",
+      "category": "mushroom",
+      "edibility": "deadly",
+      "toxicity_mechanism": "Amatoxins identical in effect to death cap; pure-white angel is even easier to mistake for edible buttons.",
+      "regions": ["north-america", "europe"],
+      "seasons": ["summer", "autumn"],
+      "habitat": "Mixed woods; elegant all-white mushrooms with ring and sac.",
+      "visual_prompts": [
+        "Pure white destroying angel mushroom with a smooth cap, white gills, ring, and sac",
+        "Close-up of destroying angel stem with a fragile white ring and shaggy sac",
+        "Detail of white free gills on a destroying angel",
+        "Several white angels fruiting in mossy mixed woods"
+      ],
+      "verification_checklist": [
+        "Entire mushroom is white: cap, gills, stem",
+        "Thin fragile ring on the upper stem",
+        "Distinct white sac at the base (excavate carefully)",
+        "Cap is smooth, often with veil wisps at the margin when young",
+        "Grows from woodland soil, not on wood or in lawns",
+        "All-white gilled mushrooms with ring and sac are never tasted"
+      ],
+      "confusable_with": [
+        { "species_id": "oyster-mushroom", "how_to_tell_apart": "Oysters grow shelf-like on wood with no ring and no sac; angels grow from soil with ring and sac." },
+        { "species_id": "little-brown-mushroom", "how_to_tell_apart": "White angel is large and white with ring plus sac; LBMs are small brown without that combination." }
+      ],
+      "symptoms_if_ingested": "Same amatoxin course as death cap: delayed vomiting, false recovery, organ failure.",
+      "onset": "6–24 hours.",
+      "first_aid": ["Call emergency services immediately.", "Save the sac and ring.", "Record ingestion time."],
+      "contact_precautions": "Isolate the collection; expert ID only.",
+      "notes": "Beautiful, white, and lethal; the classic button-mushroom trap."
+    },
+    {
+      "id": "fly-agaric",
+      "common_names": ["Fly agaric"],
+      "scientific_name": "Amanita muscaria",
+      "category": "mushroom",
+      "edibility": "toxic",
+      "toxicity_mechanism": "Ibotenic acid and muscimol: delirium, twitching, sleep-like coma; also confused with edible orange Amanitas.",
+      "regions": ["north-america", "europe", "uk-ireland", "australia-nz"],
+      "seasons": ["summer", "autumn"],
+      "habitat": "Under birch, pine, and spruce; iconic red cap with white warts.",
+      "visual_prompts": [
+        "Red fly agaric mushroom with white warty spots, white gills, ring, and warty stem base",
+        "Close-up of white wart patches scattered on a bright red fly agaric cap",
+        "Detail of fly agaric stem with a shaggy ring and concentric warty bands (not a clean sac)",
+        "Fly agarics fruiting under birch with rain-washed caps fading orange"
+      ],
+      "verification_checklist": [
+        "Cap is red to orange with white wart patches (wash off in rain — check stem too)",
+        "Gills are white and free",
+        "Stem has a ring and shaggy warty bands above a bulb",
+        "Grows from soil under birch/pine/spruce",
+        "Rain-faded orange caps are still fly agaric — do not reclassify",
+        "Red amanitas are admiration-only in this app"
+      ],
+      "confusable_with": [
+        { "species_id": "panther-cap", "how_to_tell_apart": "Panther cap is brown with white warts and a collar-like volva; fly agaric is red-orange. Both toxic Amanitas." }
+      ],
+      "symptoms_if_ingested": "Confusion, twitching, drowsiness, vomiting, dream-like stupor.",
+      "onset": "30 minutes to 3 hours.",
+      "first_aid": ["Call poison control.", "Save specimens.", "Seek emergency care for stupor."],
+      "contact_precautions": "Do not handle casually around children; wash hands.",
+      "notes": "Iconic toadstool; rain washing makes color alone unreliable."
+    },
+    {
+      "id": "panther-cap",
+      "common_names": ["Panther cap"],
+      "scientific_name": "Amanita pantherina",
+      "category": "mushroom",
+      "edibility": "deadly",
+      "toxicity_mechanism": "Same ibotenic acid/muscimol syndrome as fly agaric but more potent and more often fatal.",
+      "regions": ["north-america", "europe", "uk-ireland"],
+      "seasons": ["summer", "autumn"],
+      "habitat": "Conifer and mixed woods; brown warted caps easily mistaken for edible brown mushrooms.",
+      "visual_prompts": [
+        "Brown panther cap mushroom with white warts, white gills, ring, and a collar-like volva",
+        "Close-up of neat white warts on a brown panther cap",
+        "Detail of panther cap stem base with a rolled collar rim",
+        "Panther caps in conifer needle litter"
+      ],
+      "verification_checklist": [
+        "Cap is brown (not red) with white warts",
+        "Base shows a rolled collar rim, not a floppy sac",
+        "White free gills plus a stem ring",
+        "Margin often finely grooved",
+        "Grows from soil in conifer woods",
+        "Brown warted Amanitas are never tasted"
+      ],
+      "confusable_with": [
+        { "species_id": "fly-agaric", "how_to_tell_apart": "Fly agaric is red-orange; panther is brown. Both toxic; color does not clear either." }
+      ],
+      "symptoms_if_ingested": "Delirium, agitation then stupor, vomiting, occasionally fatal.",
+      "onset": "30 minutes to 3 hours.",
+      "first_aid": ["Call emergency services.", "Save specimens including base."],
+      "contact_precautions": "Expert ID only.",
+      "notes": "The brown disguise makes it more dangerous than its famous red cousin."
+    },
+    {
+      "id": "deadly-galerina",
+      "common_names": ["Deadly galerina", "Autumn skullcap"],
+      "scientific_name": "Galerina marginata",
+      "category": "mushroom",
+      "edibility": "deadly",
+      "toxicity_mechanism": "Amatoxins identical to death cap, in a small brown mushroom growing on wood where honey mushrooms grow.",
+      "regions": ["north-america", "europe", "uk-ireland"],
+      "seasons": ["autumn", "winter"],
+      "habitat": "On conifer and hardwood logs and stumps, often beside honey mushrooms.",
+      "visual_prompts": [
+        "Small brown deadly galerina mushrooms with sticky caps and rusty-brown gills on a mossy log",
+        "Close-up of galerina rusty-brown mature gills and a faint ring zone on the stem",
+        "Detail of sticky honey-yellow to brown galerina cap with a paler margin",
+        "Galerinas fruiting on a conifer stump in late autumn"
+      ],
+      "verification_checklist": [
+        "Small brown mushrooms growing directly on wood",
+        "Mature gills are rusty brown (not white, not purple-brown)",
+        "Cap is sticky when moist with a paler margin",
+        "Faint ring zone or fibers on the stem",
+        "Rusty-brown spore dust on older caps (expert check)",
+        "Any small brown mushroom on wood is LBM protocol: no tasting"
+      ],
+      "confusable_with": [
+        { "species_id": "honey-mushroom", "how_to_tell_apart": "Honey mushrooms are larger with scaly caps, white spores, and a cottony ring; galerinas are smaller with rusty spores and thin sticky caps. Spore print color is the expert divider." }
+      ],
+      "symptoms_if_ingested": "Amatoxin course: delayed vomiting, false recovery, liver failure.",
+      "onset": "6–24 hours.",
+      "first_aid": ["Call emergency services immediately.", "Save log pieces with mushrooms.", "Note ingestion time."],
+      "contact_precautions": "Never mix wood-tuft collections.",
+      "notes": "The mushroom that kills honey-mushroom pickers."
+    },
+    {
+      "id": "honey-mushroom",
+      "common_names": ["Honey mushroom"],
+      "scientific_name": "Armillaria mellea",
+      "category": "mushroom",
+      "edibility": "not_recommended",
+      "toxicity_mechanism": "Eaten traditionally only with expert ID and thorough cooking; raw honeys upset stomachs and galerina confusion is deadly; never app-cleared.",
+      "regions": ["north-america", "europe", "uk-ireland"],
+      "seasons": ["autumn"],
+      "habitat": "Large clusters at tree bases and on roots; honey-yellow scaly caps with white spores.",
+      "visual_prompts": [
+        "Large cluster of honey-yellow mushrooms with dark scaly caps at the base of an oak",
+        "Close-up of honey mushroom dark hairy cap scales and white gills",
+        "Detail of cottony ring on a honey mushroom stem with white spore dust",
+        "Honey mushrooms with black root-like rhizomorph cords at the base"
+      ],
+      "verification_checklist": [
+        "Grows in large clusters at tree bases or on roots (not single)",
+        "Cap is honey-yellow with dark hairy scales",
+        "Stem has a cottony persistent ring",
+        "Spore print is white (expert check — galerina is rusty brown)",
+        "Black shoestring rhizomorphs often present",
+        "Even with all checks, galerina co-fruiting means expert-only"
+      ],
+      "confusable_with": [
+        { "species_id": "deadly-galerina", "how_to_tell_apart": "Galerina is smaller with rusty spores and no scaly cap; honey has white spores, scales, and a cottony ring. Check every cluster." }
+      ],
+      "symptoms_if_ingested": "Raw honeys: cramps and vomiting; galerina confusion: amatoxin failure.",
+      "onset": "1–4 hours (raw honey); 6–24 hours (galerina).",
+      "first_aid": ["Save specimens per cluster.", "Call poison control.", "Emergency care for any galerina suspicion."],
+      "contact_precautions": "Keep each cluster separate for expert review.",
+      "notes": "White-spore proof plus expert review or nothing."
+    },
+    {
+      "id": "deadly-webcap",
+      "common_names": ["Deadly webcap"],
+      "scientific_name": "Cortinarius rubellus",
+      "category": "mushroom",
+      "edibility": "deadly",
+      "toxicity_mechanism": "Orellanine destroys kidneys with a delay of days to weeks; tastings and chanterelle confusion are fatal.",
+      "regions": ["north-america", "europe", "uk-ireland"],
+      "seasons": ["summer", "autumn"],
+      "habitat": "Conifer woods; small orange-brown mushrooms with cobweb veils.",
+      "visual_prompts": [
+        "Orange-brown deadly webcap mushrooms with a cobweb-like veil between stem and cap",
+        "Close-up of rusty-brown webcap gills with cobweb fibers",
+        "Detail of pointed orange-brown webcap cap with a pale stem",
+        "Webcaps fruiting in mossy conifer woods"
+      ],
+      "verification_checklist": [
+        "Rusty-brown gills at maturity with cobweb veil fibers when young",
+        "Cap is orange-brown, often pointed, silky dry",
+        "Grows from soil in conifer woods (not on wood)",
+        "No ring, only veil wisps",
+        "Spore dust is rusty brown (expert check)",
+        "Kidney poison has no field antidote — never taste brown corts"
+      ],
+      "confusable_with": [
+        { "species_id": "golden-chanterelle", "how_to_tell_apart": "Chanterelles have blunt ridges running down the stem and no cobwebs; webcaps have true gills plus veil fibers." },
+        { "species_id": "little-brown-mushroom", "how_to_tell_apart": "Webcap is one deadly member of the LBM cloud; all small brown gilled mushrooms share the no-taste rule." }
+      ],
+      "symptoms_if_ingested": "Thirst, headache, then kidney shutdown days later; early flu-like phase misleads.",
+      "onset": "2–14 days delayed.",
+      "first_aid": ["Call poison control even if feeling well.", "Save specimens.", "Seek kidney-function testing promptly."],
+      "contact_precautions": "Expert ID only; keep collections separate.",
+      "notes": "The delay of days makes it uniquely treacherous."
+    },
+    {
+      "id": "chicken-of-the-woods",
+      "common_names": ["Chicken of the woods"],
+      "scientific_name": "Laetiporus sulphureus",
+      "category": "mushroom",
+      "edibility": "not_recommended",
+      "toxicity_mechanism": "Eaten traditionally only young, cooked, with expert ID; older specimens and yew/conifer-grown shelves cause severe reactions; never app-cleared.",
+      "regions": ["north-america", "europe", "uk-ireland"],
+      "seasons": ["summer", "autumn"],
+      "habitat": "Bright orange-yellow shelving brackets on hardwoods (and sometimes conifers/yew — avoid those).",
+      "visual_prompts": [
+        "Bright orange-yellow overlapping chicken-of-the-woods shelves on an oak trunk",
+        "Close-up of soft yellow pore surface (no true gills) on chicken of the woods",
+        "Detail of tender bright margin of a young chicken-of-the-woods shelf",
+        "Large sulphur-yellow bracket cascade climbing a hardwood log"
+      ],
+      "verification_checklist": [
+        "Grows as overlapping shelves (not single stemmed mushrooms)",
+        "Top is bright orange; underside is yellow with tiny pores, no gills",
+        "Flesh is soft and tender at the margin, chalky-white inside",
+        "Grows on hardwoods — conifer or yew-grown shelves are rejected",
+        "Only young tender margins ever considered by experts, cooked",
+        "Any gilled lookalike means wrong mushroom entirely"
+      ],
+      "confusable_with": [
+        { "species_id": "hen-of-the-woods", "how_to_tell_apart": "Hen of the woods is gray-brown with small caps at the tree base; chicken is bright orange-yellow shelving on trunks." }
+      ],
+      "symptoms_if_ingested": "Nausea, dizziness, swollen lips from old or conifer-grown specimens.",
+      "onset": "1–6 hours.",
+      "first_aid": ["Save a shelf piece.", "Call poison control.", "Seek care for swelling or dizziness."],
+      "contact_precautions": "Taste only under expert care; cook thoroughly per expert.",
+      "notes": "Host tree matters as much as the mushroom."
+    },
+    {
+      "id": "hen-of-the-woods",
+      "common_names": ["Hen of the woods", "Maitake"],
+      "scientific_name": "Grifola frondosa",
+      "category": "mushroom",
+      "edibility": "not_recommended",
+      "toxicity_mechanism": "Eaten traditionally with expert ID; old specimens and confusion with other base rosettes upset stomachs; never app-cleared.",
+      "regions": ["north-america", "europe", "uk-ireland"],
+      "seasons": ["autumn"],
+      "habitat": "Gray-brown rosette of small caps at oak bases in autumn.",
+      "visual_prompts": [
+        "Gray-brown hen-of-the-woods rosette of many small spoon caps at an oak base",
+        "Close-up of small gray fan caps with white pore undersides on hen of the woods",
+        "Detail of branching white hen-of-the-woods core fusing many caps",
+        "Large maitake clump nestled in oak leaf litter"
+      ],
+      "verification_checklist": [
+        "Many small gray-brown spoon caps branch from one white core",
+        "Undersides are white with pores, not gills",
+        "Grows at the base of oaks in autumn",
+        "Flesh is firm, white, pleasantly mushroomy",
+        "No ring, no sac, no single large cap",
+        "Old darkened specimens are rejected by experts"
+      ],
+      "confusable_with": [
+        { "species_id": "chicken-of-the-woods", "how_to_tell_apart": "Chicken is bright orange shelving on trunks; hen is gray-brown rosettes at the base." }
+      ],
+      "symptoms_if_ingested": "Old specimens: nausea and cramps.",
+      "onset": "1–4 hours.",
+      "first_aid": ["Save a piece.", "Call poison control."],
+      "contact_precautions": "Keep base rosettes separate for expert review.",
+      "notes": "Base-of-oak gray rosette with pores is the pattern."
+    },
+    {
+      "id": "oyster-mushroom",
+      "common_names": ["Oyster mushroom"],
+      "scientific_name": "Pleurotus ostreatus",
+      "category": "mushroom",
+      "edibility": "not_recommended",
+      "toxicity_mechanism": "Eaten traditionally with expert ID; angel-wings confusion and raw-oyster sensitivity cause illness; never app-cleared.",
+      "regions": ["north-america", "europe", "uk-ireland", "australia-nz"],
+      "seasons": ["autumn", "winter", "spring"],
+      "habitat": "Shelf clusters on hardwood logs; oyster-shaped caps with decurrent gills.",
+      "visual_prompts": [
+        "Overlapping gray oyster mushroom shelves with decurrent gills on a hardwood log",
+        "Close-up of white decurrent oyster gills running down a stubby side stem",
+        "Detail of smooth oyster-shaped gray cap with an inrolled margin",
+        "Winter oyster shelves fruiting from a beech log"
+      ],
+      "verification_checklist": [
+        "Grows shelf-like on wood in overlapping clusters",
+        "Gills run down the stubby side stem (decurrent)",
+        "Cap is oyster-shaped, gray to brown, smooth",
+        "Spore print is white to lilac-gray (expert check)",
+        "No ring, no sac, no central tall stem",
+        "Thin white conifer shelves need angel-wings exclusion by an expert"
+      ],
+      "confusable_with": [
+        { "species_id": "angel-wings", "how_to_tell_apart": "Angel wings are thin, pure white, on conifers with no stem; oysters are thicker, gray-brown, on hardwoods with a stubby stem." },
+        { "species_id": "destroying-angel", "how_to_tell_apart": "Destroying angels grow from soil with ring and sac; oysters grow on wood shelves with neither." }
+      ],
+      "symptoms_if_ingested": "Raw oysters: nausea; angel-wings confusion: brain injury in kidney patients.",
+      "onset": "1–6 hours.",
+      "first_aid": ["Save shelf pieces with wood.", "Call poison control."],
+      "contact_precautions": "Note the host wood species for the expert.",
+      "notes": "Wood plus decurrent gills plus oyster shape — still expert-only."
+    },
+    {
+      "id": "angel-wings",
+      "common_names": ["Angel wings"],
+      "scientific_name": "Pleurocybella porrigens",
+      "category": "mushroom",
+      "edibility": "deadly",
+      "toxicity_mechanism": "Caused fatal encephalopathy in kidney-compromised patients in Japan; now treated as deadly for all in this database.",
+      "regions": ["north-america", "europe", "uk-ireland", "australia-nz"],
+      "seasons": ["autumn"],
+      "habitat": "Thin white shelves on conifer logs; stemless and delicate.",
+      "visual_prompts": [
+        "Thin pure-white translucent angel wings shelves on a conifer log",
+        "Close-up of delicate white angel wings with no stem, attached at one point",
+        "Detail of thin flesh on angel wings glowing translucent in backlight",
+        "Overlapping white angel wings tiers on a mossy hemlock log"
+      ],
+      "verification_checklist": [
+        "Thin, pure white, translucent shelves with NO stem",
+        "Grows on conifer wood (hemlock/spruce), not hardwoods",
+        "Flesh is thin and fragile, not thick and meaty",
+        "Autumn fruiting in cool wet woods",
+        "Anyone with kidney disease faces extreme risk",
+        "White conifer shelves are never tasted"
+      ],
+      "confusable_with": [
+        { "species_id": "oyster-mushroom", "how_to_tell_apart": "Oysters are thicker and gray-brown on hardwoods with a stubby stem; angel wings are thin white stemless shelves on conifers." }
+      ],
+      "symptoms_if_ingested": "Tremors, weakness, brain injury, death in vulnerable patients.",
+      "onset": "Days to weeks.",
+      "first_aid": ["Call emergency services.", "Save shelf and wood sample.", "Disclose kidney history."],
+      "contact_precautions": "Expert ID only.",
+      "notes": "Small, white, conifer-grown, and historically underestimated."
+    },
+    {
+      "id": "shaggy-mane",
+      "common_names": ["Shaggy mane", "Inky cap"],
+      "scientific_name": "Coprinus comatus",
+      "category": "mushroom",
+      "edibility": "not_recommended",
+      "toxicity_mechanism": "Eaten traditionally only young with expert ID; auto-digests into ink within hours and mimics other inky caps; never app-cleared; alcohol interactions affect relatives.",
+      "regions": ["north-america", "europe", "uk-ireland"],
+      "seasons": ["summer", "autumn"],
+      "habitat": "Lawns, paths, and gravel; tall white shaggy cylinders deliquescing to black ink.",
+      "visual_prompts": [
+        "Tall white shaggy mane mushroom with upturned brown scales on a lawn",
+        "Close-up of shaggy mane cap beginning to dissolve into black ink at the rim",
+        "Detail of white shaggy mane scales over a hollow white stem with a loose ring",
+        "Row of shaggy manes along a gravel path with inky elders behind"
+      ],
+      "verification_checklist": [
+        "Tall white cylinder with shaggy upturned brown-tipped scales",
+        "Cap dissolves upward into black ink with age",
+        "Grows from soil in grass/gravel, not on wood or dung preferentially",
+        "Stem is hollow, white, with a loose movable ring",
+        "Only pure-white young buttons ever considered by experts",
+        "Alcohol plus inky-cap relatives causes violent illness — disclose drinking"
+      ],
+      "confusable_with": [
+        { "species_id": "little-brown-mushroom", "how_to_tell_apart": "Shaggy mane is large, white, and inky; LBMs are small brown non-inky mushrooms. Still expert-only." }
+      ],
+      "symptoms_if_ingested": "Old specimens: nausea; alcohol with relatives: flushing, vomiting, palpitations.",
+      "onset": "Minutes to hours.",
+      "first_aid": ["Save young and inky specimens.", "Call poison control.", "Avoid alcohol."],
+      "contact_precautions": "Collect only with expert timing guidance.",
+      "notes": "The self-inking clock makes timing part of identification."
+    },
+    {
+      "id": "green-spored-parasol",
+      "common_names": ["Green-spored parasol", "False parasol"],
+      "scientific_name": "Chlorophyllum molybdites",
+      "category": "mushroom",
+      "edibility": "toxic",
+      "toxicity_mechanism": "Most common cause of mushroom poisoning in North America; mistaken for edible parasols and shaggy parasols.",
+      "regions": ["north-america"],
+      "seasons": ["summer", "autumn"],
+      "habitat": "Lawns and parks in fairy rings; large scaly caps with green spore dust.",
+      "visual_prompts": [
+        "Large parasol mushroom with brown scales on a cream cap and a ring on a lawn",
+        "Close-up of mature green-tinted gills on a green-spored parasol",
+        "Detail of green spore dust on an older parasol cap",
+        "Fairy ring of parasols on a suburban lawn"
+      ],
+      "verification_checklist": [
+        "Large lawn mushroom with brown cap scales and a stem ring",
+        "Mature gills turn dingy green (young ones white — check oldest)",
+        "Spore print is green (expert check — edibles print white/cream)",
+        "No cup or sac at the base",
+        "Grows in grass fairy rings, not woods",
+        "Green spores or greenish old gills are an instant stop"
+      ],
+      "confusable_with": [
+        { "species_id": "death-cap", "how_to_tell_apart": "Death cap has a sac, white spores, and woodland habitat; green-spored parasol has no sac, green spores, and lawn habitat. Both dangerous." }
+      ],
+      "symptoms_if_ingested": "Violent vomiting, bloody diarrhea, dizziness.",
+      "onset": "1–4 hours.",
+      "first_aid": ["Save cap and stem.", "Call poison control.", "Seek care for dehydration."],
+      "contact_precautions": "Spore-print every parasol before expert review.",
+      "notes": "Lawns are not safer than woods; this species proves it."
+    },
+    {
+      "id": "king-bolete",
+      "common_names": ["King bolete", "Porcini"],
+      "scientific_name": "Boletus edulis",
+      "category": "mushroom",
+      "edibility": "not_recommended",
+      "toxicity_mechanism": "Eaten traditionally with expert ID; bitter and satanic bolete confusion plus raw-bolete illness; never app-cleared.",
+      "regions": ["north-america", "europe", "uk-ireland"],
+      "seasons": ["summer", "autumn"],
+      "habitat": "Under pine, spruce, birch, and oak; thick stems with sponge pores, no gills.",
+      "visual_prompts": [
+        "Thick king bolete with a brown bun cap, white pore surface, and netted club stem",
+        "Close-up of fine white netting (reticulation) on the upper king bolete stem",
+        "Detail of white pore surface on a young king bolete bruising not blue",
+        "King boletes fruiting under pine with bun-shaped caps"
+      ],
+      "verification_checklist": [
+        "Underside is a sponge of tiny pores, never gills",
+        "Stem is thick and club-shaped with fine white netting near the top",
+        "Pore surface is white to olive, bruising not blue",
+        "Cap is brown and bun-shaped, slightly greasy when moist",
+        "No ring, no sac",
+        "Blue staining, red pores, or bitter taste (expert nibble-spit only) rejects lookalikes"
+      ],
+      "confusable_with": [
+        { "species_id": "bitter-bolete", "how_to_tell_apart": "Bitter bolete has pinkish pores and dark stem netting with intensely bitter flesh; king has white-olive pores and white netting." },
+        { "species_id": "satans-bolete", "how_to_tell_apart": "Satan's bolete has red pores and a red stem that stains blue; king has white-olive pores and no blue staining." }
+      ],
+      "symptoms_if_ingested": "Bitter bolete: nausea; Satan's: violent vomiting.",
+      "onset": "1–4 hours.",
+      "first_aid": ["Save whole including stem base.", "Call poison control."],
+      "contact_precautions": "Slice to check staining and worm damage for the expert.",
+      "notes": "Pores-not-gills plus white netting is the bolete starting point — still expert-only."
+    },
+    {
+      "id": "bitter-bolete",
+      "common_names": ["Bitter bolete"],
+      "scientific_name": "Tylopilus felleus",
+      "category": "mushroom",
+      "edibility": "not_recommended",
+      "toxicity_mechanism": "Intensely bitter compounds ruin meals and upset stomachs; the classic porcini disappointment.",
+      "regions": ["north-america", "europe", "uk-ireland"],
+      "seasons": ["summer", "autumn"],
+      "habitat": "Conifer and mixed woods; king-like boletes with pink pores.",
+      "visual_prompts": [
+        "Bitter bolete with a tan cap and pinkish pore surface on a dark-netted stem",
+        "Close-up of pink-tinged bitter bolete pores",
+        "Detail of dark brown netting on a bitter bolete stem",
+        "Bitter boletes under conifers with cushion caps"
+      ],
+      "verification_checklist": [
+        "Pore surface turns pinkish with age",
+        "Stem netting is dark brown, not white",
+        "Cap is tan-brown and cushion-shaped",
+        "Flesh tastes intensely bitter (expert nibble-and-spit only)",
+        "No blue staining",
+        "Pink pores plus dark netting is the rejection"
+      ],
+      "confusable_with": [
+        { "species_id": "king-bolete", "how_to_tell_apart": "King has white-olive pores and white netting with mild taste; bitter bolete has pink pores, dark netting, bitter taste." }
+      ],
+      "symptoms_if_ingested": "Nausea and vomiting from bitterness in quantity.",
+      "onset": "1–4 hours.",
+      "first_aid": ["Spit taste.", "Call poison control if a meal was eaten."],
+      "contact_precautions": "Taste-and-spit only under expert instruction.",
+      "notes": "One bitter bolete ruins a whole pan — and signals ID failure."
+    },
+    {
+      "id": "satans-bolete",
+      "common_names": ["Satan's bolete"],
+      "scientific_name": "Rubroboletus satanas",
+      "category": "mushroom",
+      "edibility": "toxic",
+      "toxicity_mechanism": "Causes violent prolonged vomiting; pale cap plus red pores plus blue staining is the warning.",
+      "regions": ["europe", "uk-ireland", "north-america"],
+      "seasons": ["summer", "autumn"],
+      "habitat": "Chalky woods under oak and beech; massive pale-capped boletes with red pores.",
+      "visual_prompts": [
+        "Massive Satan's bolete with a pale gray-white cap, red pores, and a red-yellow stem",
+        "Close-up of red pore surface on Satan's bolete staining blue when cut",
+        "Detail of red netted stem on Satan's bolete",
+        "Satan's bolete cut open showing blue staining flesh"
+      ],
+      "verification_checklist": [
+        "Pore surface is red to orange-red",
+        "Stem is yellow with red netting or flush",
+        "Cap is pale gray-white and massive",
+        "Cut flesh stains blue",
+        "Smell is unpleasant and sickly sweet when old",
+        "Red pores plus blue staining is an instant stop"
+      ],
+      "confusable_with": [
+        { "species_id": "king-bolete", "how_to_tell_apart": "King has white-olive pores, white netting, no blue stain; Satan's has red pores, red stem, blue stain." }
+      ],
+      "symptoms_if_ingested": "Prolonged violent vomiting and bloody diarrhea.",
+      "onset": "2–6 hours.",
+      "first_aid": ["Call poison control.", "Save specimens.", "Seek care for dehydration."],
+      "contact_precautions": "Do not taste; photograph staining instead.",
+      "notes": "The most visually alarming bolete for good reason."
+    },
+    {
+      "id": "little-brown-mushroom",
+      "common_names": ["Little brown mushroom (LBM class)"],
+      "scientific_name": "Galerina spp. / Cortinarius spp. / Inocybe spp. / Conocybe spp. (undifferentiated)",
+      "category": "mushroom",
+      "edibility": "deadly",
+      "toxicity_mechanism": "Class treatment: the LBM cloud contains amatoxin (galerina), orellanine (webcaps), muscarine (inocybes), and phallotoxins (conocybes); microscopy is needed to separate them.",
+      "regions": ["north-america", "europe", "uk-ireland", "australia-nz", "global"],
+      "seasons": ["spring", "summer", "autumn", "winter"],
+      "habitat": "Everywhere: lawns, woodchips, logs, moss; small brown gilled mushrooms.",
+      "visual_prompts": [
+        "Cluster of small brown gilled mushrooms on woodchips typical of the LBM group",
+        "Close-up of brown LBM gills and thin fragile stems",
+        "Detail of small conical brown LBM cap with striate margin",
+        "Mixed small brown mushrooms fruiting on a mossy log"
+      ],
+      "verification_checklist": [
+        "Small (usually under 5 cm), brown, gilled, with no unforgettable features",
+        "Check substrate: wood, chips, moss, dung, soil",
+        "Note ring, veil, smell, staining — then stop",
+        "Spore color needs microscopy-level work (expert)",
+        "No LBM is ever tasted for ID in this app",
+        "The entire class gets deadly treatment by default"
+      ],
+      "confusable_with": [
+        { "species_id": "deadly-galerina", "how_to_tell_apart": "Galerina is one deadly member hiding inside the LBM cloud; separation needs microscopy. Treat all LBMs as galerina until an expert proves otherwise." },
+        { "species_id": "honey-mushroom", "how_to_tell_apart": "Honey mushrooms are large with scales and rings; LBMs are small and featureless. Size plus scales is the first divider." }
+      ],
+      "symptoms_if_ingested": "Depends on hidden species: delayed liver failure, kidney failure, or nerve poisoning.",
+      "onset": "30 minutes to 14 days depending on toxin.",
+      "first_aid": ["Call poison control immediately.", "Save every morphotype separately.", "Do not wait for symptoms."],
+      "contact_precautions": "Keep each patch in its own container for the expert.",
+      "notes": "LBM is not a species but the most important safety concept in mushroom foraging."
+    },
+    {
+      "id": "conocybe-filaris",
+      "common_names": ["Conocybe filaris", "Deadly conic"],
+      "scientific_name": "Conocybe filaris",
+      "category": "mushroom",
+      "edibility": "deadly",
+      "toxicity_mechanism": "Amatoxins in a tiny cone mushroom of lawns and woodchips; identical syndrome to death cap.",
+      "regions": ["north-america", "europe", "uk-ireland"],
+      "seasons": ["summer", "autumn"],
+      "habitat": "Lawns, mulch, and woodchips; small conical brown mushrooms.",
+      "visual_prompts": [
+        "Tiny conical brown Conocybe mushrooms in mulch",
+        "Close-up of smooth conical Conocybe cap with rusty-brown gills",
+        "Detail of fragile thin Conocybe stem with no ring",
+        "Conocybes scattered across a watered lawn"
+      ],
+      "verification_checklist": [
+        "Small conical smooth cap, brown to ochre",
+        "Gills mature rusty brown",
+        "Thin fragile stem with no ring",
+        "Grows in mulch, chips, or lawns",
+        "Looks exactly like harmless mowers mushrooms",
+        "Any small cone on mulch is LBM-deadly protocol"
+      ],
+      "confusable_with": [
+        { "species_id": "little-brown-mushroom", "how_to_tell_apart": "Conocybe is one deadly face of the LBM cloud; field separation from harmless lookalikes needs microscopy." }
+      ],
+      "symptoms_if_ingested": "Amatoxin course: delayed vomiting, false recovery, liver failure.",
+      "onset": "6–24 hours.",
+      "first_aid": ["Call emergency services.", "Save mulch with mushrooms."],
+      "contact_precautions": "Expert ID only.",
+      "notes": "Lawns and playgrounds make this the stealthiest amatoxin carrier."
+    },
+    {
+      "id": "inocybe-spp",
+      "common_names": ["Inocybe (fiber caps)"],
+      "scientific_name": "Inocybe spp.",
+      "category": "mushroom",
+      "edibility": "deadly",
+      "toxicity_mechanism": "Muscarine in doses far above fly agaric: sweating, drooling, pinpoint pupils, slow pulse, breathing failure.",
+      "regions": ["north-america", "europe", "uk-ireland", "australia-nz", "global"],
+      "seasons": ["summer", "autumn"],
+      "habitat": "Woodland soil; small brown mushrooms with fibrous splitting caps and a spermatic smell.",
+      "visual_prompts": [
+        "Small brown Inocybe mushrooms with radially fibrous splitting caps",
+        "Close-up of Inocybe cap splitting into fibers with dull brown gills",
+        "Detail of Inocybe stem with no ring and a bulbous base",
+        "Inocybes fruiting in sandy woodland soil"
+      ],
+      "verification_checklist": [
+        "Cap surface splits into radial fibers",
+        "Gills are dull brown-gray, never white-free like Amanita",
+        "Smell is spermatic or musty",
+        "No ring on the stem",
+        "Grows from soil, not wood",
+        "Fiber-splitting brown caps are never tasted"
+      ],
+      "confusable_with": [
+        { "species_id": "little-brown-mushroom", "how_to_tell_apart": "Inocybe is a muscarine-poisonous member of the LBM cloud; fiber splitting plus spermatic smell points here but never clears it." }
+      ],
+      "symptoms_if_ingested": "Sweating, drooling, tearing, pinpoint pupils, slow pulse, breathing difficulty.",
+      "onset": "15 minutes to 2 hours.",
+      "first_aid": ["Call emergency services.", "Save specimens.", "Disclose muscarine suspicion (atropine is the hospital antidote)."],
+      "contact_precautions": "Expert ID only.",
+      "notes": "Fast-acting nerve poison in an unremarkable brown wrapper."
+    },
+    {
+      "id": "ivory-funnel",
+      "common_names": ["Ivory funnel", "Sweating mushroom"],
+      "scientific_name": "Clitocybe dealbata",
+      "category": "mushroom",
+      "edibility": "deadly",
+      "toxicity_mechanism": "High muscarine like Inocybe; small white lawn funnels confused with edible fairy-ring mushrooms.",
+      "regions": ["north-america", "europe", "uk-ireland"],
+      "seasons": ["summer", "autumn"],
+      "habitat": "Grassy lawns and pastures in rings; small white funnel mushrooms.",
+      "visual_prompts": [
+        "Small white funnel-shaped Clitocybe mushrooms fruiting in a lawn ring",
+        "Close-up of white decurrent Clitocybe gills running down the stem",
+        "Detail of ivory funnel cap with an inrolled margin and mealy smell",
+        "Fairy ring of small white funnels on short grass"
+      ],
+      "verification_checklist": [
+        "Small white to ivory funnel caps in grass rings",
+        "Gills run down the stem (decurrent)",
+        "Smell is mealy or sweet, not almond",
+        "No ring, no sac",
+        "Grows in lawns, not woods",
+        "White lawn funnels are never tasted — edible Marasmius lookalikes need experts"
+      ],
+      "confusable_with": [
+        { "species_id": "oyster-mushroom", "how_to_tell_apart": "Oysters grow shelving on wood; ivory funnels grow in grass rings from soil. Substrate is the first divider." }
+      ],
+      "symptoms_if_ingested": "Sweating, drooling, blurred vision, slow pulse, breathing difficulty.",
+      "onset": "15 minutes to 2 hours.",
+      "first_aid": ["Call emergency services.", "Save ring specimens with grass.", "Disclose muscarine suspicion."],
+      "contact_precautions": "Expert ID only.",
+      "notes": "The lawn fairy-ring trap."
+    },
+    {
+      "id": "poison-ivy",
+      "common_names": ["Poison ivy"],
+      "scientific_name": "Toxicodendron radicans",
+      "category": "plant",
+      "edibility": "contact_hazard",
+      "toxicity_mechanism": "Urushiol oil in leaves, stems, roots, and white-green berries causes severe allergic dermatitis; smoke from burning plants injures lungs.",
+      "regions": ["north-america"],
+      "seasons": ["spring", "summer", "autumn", "winter"],
+      "habitat": "Everywhere east of the Rockies: groundcover, climbing vines, and shrubs; three leaflets.",
+      "visual_prompts": [
+        "Poison ivy plant with three glossy pointed leaflets, the middle one long-stalked",
+        "Close-up of poison ivy leaflets with irregular teeth and a longer middle stalk",
+        "Detail of hairy poison ivy vine climbing a tree trunk",
+        "White-green poison ivy berries in autumn among red fall leaves"
+      ],
+      "verification_checklist": [
+        "Leaves are compound with exactly THREE leaflets (leaflets, not leaves)",
+        "Middle leaflet sits on a distinctly longer stalk",
+        "Leaflets are pointed with irregular teeth or lobes",
+        "Growth form varies: groundcover, shrub, or hairy climbing vine",
+        "White-green berries in autumn; red fall color",
+        "Winter bare vines with aerial rootlets are still toxic"
+      ],
+      "confusable_with": [
+        { "species_id": "virginia-creeper", "how_to_tell_apart": "Virginia creeper has FIVE leaflets and blue-black berries on red stalks; poison ivy has three leaflets and white-green berries." },
+        { "species_id": "poison-oak", "how_to_tell_apart": "Poison oak has three rounded oak-like leaflets and western range; both cause urushiol dermatitis — treat either as poison ivy." }
+      ],
+      "symptoms_if_ingested": "Mouth and throat blistering, nausea; berries also toxic.",
+      "onset": "Skin rash in 12–72 hours; mouth symptoms in minutes to hours.",
+      "first_aid": ["Do not scratch.", "Wash with soap and cool water within minutes.", "Wash clothing and gear.", "Seek care for face, eye, or widespread rash."],
+      "contact_precautions": "Never burn: smoke carries urushiol into lungs. Barrier cream plus gloves plus wash protocol.",
+      "notes": "Leaves of three, let it be — plus the long middle stalk check."
+    },
+    {
+      "id": "poison-oak",
+      "common_names": ["Pacific poison oak", "Atlantic poison oak"],
+      "scientific_name": "Toxicodendron diversilobum",
+      "category": "plant",
+      "edibility": "contact_hazard",
+      "toxicity_mechanism": "Urushiol identical to poison ivy; rounded oak-like leaflets fool hikers.",
+      "regions": ["north-america"],
+      "seasons": ["spring", "summer", "autumn", "winter"],
+      "habitat": "Pacific coast woods and southeastern thickets; shrub or climbing vine.",
+      "visual_prompts": [
+        "Poison oak shrub with three rounded oak-like leaflets",
+        "Close-up of lobed poison oak leaflets resembling small oak leaves",
+        "Detail of poison oak stem with three-leaflet clusters and small green berries",
+        "Red-orange poison oak fall foliage on a hillside"
+      ],
+      "verification_checklist": [
+        "Exactly three leaflets per leaf, rounded and oak-lobed",
+        "Leaflets have irregular lobes like miniature oak leaves",
+        "Shrub or vine form with gray-brown stems",
+        "Green-white berries in autumn",
+        "Red fall color shared with poison ivy",
+        "Any three rounded leaflets in range are treated as poison oak"
+      ],
+      "confusable_with": [
+        { "species_id": "poison-ivy", "how_to_tell_apart": "Poison ivy leaflets are pointed; poison oak leaflets are rounded and oak-lobed. Same urushiol hazard either way." }
+      ],
+      "symptoms_if_ingested": "Same as poison ivy: blistering rash, mouth injury.",
+      "onset": "12–72 hours for rash.",
+      "first_aid": ["Wash promptly.", "Launder gear.", "Seek care for severe or facial rash."],
+      "contact_precautions": "Never burn; wash pets that walked through patches.",
+      "notes": "Western counterpart with the same oil."
+    },
+    {
+      "id": "poison-sumac",
+      "common_names": ["Poison sumac"],
+      "scientific_name": "Toxicodendron vernix",
+      "category": "plant",
+      "edibility": "contact_hazard",
+      "toxicity_mechanism": "Most potent urushiol of the family in a wetland shrub; hanging white berries and smooth pinnate leaves.",
+      "regions": ["north-america"],
+      "seasons": ["spring", "summer", "autumn"],
+      "habitat": "Swamps, bogs, and wet woods of the eastern US; tall shrub with pinnate leaves.",
+      "visual_prompts": [
+        "Poison sumac shrub with smooth pinnate leaves of many untoothed leaflets in a swamp",
+        "Close-up of poison sumac hanging clusters of white-green berries",
+        "Detail of smooth-edged poison sumac leaflets with red stalks",
+        "Brilliant orange-red poison sumac fall foliage in a wetland"
+      ],
+      "verification_checklist": [
+        "Leaves are pinnate with 7–13 smooth-edged (untoothed) leaflets",
+        "Leaf stalks are often reddish",
+        "Berries hang in loose white-green clusters (not red upright cones)",
+        "Grows as a tall shrub in standing wet ground",
+        "Fall color is brilliant orange-red",
+        "Smooth leaflets plus white hanging berries in swamps is the stop pattern"
+      ],
+      "confusable_with": [
+        { "species_id": "poison-ivy", "how_to_tell_apart": "Poison ivy has three leaflets; poison sumac has many smooth leaflets. Both urushiol hazards." }
+      ],
+      "symptoms_if_ingested": "Severe rash, mouth blistering; most potent of the group.",
+      "onset": "Hours to days.",
+      "first_aid": ["Wash immediately.", "Seek care early — reactions are severe.", "Launder everything."],
+      "contact_precautions": "Avoid wetlands contact; never burn.",
+      "notes": "Smooth leaflets plus swamp plus white berries separates it from harmless red-berried sumacs."
+    },
+    {
+      "id": "giant-hogweed",
+      "common_names": ["Giant hogweed"],
+      "scientific_name": "Heracleum mantegazzianum",
+      "category": "plant",
+      "edibility": "contact_hazard",
+      "toxicity_mechanism": "Furanocoumarin sap plus sunlight causes phytophotodermatitis: giant blisters and years of sun sensitivity.",
+      "regions": ["north-america", "europe", "uk-ireland"],
+      "seasons": ["spring", "summer"],
+      "habitat": "Riversides and roadsides; a 4-meter giant with dinner-plate flower heads.",
+      "visual_prompts": [
+        "Giant hogweed towering over a person with huge lobed leaves and a dinner-plate white flower head",
+        "Close-up of giant hogweed stem with purple blotches and stiff white hairs",
+        "Detail of giant hogweed leaf the size of a torso with sharp lobes",
+        "Riverside colony of giant hogweed with multiple white umbels"
+      ],
+      "verification_checklist": [
+        "Plant is enormous: 3–5 meters tall in flower",
+        "Stem is thick with purple-red blotches and stiff white hairs",
+        "Leaves are huge, sharply lobed, up to a meter across",
+        "Flower head is a white umbel up to 80 cm wide",
+        "Grows in colonies on riversides and roadsides",
+        "Do not touch, break, or brush against any part"
+      ],
+      "confusable_with": [
+        { "species_id": "cow-parsnip", "how_to_tell_apart": "Cow parsnip is a smaller native cousin (under 2 m) with softer maple-like leaves; hogweed is a giant with blotched hairy stems. Both burn — treat either with no-touch protocol." },
+        { "species_id": "queen-annes-lace", "how_to_tell_apart": "Queen Anne's lace is a small delicate lace flower under 1 m; hogweed is a 4 m giant. Scale alone separates them." }
+      ],
+      "symptoms_if_ingested": "Mouth burns; skin contact plus sun causes giant blisters and scarring.",
+      "onset": "Blisters in 24–48 hours after sun exposure.",
+      "first_aid": ["Do not touch further.", "Cover skin from sunlight.", "Wash with soap and water.", "Seek medical care for any contact; eye contact is an emergency."],
+      "contact_precautions": "Report sightings to local authorities; professional removal only. Never strim or burn.",
+      "notes": "Do-not-touch plus report; the most dangerous contact plant in this database."
+    },
+    {
+      "id": "cow-parsnip",
+      "common_names": ["Common cow parsnip"],
+      "scientific_name": "Heracleum maximum",
+      "category": "plant",
+      "edibility": "contact_hazard",
+      "toxicity_mechanism": "Same furanocoumarin sap as hogweed in milder dose; burns plus sun sensitivity.",
+      "regions": ["north-america"],
+      "seasons": ["spring", "summer"],
+      "habitat": "Moist meadows and streambanks; tall native with maple-like leaves.",
+      "visual_prompts": [
+        "Cow parsnip with broad maple-like lobed leaves and a flat white flower umbel",
+        "Close-up of cow parsnip soft hairy green stem without purple blotches",
+        "Detail of broad cow parsnip leaf with soft hairs",
+        "Meadow stand of cow parsnip under 2 meters tall"
+      ],
+      "verification_checklist": [
+        "Height is 1–2 meters (not a 4-meter giant)",
+        "Stem is green and softly hairy without purple blotches",
+        "Leaves are broad and maple-like with soft hairs",
+        "Flower umbel is white and flat, under 30 cm",
+        "Grows in moist meadows and streambanks",
+        "Sap plus sunlight still burns — no-touch protocol"
+      ],
+      "confusable_with": [
+        { "species_id": "giant-hogweed", "how_to_tell_apart": "Hogweed is twice as tall with blotched bristly stems; cow parsnip is smaller and green-stemmed. Both burn." }
+      ],
+      "symptoms_if_ingested": "Mouth burns; skin burns with sun.",
+      "onset": "Hours to a day with sun.",
+      "first_aid": ["Wash promptly.", "Cover from sun.", "Seek care for blisters."],
+      "contact_precautions": "Gloves and sleeves near stands; wash tools.",
+      "notes": "Native and common; smaller does not mean safe."
+    },
+    {
+      "id": "wild-parsnip",
+      "common_names": ["Wild parsnip"],
+      "scientific_name": "Pastinaca sativa",
+      "category": "plant",
+      "edibility": "contact_hazard",
+      "toxicity_mechanism": "Furanocoumarin sap causes phytophotodermatitis; yellow flowers and parsnip leaves invite handling.",
+      "regions": ["north-america", "europe", "uk-ireland"],
+      "seasons": ["summer"],
+      "habitat": "Roadsides and pastures; yellow umbels on grooved stems.",
+      "visual_prompts": [
+        "Wild parsnip with pinnate celery-like leaves and flat yellow flower umbels",
+        "Close-up of yellow wild parsnip flower umbel with no white bracts",
+        "Detail of grooved wild parsnip stem with pinnate toothed leaflets",
+        "Roadside strip of yellow wild parsnip in summer"
+      ],
+      "verification_checklist": [
+        "Flowers are yellow umbels (not white like hemlocks)",
+        "Leaves are pinnate with toothed oval leaflets like celery",
+        "Stem is grooved and green",
+        "Grows densely on roadsides and pastures",
+        "Sap on skin plus sun equals burns — do not pick bouquets",
+        "Yellow umbels on roadsides get no-touch treatment"
+      ],
+      "confusable_with": [
+        { "species_id": "poison-hemlock", "how_to_tell_apart": "Poison hemlock has white flowers, purple-blotched stems, and mouse-like smell; wild parsnip has yellow flowers and grooved green stems. Both dangerous." }
+      ],
+      "symptoms_if_ingested": "Stomach burns; skin burns with sun exposure.",
+      "onset": "Hours with sun.",
+      "first_aid": ["Wash promptly.", "Shield from sun.", "Seek care for blisters."],
+      "contact_precautions": "Mowing spreads sap; protective gear required.",
+      "notes": "Yellow flowers do not mean friendly."
+    },
+    {
+      "id": "stinging-nettle",
+      "common_names": ["Stinging nettle"],
+      "scientific_name": "Urtica dioica",
+      "category": "plant",
+      "edibility": "edible_with_caution",
+      "toxicity_mechanism": "Hollow silica stingers inject histamine and acids on touch; cooked plants are traditionally eaten with guidance, raw ones sting mouth and skin.",
+      "regions": ["north-america", "europe", "uk-ireland"],
+      "seasons": ["spring", "summer"],
+      "habitat": "Rich nitrogen soils, trailsides, and creek banks; toothed opposite leaves with stingers.",
+      "visual_prompts": [
+        "Stinging nettle patch with opposite toothed heart-shaped leaves on square stems",
+        "Close-up of nettle stinging hairs like tiny glass needles on leaf and stem",
+        "Detail of nettle opposite leaf pairs with stinging hairs along veins",
+        "Drooping green nettle flower tassels in summer"
+      ],
+      "verification_checklist": [
+        "Leaves are opposite, toothed, heart-shaped at the base",
+        "Stems are square with visible stinging hairs",
+        "Touch causes instant sting (do not test deliberately)",
+        "Flowers hang in green tassels (summer)",
+        "Only young tops ever considered by experts, always cooked",
+        "Raw tasting is never approved"
+      ],
+      "confusable_with": [
+        { "species_id": "poison-ivy", "how_to_tell_apart": "Poison ivy has three leaflets and no stingers; nettle has opposite single toothed leaves with glassy stingers. Different hazards, both hands-off." }
+      ],
+      "symptoms_if_ingested": "Raw: mouth and throat stinging and swelling; cooked properly: well tolerated.",
+      "onset": "Seconds for stings.",
+      "first_aid": ["Do not rub.", "Wash with soap and water.", "Cool compress.", "Seek care for throat swelling or widespread reaction."],
+      "contact_precautions": "Gloves and sleeves; wash stung clothing separately.",
+      "notes": "Cooked-with-guidance only; the sting is the ID confirmation nobody wants."
+    },
+    {
+      "id": "water-hemlock",
+      "common_names": ["Water hemlock", "Spotted cowbane"],
+      "scientific_name": "Cicuta maculata",
+      "category": "plant",
+      "edibility": "deadly",
+      "toxicity_mechanism": "Cicutoxin causes violent seizures; a bite of tuberous root can kill; most poisonous plant in North America.",
+      "regions": ["north-america"],
+      "seasons": ["spring", "summer"],
+      "habitat": "Wet ditches, marshes, and streambanks; white umbels over chambered tuberous roots.",
+      "visual_prompts": [
+        "Water hemlock with white umbel flowers and twice-pinnate toothed leaves in a marsh",
+        "Close-up of water hemlock leaf veins running to the notches between teeth",
+        "Detail of water hemlock tuberous roots sliced to show chambers with yellow oil",
+        "Water hemlock stand in standing water with purple-streaked stems"
+      ],
+      "verification_checklist": [
+        "Grows in standing wet ground (marsh, ditch, streambank)",
+        "Leaves are twice-pinnate with veins ending at tooth notches",
+        "Stems may streak purple; smell is parsnip-like, not mousy",
+        "Roots are tuberous and chambered with yellow oil when sliced",
+        "White umbel flowers with no single central dark floret",
+        "Any white umbel in wetlands is expert-only; never taste or dig"
+      ],
+      "confusable_with": [
+        { "species_id": "queen-annes-lace", "how_to_tell_apart": "Queen Anne's lace grows in dry ground with hairy stems, a dark central floret, and a solid carrot root; water hemlock grows in wetlands with chambered tubers and notch-veined leaves." },
+        { "species_id": "poison-hemlock", "how_to_tell_apart": "Poison hemlock has purple-blotched smooth stems and a mousy smell in drier ground; water hemlock has chambered tubers in wetlands. Both deadly." }
+      ],
+      "symptoms_if_ingested": "Salivation, tremors, violent seizures, rapid death.",
+      "onset": "15–60 minutes.",
+      "first_aid": ["Call emergency services immediately.", "Save root and leaves.", "Protect from seizure injury.", "Do not induce vomiting."],
+      "contact_precautions": "Do not dig roots without expert need; wash everything.",
+      "notes": "Wetland white umbels are guilty until proven innocent."
+    },
+    {
+      "id": "poison-hemlock",
+      "common_names": ["Poison hemlock"],
+      "scientific_name": "Conium maculatum",
+      "category": "plant",
+      "edibility": "deadly",
+      "toxicity_mechanism": "Coniine and related alkaloids paralyze breathing; Socrates' poison; deadly in small amounts.",
+      "regions": ["north-america", "europe", "uk-ireland", "australia-nz"],
+      "seasons": ["spring", "summer"],
+      "habitat": "Roadsides and damp waste ground; tall white umbels on purple-blotched stems.",
+      "visual_prompts": [
+        "Tall poison hemlock with white umbels and purple-blotched smooth hollow stems",
+        "Close-up of purple blotches on a smooth poison hemlock stem",
+        "Detail of lacy parsely-like poison hemlock leaves with a mousy smell when crushed",
+        "Roadside colony of poison hemlock up to 3 meters tall"
+      ],
+      "verification_checklist": [
+        "Stems are smooth, hollow, with distinct purple blotches",
+        "Leaves are lacy and parsely-like, smelling mousy when crushed",
+        "White umbels with no dark central floret",
+        "Tall (1–3 m) roadside colonies",
+        "Root is a white taproot, not chambered tubers",
+        "Purple blotches plus mousy smell is the stop pattern"
+      ],
+      "confusable_with": [
+        { "species_id": "queen-annes-lace", "how_to_tell_apart": "Queen Anne's lace has hairy green stems, a dark central floret, and carrot smell; poison hemlock has blotched smooth stems and mousy smell." },
+        { "species_id": "water-hemlock", "how_to_tell_apart": "Water hemlock has chambered tubers in wetlands; poison hemlock has taproots on drier ground. Both deadly." }
+      ],
+      "symptoms_if_ingested": "Trembling, dilated pupils, paralysis ascending to breathing muscles.",
+      "onset": "30 minutes to 3 hours.",
+      "first_aid": ["Call emergency services immediately.", "Save stem and leaves.", "Support breathing if trained."],
+      "contact_precautions": "Do not crush and sniff repeatedly; wash hands.",
+      "notes": "The roadside umbellifer that kills foragers and livestock."
+    },
+    {
+      "id": "foxglove",
+      "common_names": ["Foxglove"],
+      "scientific_name": "Digitalis purpurea",
+      "category": "plant",
+      "edibility": "deadly",
+      "toxicity_mechanism": "Cardiac glycosides (digitoxin): digitalis heart poisoning from leaves, flowers, and seeds.",
+      "regions": ["north-america", "europe", "uk-ireland"],
+      "seasons": ["spring", "summer"],
+      "habitat": "Wood edges and banks; tall spikes of purple thimble flowers over wrinkled basal leaves.",
+      "visual_prompts": [
+        "Tall foxglove spike with purple thimble flowers spotted inside",
+        "Close-up of foxglove bell flower with spotted throat and protruding stamens",
+        "Detail of wrinkled downy foxglove basal leaves in a rosette",
+        "Foxglove colony on a woodland bank with one-sided flower spikes"
+      ],
+      "verification_checklist": [
+        "Flowers are purple-pink thimbles with spotted throats on a tall spike",
+        "Spike blooms from bottom upward, one-sided",
+        "Basal leaves are wrinkled, downy, oval with toothed margins",
+        "Stem is tall, unbranched, downy",
+        "Seeds are tiny brown ovals in capsules",
+        "Thimble flowers plus wrinkled rosette is a stop signal"
+      ],
+      "confusable_with": [
+        { "species_id": "monkshood", "how_to_tell_apart": "Monkshood has hooded blue-purple helmet flowers and divided leaves; foxglove has thimble bells and wrinkled ovals. Both deadly." }
+      ],
+      "symptoms_if_ingested": "Nausea, slow irregular pulse, visual halos, collapse.",
+      "onset": "1–6 hours.",
+      "first_aid": ["Call emergency services.", "Save leaves and flowers.", "Do not induce vomiting."],
+      "contact_precautions": "Wash hands; keep away from children.",
+      "notes": "Heart medicine and heart poison in the same leaf."
+    },
+    {
+      "id": "monkshood",
+      "common_names": ["Monkshood", "Wolfsbane"],
+      "scientific_name": "Aconitum napellus",
+      "category": "plant",
+      "edibility": "deadly",
+      "toxicity_mechanism": "Aconitine opens sodium channels: numbness, arrhythmia, death; skin contact with sap is hazardous.",
+      "regions": ["north-america", "europe", "uk-ireland"],
+      "seasons": ["summer", "autumn"],
+      "habitat": "Mountain meadows and garden escapes; blue helmet flowers over divided leaves.",
+      "visual_prompts": [
+        "Monkshood spike with deep blue helmet-shaped hooded flowers",
+        "Close-up of monkshood helmet flower like a hood sheltering inner petals",
+        "Detail of deeply divided monkshood leaves like fingers",
+        "Monkshood clump in a mountain meadow"
+      ],
+      "verification_checklist": [
+        "Flowers are deep blue-purple helmets or hoods, not bells or stars",
+        "Leaves are deeply divided into finger-like segments",
+        "Stems are tall and unbranched with a terminal spike",
+        "Roots are tuberous (never dig to check)",
+        "Helmet flowers plus divided leaves is a stop signal",
+        "Do not handle sap; gloves mandatory near stands"
+      ],
+      "confusable_with": [
+        { "species_id": "foxglove", "how_to_tell_apart": "Foxglove has thimble bells and wrinkled oval leaves; monkshood has helmets and divided leaves. Both deadly." }
+      ],
+      "symptoms_if_ingested": "Numb mouth, vomiting, irregular pulse, paralysis, death.",
+      "onset": "Minutes to 2 hours; very fast.",
+      "first_aid": ["Call emergency services immediately.", "Save flowers and leaves.", "Do not touch sap further."],
+      "contact_precautions": "Sap through skin and eyes is dangerous; wash thoroughly.",
+      "notes": "Among the fastest plant killers in the temperate world."
+    },
+    {
+      "id": "ramps",
+      "common_names": ["Ramps", "Wild leek"],
+      "scientific_name": "Allium tricoccum",
+      "category": "plant",
+      "edibility": "edible_with_caution",
+      "toxicity_mechanism": "None when correctly identified with onion smell and true bulb; lily-of-the-valley and false hellebore confusion is deadly.",
+      "regions": ["north-america"],
+      "seasons": ["spring"],
+      "habitat": "Rich hardwood coves; broad smooth leaves with onion smell over white bulbs.",
+      "visual_prompts": [
+        "Ramps carpet with broad smooth oval leaves and white bulb bases in a hardwood cove",
+        "Close-up of ramps white bulb with onion-like sheath and flat leaf stalks",
+        "Detail of smooth hairless ramps leaves with parallel veins and no teeth",
+        "Ramps spherical white flower cluster on a leafless stalk in early summer"
+      ],
+      "verification_checklist": [
+        "Crushed leaf smells strongly of onion or garlic (non-negotiable)",
+        "Leaves are broad, smooth, untoothed, with parallel veins",
+        "Base shows a true white bulb with onion sheath",
+        "Grows in rich hardwood coves in early spring colonies",
+        "No bell flowers mixed in the patch",
+        "Any onion-less lookalike patch is abandoned entirely"
+      ],
+      "confusable_with": [
+        { "species_id": "lily-of-the-valley", "how_to_tell_apart": "Lily of the valley has no onion smell, sweet bell flowers, and no true bulb; ramps smell of onion with true bulbs and airy flower balls." }
+      ],
+      "symptoms_if_ingested": "True ramps: none expected; lily confusion: cardiac emergency.",
+      "onset": "N/A for true ramps; 1–6 hours for lily.",
+      "first_aid": ["Confirm onion smell before any taste.", "If confusion possible, call poison control.", "Save whole plants with bulbs."],
+      "contact_precautions": "Harvest sustainably (one leaf per plant) where legal; check local rules.",
+      "notes": "Smell plus bulb plus habitat — all three, every plant, every time."
+    },
+    {
+      "id": "queen-annes-lace",
+      "common_names": ["Queen Anne's lace", "Wild carrot"],
+      "scientific_name": "Daucus carota",
+      "category": "plant",
+      "edibility": "not_recommended",
+      "toxicity_mechanism": "Edible reputation only with expert ID; hemlock confusion is deadly and this app never clears umbellifers.",
+      "regions": ["north-america", "europe", "uk-ireland"],
+      "seasons": ["summer"],
+      "habitat": "Dry fields and roadsides; delicate white lace umbels with a dark central floret.",
+      "visual_prompts": [
+        "Queen Anne's lace with a flat white lace umbel holding one dark red central floret",
+        "Close-up of the single dark central floret in a white lace flower head",
+        "Detail of hairy green Queen Anne's lace stem with finely divided leaves",
+        "Dry field dotted with white lace umbels that curl into bird nests in seed"
+      ],
+      "verification_checklist": [
+        "Single dark red-purple floret sits at the umbel center",
+        "Stems are green and hairy (never purple-blotched smooth)",
+        "Crushed root smells of carrot",
+        "Grows in dry fields, not wetlands",
+        "Seed heads curl into bird-nest cups",
+        "Even with all checks, hemlock risk keeps this expert-only"
+      ],
+      "confusable_with": [
+        { "species_id": "water-hemlock", "how_to_tell_apart": "Water hemlock grows in wetlands with chambered tubers and notch-veined leaves; Queen Anne's lace grows in dry ground with hairy stems and carrot roots." },
+        { "species_id": "poison-hemlock", "how_to_tell_apart": "Poison hemlock has blotched smooth stems and mousy smell; Queen Anne's lace has hairy green stems and carrot smell." }
+      ],
+      "symptoms_if_ingested": "True wild carrot: mild stomach upset raw; hemlock confusion: seizures or paralysis.",
+      "onset": "15 minutes to 3 hours for hemlocks.",
+      "first_aid": ["Do not eat without expert.", "Save root and flowers.", "Call poison control for any hemlock suspicion."],
+      "contact_precautions": "Some people get skin irritation; wash hands.",
+      "notes": "The dark-floret plus hairy-stem plus carrot-smell trio still does not clear it here."
     }
   ],
   "emergency": {

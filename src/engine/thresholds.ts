@@ -1,0 +1,9 @@
+export const THRESHOLDS = {
+  ABS_MIN_SIMILARITY: 0.3,
+  CONFIDENT_SIMILARITY: 0.45,
+  MARGIN_CONFIDENT: 0.06,
+  AMBIGUITY_BAND: 0.05,
+  SOFTMAX_TEMPERATURE: 0.05,
+} as const;
+
+export type Thresholds = typeof THRESHOLDS;

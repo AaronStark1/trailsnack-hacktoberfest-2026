@@ -1,0 +1,109 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "TrailSnack flora safety database",
+  "type": "object",
+  "required": ["version", "disclaimer", "universal_rules", "species", "emergency"],
+  "additionalProperties": false,
+  "properties": {
+    "version": { "type": "string", "minLength": 1 },
+    "disclaimer": { "type": "string", "minLength": 1 },
+    "universal_rules": {
+      "type": "array",
+      "minItems": 10,
+      "items": {
+        "type": "object",
+        "required": ["id", "applies_to", "text"],
+        "additionalProperties": false,
+        "properties": {
+          "id": { "type": "string" },
+          "applies_to": {
+            "type": "array",
+            "minItems": 1,
+            "items": { "enum": ["berry", "mushroom", "plant"] }
+          },
+          "text": { "type": "string", "minLength": 1 }
+        }
+      }
+    },
+    "species": {
+      "type": "array",
+      "minItems": 72,
+      "items": {
+        "type": "object",
+        "required": [
+          "id",
+          "common_names",
+          "scientific_name",
+          "category",
+          "edibility",
+          "toxicity_mechanism",
+          "regions",
+          "seasons",
+          "habitat",
+          "visual_prompts",
+          "verification_checklist",
+          "confusable_with",
+          "symptoms_if_ingested",
+          "onset",
+          "first_aid",
+          "contact_precautions",
+          "notes"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "id": { "type": "string", "pattern": "^[a-z0-9-]+$" },
+          "common_names": { "type": "array", "minItems": 1, "items": { "type": "string", "minLength": 1 } },
+          "scientific_name": { "type": "string", "minLength": 1 },
+          "category": { "enum": ["berry", "mushroom", "plant"] },
+          "edibility": { "enum": ["edible_with_caution", "not_recommended", "toxic", "deadly", "contact_hazard"] },
+          "toxicity_mechanism": { "type": "string", "minLength": 1 },
+          "regions": { "type": "array", "minItems": 1, "items": { "type": "string", "minLength": 1 } },
+          "seasons": { "type": "array", "minItems": 1, "items": { "type": "string", "minLength": 1 } },
+          "habitat": { "type": "string", "minLength": 1 },
+          "visual_prompts": { "type": "array", "minItems": 3, "maxItems": 6, "items": { "type": "string", "minLength": 1 } },
+          "verification_checklist": { "type": "array", "minItems": 5, "maxItems": 10, "items": { "type": "string", "minLength": 1 } },
+          "confusable_with": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": ["species_id", "how_to_tell_apart"],
+              "additionalProperties": false,
+              "properties": {
+                "species_id": { "type": "string" },
+                "how_to_tell_apart": { "type": "string", "minLength": 1 }
+              }
+            }
+          },
+          "symptoms_if_ingested": { "type": "string", "minLength": 1 },
+          "onset": { "type": "string", "minLength": 1 },
+          "first_aid": { "type": "array", "minItems": 1, "items": { "type": "string", "minLength": 1 } },
+          "contact_precautions": { "type": "string", "minLength": 1 },
+          "notes": { "type": "string", "minLength": 1 }
+        }
+      }
+    },
+    "emergency": {
+      "type": "object",
+      "required": ["universal", "regions"],
+      "additionalProperties": false,
+      "properties": {
+        "universal": { "type": "array", "minItems": 1, "items": { "type": "string" } },
+        "regions": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "object",
+            "required": ["id", "label", "poison_control", "emergency"],
+            "properties": {
+              "id": { "type": "string" },
+              "label": { "type": "string" },
+              "poison_control": { "type": "string" },
+              "emergency": { "type": "string" },
+              "note": { "type": "string" }
+            }
+          }
+        }
+      }
+    }
+  }
+}
