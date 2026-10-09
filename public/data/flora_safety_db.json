@@ -1,5 +1,5 @@
 {
-  "version": "2026.10.1",
+  "version": "2026.10.2",
   "disclaimer": "Educational reference only. Never eat any wild plant, berry, or fungus based on an app. Confirm with a qualified local expert.",
   "universal_rules": [
     { "id": "no-app-confirmation", "applies_to": ["berry", "mushroom", "plant"], "text": "No wild mushroom is ever confirmed by an app; treat every mushroom ID as provisional until a qualified expert confirms it in person." },
@@ -788,7 +788,7 @@
     },
     {
       "id": "pacific-yew",
-      "common_names": ["Pacific yew", "English yew"],
+      "common_names": ["Pacific yew"],
       "scientific_name": "Taxus brevifolia",
       "category": "berry",
       "edibility": "deadly",
@@ -821,7 +821,7 @@
     },
     {
       "id": "american-holly",
-      "common_names": ["American holly", "English holly"],
+      "common_names": ["American holly"],
       "scientific_name": "Ilex opaca",
       "category": "berry",
       "edibility": "toxic",
@@ -854,7 +854,7 @@
     },
     {
       "id": "european-mistletoe",
-      "common_names": ["European mistletoe", "American mistletoe"],
+      "common_names": ["European mistletoe"],
       "scientific_name": "Viscum album",
       "category": "berry",
       "edibility": "toxic",
@@ -1386,7 +1386,7 @@
     },
     {
       "id": "yellow-morel",
-      "common_names": ["Yellow morel", "Black morel"],
+      "common_names": ["Yellow morel"],
       "scientific_name": "Morchella esculenta",
       "category": "mushroom",
       "edibility": "not_recommended",
@@ -2608,7 +2608,8 @@
         "Any onion-less lookalike patch is abandoned entirely"
       ],
       "confusable_with": [
-        { "species_id": "lily-of-the-valley", "how_to_tell_apart": "Lily of the valley has no onion smell, sweet bell flowers, and no true bulb; ramps smell of onion with true bulbs and airy flower balls." }
+        { "species_id": "lily-of-the-valley", "how_to_tell_apart": "Lily of the valley has no onion smell, sweet bell flowers, and no true bulb; ramps smell of onion with true bulbs and airy flower balls." },
+        { "species_id": "false-hellebore", "how_to_tell_apart": "False hellebore leaves are pleated and hairy with no onion smell and grow from thick stalks; ramps leaves are smooth with parallel veins, smell strongly of onion, and grow from true white bulbs." }
       ],
       "symptoms_if_ingested": "True ramps: none expected; lily confusion: cardiac emergency.",
       "onset": "N/A for true ramps; 1–6 hours for lily.",
@@ -2649,6 +2650,73 @@
       "first_aid": ["Do not eat without expert.", "Save root and flowers.", "Call poison control for any hemlock suspicion."],
       "contact_precautions": "Some people get skin irritation; wash hands.",
       "notes": "The dark-floret plus hairy-stem plus carrot-smell trio still does not clear it here."
+    },
+    {
+      "id": "false-hellebore",
+      "common_names": ["False hellebore", "Indian poke"],
+      "scientific_name": "Veratrum viride",
+      "category": "plant",
+      "edibility": "deadly",
+      "toxicity_mechanism": "Veratrum steroidal alkaloids (veratridine, cevadine): sodium-channel poisons causing vomiting, slow pulse, low blood pressure, and collapse.",
+      "regions": ["north-america", "europe"],
+      "seasons": ["spring", "summer"],
+      "habitat": "Wet mountain meadows and streambanks; tall stalks with large pleated leaves and green-white flower plumes.",
+      "visual_prompts": [
+        "False hellebore stand with large pleated oval leaves spiraling up thick green stalks",
+        "Close-up of deeply ribbed pleated false hellebore leaf with hairy underside",
+        "Tall false hellebore plume of green-white star flowers above broad leaves",
+        "Spring false hellebore shoots pushing through wet meadow grass"
+      ],
+      "verification_checklist": [
+        "Leaves are pleated like a fan with sunken parallel ribs, often hairy beneath",
+        "Leaves clasp a thick upright stalk (never a true bulb at the base)",
+        "No onion or garlic smell when a leaf is crushed (non-negotiable stop signal)",
+        "Mature plants tower with branched green-white flower plumes",
+        "Grows in wet ground and seeps, not dry hardwood coves",
+        "Any broad-leafed spring green without onion smell is abandoned entirely"
+      ],
+      "confusable_with": [
+        { "species_id": "ramps", "how_to_tell_apart": "Ramps smell strongly of onion with smooth leaves and true white bulbs; false hellebore has pleated hairy leaves, no onion smell, and thick stalks. Smell plus stalk check saves lives." }
+      ],
+      "symptoms_if_ingested": "Burning mouth, violent vomiting, slow weak pulse, low blood pressure, dizziness, collapse.",
+      "onset": "30 minutes to 4 hours.",
+      "first_aid": ["Call emergency services.", "Save leaves and stalk.", "Do not induce vomiting."],
+      "contact_precautions": "Handling then touching mouth is hazardous; wash hands.",
+      "notes": "Kills foragers who pick ramps by leaves alone before flowering."
+    },
+    {
+      "id": "atlantic-poison-oak",
+      "common_names": ["Atlantic poison oak"],
+      "scientific_name": "Toxicodendron pubescens",
+      "category": "plant",
+      "edibility": "contact_hazard",
+      "toxicity_mechanism": "Urushiol oil in leaves, stems, and roots causes severe allergic dermatitis; smoke from burning plants injures lungs.",
+      "regions": ["north-america"],
+      "seasons": ["spring", "summer", "autumn"],
+      "habitat": "Sandy pine woods and dunes of the eastern coastal plain; low shrubs with three rounded oak-like leaflets.",
+      "visual_prompts": [
+        "Atlantic poison oak shrub with three rounded oak-lobed leaflets",
+        "Close-up of Atlantic poison oak leaflets with blunt lobes and hairy surface",
+        "Detail of Atlantic poison oak stem with aerial rootlets and leaf scars",
+        "Atlantic poison oak fall color with red-orange three-part leaves"
+      ],
+      "verification_checklist": [
+        "Leaves are compound with exactly THREE leaflets",
+        "Leaflets are rounded and oak-lobed with blunt teeth",
+        "Leaflets and stems are softly hairy",
+        "Low shrub form in sandy eastern woods and dunes",
+        "White-green berries in autumn clusters",
+        "Any three-leaflet oak-like shrub here is treated as poison oak"
+      ],
+      "confusable_with": [
+        { "species_id": "poison-oak", "how_to_tell_apart": "Western poison oak is usually a larger vine or shrub with glossier leaflets; Atlantic poison oak is a low hairy shrub of eastern sands. Both cause urushiol dermatitis — treat either as poison oak." },
+        { "species_id": "poison-ivy", "how_to_tell_apart": "Poison ivy leaflets are pointed with irregular teeth and a long middle stalk; Atlantic poison oak leaflets are rounded and oak-lobed. Both cause urushiol dermatitis — treat either as untouchable." }
+      ],
+      "symptoms_if_ingested": "Mouth and throat blistering, nausea; all parts toxic.",
+      "onset": "Skin rash in 12–72 hours; mouth symptoms in minutes to hours.",
+      "first_aid": ["Do not scratch.", "Wash with soap and cool water within minutes.", "Wash clothing and gear.", "Seek care for face, eye, or widespread rash."],
+      "contact_precautions": "Never burn: smoke carries urushiol into lungs. Barrier cream plus gloves plus wash protocol.",
+      "notes": "Eastern counterpart of western poison oak; same urushiol danger."
     }
   ],
   "emergency": {

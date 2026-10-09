@@ -18,7 +18,7 @@ after the first Render deploy (see Post-deadline commits below).*
 TrailSnack is an offline-first mobile web app for hikers and trail foragers. On a
 remote trail with no cell reception, you photograph a berry cluster, a mushroom,
 or an unfamiliar leaf. The app embeds your photo with a Gemma model running
-locally in the browser, matches it against a bundled reference database of 79
+locally in the browser, matches it against a bundled reference database of 81
 species, and shows a verdict — EDIBLE, CAUTION, TOXIC, or UNKNOWN — alongside
 hazardous lookalikes, a tap-to-tick field checklist, the exact rules behind the
 verdict, and offline emergency numbers for your region.
@@ -62,7 +62,7 @@ labeling that could invent an edible answer.
 ```mermaid
 flowchart LR
     Photo["📷 trail photo"] --> E1["EmbeddingGemma 2\n(image → 768-d)"]
-    DB[("79-species safety DB\nvisual prompts")] --> E2["EmbeddingGemma 2\n(text → 768-d, cached)"]
+    DB[("81-species safety DB\nvisual prompts")] --> E2["EmbeddingGemma 2\n(text → 768-d, cached)"]
     E1 --> COS["cosine similarity\nper-species max"]
     E2 --> COS
     COS --> ENG["deterministic safety engine\nworst-case + category + edible-gate rules"]
@@ -98,7 +98,7 @@ Apache-2.0 for the same reason.
 
 ```
 trailsnack/
-├── public/data/flora_safety_db.json  # 79 species, 12 universal rules, emergency numbers
+├── public/data/flora_safety_db.json  # 81 species, 12 universal rules, emergency numbers
 ├── public/ort/                       # self-hosted ONNX Runtime (generated, git-ignored)
 ├── src/ai/                           # gemmaClient, device detection, progress aggregation
 ├── src/workers/                      # protocol + Gemma Web Worker (only ML importer)
@@ -197,7 +197,7 @@ URL here]*.
 
 ## Dataset provenance and limitations
 
-The 79-species reference was authored by the build agent from general
+The 81-species reference was authored by the build agent from general
 field-guide knowledge — see [`docs/SOURCES.md`](./docs/SOURCES.md) for
 categories, technical sources, and credits. **It has not been reviewed by a
 qualified expert and must not be relied on.** Thresholds in

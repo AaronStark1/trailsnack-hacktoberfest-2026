@@ -21,7 +21,7 @@ works in airplane mode after a one-time Wi-Fi setup, and its defining feature is
 restraint: **the app never declares anything safe to eat.**
 
 Two Gemma models do two jobs. **Tier 1 "Field ID"** (EmbeddingGemma 2, ≈280 MB)
-embeds your photo and matches it against visual descriptions of 79 species by
+embeds your photo and matches it against visual descriptions of 81 species by
 cosine similarity — zero-shot retrieval where the vocabulary is exactly the set
 of species the safety engine understands. **Tier 2 "Deep Look"** (Gemma 4 E2B,
 ≈3.3 GB, opt-in, WebGPU-only) describes visible features as constrained JSON
@@ -46,7 +46,7 @@ The repo is Apache-2.0, built with Vite 8 + React 19 + Tailwind 4 + Transformers
 
 - `src/workers/gemma.worker.ts` — the only file that imports the ML library
 - `src/engine/safetyEngine.ts` — the deterministic verdict (pure, fully tested)
-- `public/data/flora_safety_db.json` — 79 species, 12 universal rules, emergency numbers
+- `public/data/flora_safety_db.json` — 81 species, 12 universal rules, emergency numbers
 - `scripts/check-offline.mjs` — proves airplane-mode operation with zero CDN traffic
 - `docs/AGENT_LOG.md` — the complete autonomous build journal
 
@@ -56,7 +56,7 @@ I built TrailSnack with an AI coding agent — Muse Spark 1.3 running in
 OpenCode — working from an empty directory through nine gated phases: environment
 verification, scaffold with pinned dependencies and self-hosted ONNX Runtime,
 the IndexedDB data layer, the two-tier Gemma worker core (verified against a
-real one-time Tier 1 download), a 79-species safety database with a rule engine
+real one-time Tier 1 download), a 81-species safety database with a rule engine
 tested table-by-table (death cap in the ambiguity band forces TOXIC; a confident
 chanterelle with a jack-o'-lantern lookalike holds at CAUTION; clean blueberry
 goes EDIBLE; Deep Look can only downgrade), a sunlight-readable UI with camera,
