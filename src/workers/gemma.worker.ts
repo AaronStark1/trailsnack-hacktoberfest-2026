@@ -4,6 +4,8 @@ import { StructuredOutputProcessor } from "@huggingface/transformers-structured-
 import { TextStreamer } from "@huggingface/transformers";
 import type { Device, Tier, WorkerEvent, WorkerRequest } from "./protocol.ts";
 import { DEEP_LOOK_JSON_SCHEMA, parseDeepLookJson } from "../engine/deepLookSchema.ts";
+import { decodeGeneratedOutput, promptTokenLength } from "./deepLookDecode.ts";
+import type { SliceableIds } from "./deepLookDecode.ts";
 import { rankSpecies } from "../engine/ranking.ts";
 
 export const TIER1_MODEL_ID = "onnx-community/embeddinggemma-2-ONNX";
@@ -318,9 +320,13 @@ async function deepLook(
       json_schema: JSON.parse(JSON.stringify(DEEP_LOOK_JSON_SCHEMA)) as never,
     });
   }
+  // Streamer-accumulated text doubles as the decode fallback: with
+  // skip_prompt it holds generation-only text.
+  let streamed = "";
   const streamer = new TextStreamer(tier2Processor.tokenizer ?? tier2Tokenizer, {
     skip_prompt: true,
     callback_function: (text: string) => {
+      streamed += text;
       post({ type: "deep-look-token", requestId, text });
     },
   });
@@ -339,11 +345,16 @@ async function deepLook(
       streamer,
       ...(constraint ? { logits_processor: constraint } : {}),
     });
-    void output;
-    // Decode full output text from streamer path is incremental; re-decode via processor for final JSON.
-    const decoded: string = await tier2Processor.batch_decode(output as never, { skip_special_tokens: true }).then(
-      (arr: string[]) => arr.join(""),
+    // generate returns the full sequence (prompt + new tokens): slice the
+    // prompt off, then decode synchronously — batch_decode returns string[]
+    // and has no .then (C2). Fall back to streamer text if decoding is empty.
+    const promptLen = promptTokenLength(inputs as { input_ids?: { dims?: number[] } });
+    let decoded = decodeGeneratedOutput(
+      output as SliceableIds,
+      promptLen,
+      (ids, opts) => tier2Processor.batch_decode(ids as never, opts) as string[],
     );
+    if (!decoded.trim() && streamed.trim()) decoded = streamed;
     const json = parseDeepLookJson(decoded);
     post({ type: "deep-look-result", requestId, json, inferenceMs: Math.round(performance.now() - t0) });
   } catch (err) {
