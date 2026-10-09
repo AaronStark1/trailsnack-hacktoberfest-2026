@@ -51,7 +51,9 @@ export default function FieldLogDetail() {
   return (
     <article className="grid gap-4">
       {photoUrl && <img src={photoUrl} alt="Saved specimen photo" className="aspect-square w-full rounded-2xl object-cover" />}
-      <VerdictBadge badge={v.badge} headline={v.headline} confidence={v.confidence} />
+      <div data-testid="verdict">
+        <VerdictBadge badge={v.badge} headline={v.headline} confidence={v.confidence} />
+      </div>
       <p className="text-base opacity-70">
         {formatDateTime(entry.createdAt)}
         {entry.gps ? ` · ${entry.gps.lat.toFixed(5)}, ${entry.gps.lon.toFixed(5)} (±${Math.round(entry.gps.accuracyM)} m)` : " · no GPS"}
