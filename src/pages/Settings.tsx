@@ -3,6 +3,7 @@ import Toggle from "../components/ui/Toggle.tsx";
 import { useSettingsStore } from "../stores/settingsStore.ts";
 import { loadDatabase } from "../engine/loadDatabase.ts";
 import { useEffect, useState } from "react";
+import sourcesRaw from "../../docs/SOURCES.md?raw";
 
 const REGIONS = ["north-america", "uk-ireland", "europe", "australia-nz", "global"];
 
@@ -96,6 +97,12 @@ export default function Settings() {
           <li>Lucide icons: ISC.</li>
           <li>Reference categories: regional poison control centres, national park and extension-service foraging safety guidance, standard field guides. The dataset was authored by an AI agent from general knowledge — see docs/SOURCES.md, and never rely on it without expert review.</li>
         </ul>
+        <details className="mt-3">
+          <summary className="min-h-12 cursor-pointer font-semibold text-(--color-trail)">
+            Read the full sources and provenance statement
+          </summary>
+          <pre className="mt-2 max-h-96 overflow-auto rounded-xl bg-black/5 p-3 text-base whitespace-pre-wrap">{sourcesRaw}</pre>
+        </details>
       </div>
     </section>
   );

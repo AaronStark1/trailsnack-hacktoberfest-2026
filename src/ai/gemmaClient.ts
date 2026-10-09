@@ -118,7 +118,7 @@ class GemmaClient {
 
   async initTier(
     tier: Tier,
-    opts?: { device?: Device | "auto"; onProgress?: (pct: number, file: string) => void },
+    opts?: { device?: Device | "auto"; onProgress?: (pct: number, file: string, loadedBytes?: number, totalBytes?: number) => void },
   ): Promise<void> {
     const existing = this.initSingleFlight.get(tier);
     if (existing) return existing;
@@ -138,7 +138,7 @@ class GemmaClient {
           {
             timeoutMs: 600_000,
             onEvent: (ev) => {
-              if (ev.type === "progress") opts?.onProgress?.(ev.overallPct, ev.file);
+              if (ev.type === "progress") opts?.onProgress?.(ev.overallPct, ev.file, ev.loadedBytes, ev.totalBytes);
             },
           },
         );
@@ -152,7 +152,7 @@ class GemmaClient {
               {
                 timeoutMs: 600_000,
                 onEvent: (ev) => {
-                  if (ev.type === "progress") opts?.onProgress?.(ev.overallPct, ev.file);
+                  if (ev.type === "progress") opts?.onProgress?.(ev.overallPct, ev.file, ev.loadedBytes, ev.totalBytes);
                 },
               },
             );

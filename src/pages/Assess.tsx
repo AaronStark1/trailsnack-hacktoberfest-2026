@@ -234,7 +234,7 @@ export default function Assess() {
         id: entryId,
         createdAt: Date.now(),
         imageBlob: draft.blob,
-        thumbnailBlob: draft.blob,
+        thumbnailBlob: draft.thumbnailBlob,
         tier1: { scores, inferenceMs },
         ...(deepLookJson ? { tier2: { json: deepLookJson } } : {}),
         verdict: {

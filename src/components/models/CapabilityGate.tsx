@@ -23,12 +23,14 @@ export async function checkTier2Gate(): Promise<GateResult> {
     est.quotaBytes !== null && est.usageBytes !== null
       ? (est.quotaBytes - est.usageBytes) / 1024 / 1024 / 1024
       : null;
+  // Fail closed: unknown memory or quota blocks the 3.3 GB download rather
+  // than waving it through.
   return {
     webgpu,
     deviceMemoryGB,
-    memoryOk: deviceMemoryGB === null ? true : deviceMemoryGB >= REQUIRED_MEM_GB,
+    memoryOk: deviceMemoryGB !== null && deviceMemoryGB >= REQUIRED_MEM_GB,
     freeQuotaGB,
-    quotaOk: freeQuotaGB === null ? true : freeQuotaGB >= REQUIRED_GB,
+    quotaOk: freeQuotaGB !== null && freeQuotaGB >= REQUIRED_GB,
   };
 }
 
@@ -46,12 +48,12 @@ export default function CapabilityGate({ onResult }: { onResult?: (g: GateResult
     ["WebGPU available", gate.webgpu ? "yes" : "WebGPU unavailable", gate.webgpu],
     [
       "Device memory",
-      gate.deviceMemoryGB !== null ? `${gate.deviceMemoryGB} GB (need ≥ ${REQUIRED_MEM_GB} GB)` : "unknown — treated as pass",
+      gate.deviceMemoryGB !== null ? `${gate.deviceMemoryGB} GB (need ≥ ${REQUIRED_MEM_GB} GB)` : "unknown — download blocked until measurable",
       gate.memoryOk,
     ],
     [
       "Free storage",
-      gate.freeQuotaGB !== null ? `${formatBytes(gate.freeQuotaGB * 1024 * 1024 * 1024)} free (need ≥ ${REQUIRED_GB} GB)` : "unknown — treated as pass",
+      gate.freeQuotaGB !== null ? `${formatBytes(gate.freeQuotaGB * 1024 * 1024 * 1024)} free (need ≥ ${REQUIRED_GB} GB)` : "unknown — download blocked until measurable",
       gate.quotaOk,
     ],
   ];

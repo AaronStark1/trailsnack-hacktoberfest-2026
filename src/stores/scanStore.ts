@@ -3,6 +3,7 @@ import { create } from "zustand";
 export interface DraftFrame {
   id: string;
   blob: Blob;
+  thumbnailBlob: Blob;
   width: number;
   height: number;
   createdAt: number;

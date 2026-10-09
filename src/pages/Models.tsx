@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Download, Trash2 } from "lucide-react";
 import TierCard from "../components/models/TierCard.tsx";
 import DownloadProgress from "../components/models/DownloadProgress.tsx";
@@ -9,7 +9,8 @@ import { useModelStore } from "../stores/modelStore.ts";
 import { useSettingsStore } from "../stores/settingsStore.ts";
 import { evictModel } from "../db/modelCacheInspector.ts";
 import { requestPersistentStorage } from "../db/persistence.ts";
-import { getModelManifest, putModelManifest } from "../db/modelManifest.ts";
+import { getModelManifest, listModelManifests, putModelManifest } from "../db/modelManifest.ts";
+import type { ModelManifestRecord } from "../db/modelManifest.ts";
 import { gemmaClient } from "../ai/gemmaClient.ts";
 import { formatBytes, formatEta } from "../lib/format.ts";
 
@@ -23,6 +24,33 @@ export default function Models() {
   const [busy, setBusy] = useState<string | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
   const [dlStart, setDlStart] = useState(0);
+  const [manifests, setManifests] = useState<ModelManifestRecord[]>([]);
+
+  useEffect(() => {
+    void listModelManifests()
+      .then(setManifests)
+      .catch(() => undefined);
+  }, []);
+
+  async function refreshManifests() {
+    try {
+      setManifests(await listModelManifests());
+    } catch {
+      // IndexedDB unavailable; the on-screen status still reflects the store.
+    }
+  }
+
+  function manifestFor(tier: string): ModelManifestRecord | undefined {
+    return manifests.find((m) => m.tier === tier);
+  }
+
+  function manifestLine(tier: string): string {
+    const m = manifestFor(tier);
+    if (!m) return "Not downloaded yet.";
+    const bytes = m.bytes > 0 ? formatBytes(m.bytes) : "size unknown (re-download to measure)";
+    const when = new Date(m.downloadedAt).toLocaleDateString();
+    return `On disk: ${bytes} · downloaded ${when} · ${m.device} · ${m.dtype}.`;
+  }
 
   async function downloadTier1() {
     setBusy("field-id");
@@ -30,24 +58,31 @@ export default function Models() {
     setTier("field-id", { status: "loading", progressPct: 0, currentFile: "", error: null });
     const t0 = Date.now();
     setDlStart(t0);
+    // Sum of per-file totals seen on the progress callbacks = real bytes.
+    const totals = new Map<string, number>();
     try {
       await requestPersistentStorage();
       const device = await gemmaClient.getDevice(preferredDevice);
       setTier("field-id", { device });
       await gemmaClient.initTier("field-id", {
         device: preferredDevice,
-        onProgress: (pct, file) => setTier("field-id", { progressPct: pct, currentFile: file }),
+        onProgress: (pct, file, _loaded, total) => {
+          setTier("field-id", { progressPct: pct, currentFile: file });
+          if (typeof total === "number" && total > 0) totals.set(file, total);
+        },
       });
       setTier("field-id", { status: "ready", progressPct: 100, error: null });
+      const bytes = [...totals.values()].reduce((a, b) => a + b, 0);
       await putModelManifest({
         tier: "field-id",
         modelId: gemmaClient.modelIds().tier1,
         dtype: device === "webgpu" ? "q4f16" : "q4",
         device,
         downloadedAt: Date.now(),
-        bytes: 0,
+        bytes,
         status: "ready",
       });
+      await refreshManifests();
       setNotice(`Tier 1 ready on ${device}.`);
     } catch (err) {
       const message = err instanceof Error ? err.message : String(err);
@@ -65,24 +100,34 @@ export default function Models() {
       setNotice("Tier 2 needs WebGPU, which this device does not expose.");
       return;
     }
+    if (!g.memoryOk || !g.quotaOk) {
+      setNotice("Tier 2 blocked: the device does not report enough memory or free storage (need ≥ 8 GB RAM and ≥ 4.5 GB free).");
+      return;
+    }
     setBusy("deep-look");
     setTier("deep-look", { status: "loading", progressPct: 0, currentFile: "", error: null, device: "webgpu" });
+    const totals = new Map<string, number>();
     try {
       await requestPersistentStorage();
       await gemmaClient.initTier("deep-look", {
         device: "webgpu",
-        onProgress: (pct, file) => setTier("deep-look", { progressPct: pct, currentFile: file }),
+        onProgress: (pct, file, _loaded, total) => {
+          setTier("deep-look", { progressPct: pct, currentFile: file });
+          if (typeof total === "number" && total > 0) totals.set(file, total);
+        },
       });
       setTier("deep-look", { status: "ready", progressPct: 100, error: null });
+      const bytes = [...totals.values()].reduce((a, b) => a + b, 0);
       await putModelManifest({
         tier: "deep-look",
         modelId: gemmaClient.modelIds().tier2,
         dtype: "q4f16",
         device: "webgpu",
         downloadedAt: Date.now(),
-        bytes: 0,
+        bytes,
         status: "ready",
       });
+      await refreshManifests();
       setNotice("Tier 2 ready on WebGPU.");
     } catch (err) {
       const message = err instanceof Error ? err.message : String(err);
@@ -160,6 +205,9 @@ export default function Models() {
           </>
         }
       />
+      <p className="text-base opacity-70" data-testid="tier1-manifest">
+        {manifestLine("field-id")}
+      </p>
 
       <TierCard
         title="Tier 2 — Deep Look (≈3.3 GB)"
@@ -207,6 +255,9 @@ export default function Models() {
           className="mt-1 block min-h-14 w-full rounded-xl border border-black/20 bg-white px-3 text-lg"
         />
       </TierCard>
+      <p className="text-base opacity-70" data-testid="tier2-manifest">
+        {manifestLine("deep-look")}
+      </p>
 
       <QuotaInspector />
     </section>

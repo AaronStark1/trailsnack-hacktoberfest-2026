@@ -2,7 +2,7 @@
 
 ## Explicit statement
 
-The `flora_safety_db.json` dataset (79 species, 12 universal rules, emergency
+The `flora_safety_db.json` dataset (81 species, 12 universal rules, emergency
 numbers) was **authored by an AI agent (Muse Spark 1.3, via OpenCode) from
 general botanical/mycological knowledge** during an autonomous build session. It
 was **not** written or reviewed by a qualified botanist, mycologist, or medical

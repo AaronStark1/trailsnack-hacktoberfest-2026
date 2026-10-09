@@ -25,6 +25,7 @@ export default function Scan() {
       setDraft({
         id,
         blob: frame.storageBlob,
+        thumbnailBlob: frame.thumbnailBlob,
         width: frame.width,
         height: frame.height,
         createdAt: Date.now(),
@@ -52,6 +53,7 @@ export default function Scan() {
       setDraft({
         id,
         blob: frame.storageBlob,
+        thumbnailBlob: frame.thumbnailBlob,
         width: frame.width,
         height: frame.height,
         createdAt: Date.now(),
