@@ -9,7 +9,18 @@ import { useSettingsStore } from "./stores/settingsStore.ts";
 import { __setTestHook } from "./ai/gemmaClient.ts";
 import "./index.css";
 
-registerSW({
+type UpdateFn = (reloadPage?: boolean) => Promise<void>;
+
+declare global {
+  interface Window {
+    __trailsnackUpdateSW?: UpdateFn;
+  }
+}
+
+// Keep the updater: with skipWaiting false the waiting service worker only
+// activates through updateSW(true); a bare reload would keep serving the old
+// bundle. UpdatePrompt calls this; tests may stub window.__trailsnackUpdateSW.
+window.__trailsnackUpdateSW = registerSW({
   immediate: true,
   onNeedRefresh() {
     window.dispatchEvent(new CustomEvent(SW_UPDATE_EVENT));

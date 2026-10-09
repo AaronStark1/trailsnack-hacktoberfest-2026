@@ -13,10 +13,18 @@ export default function UpdatePrompt() {
   }, []);
 
   if (!needRefresh) return null;
+  function reloadToUpdate() {
+    const update = window.__trailsnackUpdateSW;
+    if (update) {
+      void update(true);
+    } else {
+      window.location.reload();
+    }
+  }
   return (
     <div role="status" className="rounded-2xl bg-(--color-caution-bg) p-4 text-(--color-caution)">
       <p className="font-semibold">A new TrailSnack version is available.</p>
-      <Button variant="secondary" className="mt-2" onClick={() => window.location.reload()}>
+      <Button variant="secondary" className="mt-2" onClick={reloadToUpdate}>
         Reload to update
       </Button>
     </div>
