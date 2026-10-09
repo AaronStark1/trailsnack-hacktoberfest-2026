@@ -65,3 +65,13 @@ Format: ID · date · decision · rationale · alternatives rejected.
   (2) the worker must contain the self-hosted `/ort/` wasmPaths override, (3) any
   dist file mentioning the CDN must also contain the override marker. Runtime
   proof comes from `check-offline.mjs`, which fails on any actual CDN request.
+- **D-011 · 2026-10-09 · Tier 1 audio encoder skipped via `config.audio_config = null`; Tier 2 audio kept.**
+  Rationale: `MultimodalEncoder` sessions (`session_config.js`) only create the
+  `audio_encoder` session when `config.audio_config` exists — the mechanism is
+  even documented in the model class docstring. The worker and smoke script null
+  it, so ~189 MB of audio weights are never downloaded or loaded (proven by
+  deleting the cached audio files and re-running the smoke test with no
+  re-download). Tier 2 (Gemma 4, `ImageAudioTextToText` sessions) loads
+  audio+vision together unless `textOnly` (which would drop vision too), so its
+  ~171 MB audio encoder cannot be skipped — budgeted in the 4.5 GB free-space
+  gate instead, exactly as the spec anticipated.

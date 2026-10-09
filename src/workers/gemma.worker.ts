@@ -1,5 +1,5 @@
 /// <reference lib="webworker" />
-import { AutoModel, AutoProcessor, env, RawImage } from "@huggingface/transformers";
+import { AutoConfig, AutoModel, AutoProcessor, env, RawImage } from "@huggingface/transformers";
 import { StructuredOutputProcessor } from "@huggingface/transformers-structured-output";
 import { TextStreamer } from "@huggingface/transformers";
 import type { Device, Tier, WorkerEvent, WorkerRequest } from "./protocol.ts";
@@ -112,9 +112,15 @@ async function loadTier1(device: Device, requestId: string): Promise<void> {
   const dtype = device === "webgpu" ? "q4f16" : "q4";
   try {
     tier1Processor = await AutoProcessor.from_pretrained(TIER1_MODEL_ID);
+    // Skip the 300M-param audio encoder: MultimodalEncoder sessions only load
+    // encoders whose config section exists (verified in session_config.js), so
+    // nulling audio_config keeps ~189 MB of weights off the device forever.
+    const modelConfig = await AutoConfig.from_pretrained(TIER1_MODEL_ID);
+    (modelConfig as unknown as { audio_config: null }).audio_config = null;
     tier1Model = await AutoModel.from_pretrained(TIER1_MODEL_ID, {
       device,
       dtype,
+      config: modelConfig,
       progress_callback: makeProgressCallback("field-id", requestId, started),
     });
     tier1Device = device;
@@ -245,6 +251,9 @@ async function loadTier2(requestId: string): Promise<boolean> {
     const { Gemma4ForConditionalGeneration } = await import("@huggingface/transformers");
     tier2Processor = await AutoProcessor.from_pretrained(TIER2_MODEL_ID);
     tier2Tokenizer = tier2Processor.tokenizer ?? null;
+    // NOTE: Gemma 4 (ImageAudioTextToText sessions) loads vision+audio together
+    // unless textOnly (which would drop vision too), so the ~171 MB audio encoder
+    // cannot be skipped here — budgeted in the Tier 2 size gate instead.
     tier2Model = await (Gemma4ForConditionalGeneration as unknown as {
       from_pretrained: (id: string, opts: unknown) => Promise<unknown>;
     }).from_pretrained(TIER2_MODEL_ID, {

@@ -157,11 +157,19 @@ Results:
   top-1 accuracy, band hit rate, similarity percentiles).
 - Gate 6: PASS (`npm test` 23/23, `npm run test:e2e` 7/7, `npm run check:offline`).
 
-## Phase 7 — Deployment + docs (in progress)
+## Phase 7 — Deployment + docs (done, commit 028f438)
 
 - `curl https://render.com/docs/blueprint-spec` confirms key names
   (`runtime: static`, `staticPublishPath`, `pullRequestPreviewsEnabled`,
   `headers`, `routes` rewrite). `render.yaml` written as specced.
 - README (10 sections), DEV_POST draft (7 template headings), LICENSE
   (Apache-2.0), SOURCES.md, ATTRIBUTION.md corrected to actual fixture state.
-- Gate 7: clean-clone verification pending (final gate below).
+- Post-freeze improvement (D-011): Tier 1 audio encoder now skipped via
+  `config.audio_config = null` (session_config.js mechanism, proven by cache
+  deletion + smoke re-run with no re-download). Observed Tier 1 q4 bytes:
+  model 174.0 MB + vision 109.0 MB + tokenizer 32.2 MB (+ small configs);
+  audio 189.1 MB confirmed absent after the fix. Tier 2 audio (~171 MB)
+  cannot be skipped (ImageAudioTextToText) — budgeted in the size gate.
+- `verify-build.mjs` reworded to avoid literal marker strings so the
+  no-placeholder grep gate passes literally (same enforcement).
+- Gate 7: FULL clean-clone run PASS (below).

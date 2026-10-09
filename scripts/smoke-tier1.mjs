@@ -1,6 +1,6 @@
 // Tier 1 smoke test: EmbeddingGemma 2 retrieval over a 12-entry subset in Node (CPU, q4).
 // Exits 0 only when embeddings are normalized, ranking is full, similarities finite.
-import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
+import { existsSync, mkdirSync, readFileSync, statSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 
 const ROOT = new URL("..", import.meta.url).pathname;
@@ -46,7 +46,9 @@ async function ensureFixtures() {
         await writeSynthetic(dest, f.name);
       }
     } else {
-      realPhotos++;
+      // Files under 10 KB are the sharp-generated synthetic fallbacks, not photos.
+      if (statSync(dest).size > 10_000) realPhotos++;
+      else console.log(`${f.name}: existing file is a synthetic fallback (${statSync(dest).size} B)`);
     }
     attribution.push(`- ${f.name}: ${f.url} — author: ${f.author}, license: ${f.license}`);
   }
@@ -89,15 +91,17 @@ const db = JSON.parse(readFileSync(join(ROOT, "public", "data", "flora_safety_db
 const subset = db.species.slice(0, 12);
 console.log(`database: ${db.species.length} species, smoke subset: ${subset.length}`);
 
-const { AutoModel, AutoProcessor, load_image, env } = await import("@huggingface/transformers");
+const { AutoConfig, AutoModel, AutoProcessor, load_image, env } = await import("@huggingface/transformers");
 env.allowLocalModels = false;
 env.useBrowserCache = false;
 
 const MODEL_ID = "onnx-community/embeddinggemma-2-ONNX";
 console.log(`loading ${MODEL_ID} (cpu, q4) — one-time download ~280 MB…`);
 const processor = await AutoProcessor.from_pretrained(MODEL_ID);
-const model = await AutoModel.from_pretrained(MODEL_ID, { device: "cpu", dtype: "q4" });
-console.log("model ready");
+const modelConfig = await AutoConfig.from_pretrained(MODEL_ID);
+modelConfig.audio_config = null; // skip the audio encoder (never downloaded/loaded)
+const model = await AutoModel.from_pretrained(MODEL_ID, { device: "cpu", dtype: "q4", config: modelConfig });
+console.log("model ready (audio encoder skipped:", model.sessions?.audio_encoder === undefined, ")");
 
 const docOf = (sp, p) => `title: ${sp.common_names[0]} (${sp.scientific_name}) | text: ${p}`;
 const texts = subset.flatMap((sp) => sp.visual_prompts.slice(0, 3).map((p) => docOf(sp, p)));
