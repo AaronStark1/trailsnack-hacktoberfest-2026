@@ -18,6 +18,7 @@ interface PendingRequest {
   reject: (err: Error) => void;
   onEvent?: ((ev: WorkerEvent) => void) | undefined;
   timeout: ReturnType<typeof setTimeout>;
+  isDeepLook: boolean;
 }
 
 function newId(): string {
@@ -73,6 +74,9 @@ class GemmaClient {
       return;
     }
     if (!p) return;
+    // Belt and braces for R2-1: a stray ready ack must never resolve a
+    // Deep Look request (which is waiting for deep-look-result).
+    if (ev.type === "ready" && p.isDeepLook) return;
     clearTimeout(p.timeout);
     this.pending.delete(ev.requestId);
     p.resolve(ev);
@@ -95,6 +99,7 @@ class GemmaClient {
         reject,
         onEvent: opts?.onEvent,
         timeout,
+        isDeepLook: msg.type === "deep-look",
       });
       const transfer: Transferable[] = [];
       if ((msg as { image?: { data: ArrayBuffer } }).image) {

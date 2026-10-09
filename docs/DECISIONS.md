@@ -136,3 +136,14 @@ Format: ID · date · decision · rationale · alternatives rejected.
   builds differ — the verifier's had no WebGPU while this run's SwiftShader
   build exposes it — so the expectation is keyed off the live capability; a UI
   that printed a fixed string would fail in one of the two environments.
+- **D-020 · 2026-10-09 · R2-1: `loadTier2` takes `ack`; client ignores stray `ready` on deep-look.**
+  Rationale: the already-loaded ack is correct for explicit `init` but lethal
+  under a deep-look request id, so `deepLook()` passes `ack=false` (cold-load
+  path included) while `init` keeps the default. The client's `handle()`
+  additionally drops any `ready` arriving on a pending deep-look request, so
+  either side alone prevents the "Unexpected response: ready" throw.
+  Regression coverage is a handler-driven test (`worker-handler.test.ts`)
+  with mocked transformers modules: init→ready, repeat init→ready/loadMs 0,
+  init→deep-look→first non-token event is deep-look-result, and abort during a
+  hanging generate→`aborted` error. The test was verified to fail with the old
+  call. Both source-grep tests were deleted with it.

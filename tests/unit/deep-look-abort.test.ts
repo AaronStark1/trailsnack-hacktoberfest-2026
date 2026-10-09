@@ -1,4 +1,3 @@
-import { readFileSync } from "node:fs";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import { gemmaClient } from "../../src/ai/gemmaClient.ts";
 import { useModelStore } from "../../src/stores/modelStore.ts";
@@ -67,13 +66,5 @@ describe("Deep Look abort (C3)", () => {
     expect(gemmaClient.abortDeepLook()).toBe(true);
     expect(HangingWorker.posted).toHaveLength(2);
     expect(HangingWorker.posted[1]).toEqual({ type: "abort", requestId: started?.requestId });
-  });
-
-  it("worker cancels generation via InterruptableStoppingCriteria (no throwing assert)", () => {
-    const src = readFileSync("src/workers/gemma.worker.ts", "utf8");
-    expect(src).toContain("InterruptableStoppingCriteria");
-    expect(src).toContain("stopping_criteria");
-    expect(src).toContain(".interrupt()");
-    expect(src).not.toContain("abortFlags.get(msg.requestId)!");
   });
 });

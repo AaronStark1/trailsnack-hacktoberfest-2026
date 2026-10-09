@@ -238,7 +238,7 @@ async function identify(
   post({ type: "identify-result", requestId, embedding: embBuf, scores, inferenceMs: Math.round(performance.now() - t0) }, [embBuf]);
 }
 
-async function loadTier2(requestId: string): Promise<boolean> {
+async function loadTier2(requestId: string, ack = true): Promise<boolean> {
   const nav = navigator as Navigator & { gpu?: unknown };
   if (!nav.gpu) {
     post({
@@ -252,8 +252,10 @@ async function loadTier2(requestId: string): Promise<boolean> {
     return false;
   }
   if (tier2Model && tier2Processor) {
-    // Same already-loaded acknowledgement as Tier 1 (C1).
-    post({ type: "ready", requestId, tier: "deep-look", device: "webgpu", loadMs: 0 });
+    // Already loaded: acknowledge only for explicit init calls. Deep Look
+    // calls with ack=false so this ready event cannot hijack the deep-look
+    // request it was issued under (R2-1).
+    if (ack) post({ type: "ready", requestId, tier: "deep-look", device: "webgpu", loadMs: 0 });
     return true;
   }
   configureOfflineRuntime();
@@ -273,7 +275,7 @@ async function loadTier2(requestId: string): Promise<boolean> {
       device: "webgpu",
       progress_callback: makeProgressCallback("deep-look", requestId, started),
     });
-    post({ type: "ready", requestId, tier: "deep-look", device: "webgpu", loadMs: Math.round(performance.now() - t0) });
+    if (ack) post({ type: "ready", requestId, tier: "deep-look", device: "webgpu", loadMs: Math.round(performance.now() - t0) });
     return true;
   } catch (err) {
     const message = err instanceof Error ? err.message : String(err);
@@ -289,7 +291,9 @@ async function deepLook(
   candidates: { id: string; commonName: string; scientificName: string; checklist: string[] }[],
 ): Promise<void> {
   const t0 = performance.now();
-  const ok = await loadTier2(requestId);
+  // No ready acknowledgement under the deep-look request id: the caller is
+  // waiting for deep-look-result, and a ready event would resolve it early.
+  const ok = await loadTier2(requestId, false);
   if (!ok || !tier2Model || !tier2Processor) return;
   const stopCriteria = new InterruptableStoppingCriteria();
   const flag = { aborted: false, criteria: stopCriteria as InterruptableStoppingCriteria | null };

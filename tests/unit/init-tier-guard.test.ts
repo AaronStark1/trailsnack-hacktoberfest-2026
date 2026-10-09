@@ -1,4 +1,3 @@
-import { readFileSync } from "node:fs";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import { gemmaClient } from "../../src/ai/gemmaClient.ts";
 import { useModelStore } from "../../src/stores/modelStore.ts";
@@ -94,13 +93,5 @@ describe("initTier already-ready guard (C1: second scan must not hang)", () => {
     await gemmaClient.initTier("field-id", { device: "wasm" });
     expect(MockWorker.posted).toHaveLength(1);
     expect(MockWorker.posted[0]).toMatchObject({ type: "init", device: "wasm" });
-  });
-
-  it("worker acknowledges already-loaded tiers with a ready event (no bare return)", () => {
-    const src = readFileSync("src/workers/gemma.worker.ts", "utf8");
-    // Both loaders must post ready with loadMs 0 on the already-loaded path.
-    expect(src.match(/loadMs: 0/g)?.length ?? 0).toBeGreaterThanOrEqual(2);
-    expect(src).not.toContain("tier1Device === device) return;");
-    expect(src).not.toContain("tier2Model && tier2Processor) return true;");
   });
 });
