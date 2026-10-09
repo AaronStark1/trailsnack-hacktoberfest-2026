@@ -196,7 +196,8 @@ weights. 12 new commits on `main`, no push.
 Round 2 (Part A2, same evening): the verifier found the C1 fix introduced
 R2-1 (Deep Look resolved by a stray `ready`), plus follow-ups R2-2–R2-6 and
 an incomplete Section 11. All of A2-1–A2-7 is fixed below (A2-8 needed no
-change); Gate 7 re-run and the author-docs commit close the session.
+change). Round 1 added 12 commits, round 2 added 8 (A2-1–A2-7, this
+measurement refresh, and the closing author-docs commit); no push.
 
 ### 2. Fix log (each row = one commit, typecheck + tests green)
 
@@ -225,7 +226,7 @@ change); Gate 7 re-run and the author-docs commit close the session.
 | A2-4 | `6abe34f` fix | `poison-oak` names only Pacific; links `atlantic-poison-oak` as confusable. `flora-db.test.ts` pins version 2026.10.2 + 81 species. |
 | A2-5 (M6 rest) | `c20671c` fix | Welcome sums progress totals into the manifest (was `bytes: 0`) and shows bytes + device badge during download. Worker reports per-file bytes (unknowns 0, no grand-total substitution); handler test verified to fail pre-fix. |
 | A2-6 (R2-3 rest) | `2207072` fix | `checkTier2Gate` requires a resolving `requestAdapter` (`hasUsableWebGPU`); e2e gate asserts fixed "WebGPU unavailable" from `models-gate.spec.ts`. Verdict icon-class assertions; offline listener on context pre-navigation. |
-| A2-7 | (this commit) docs | Line 110 corrected; Gates 0–6 added; Tier 1 file bytes + fly-agaric ranking recorded. |
+| A2-7 | `24e3ef6` docs | Line 110 corrected; Gates 0–6 added; Tier 1 file bytes + fly-agaric ranking recorded. |
 | A2-8 | no change | All still-open items verified untouched (see §6). |
 | docs | D-020–D-025 | Decisions for every round-2 fix in `docs/DECISIONS.md`. |
 
@@ -244,20 +245,21 @@ above; step durations were not recorded in that session):
 | 5 | `build` + PWA/console checks (UI) | PASS | not recorded |
 | 6 | `test` + `test:e2e` + `check:offline` | PASS (23 + 7) | not recorded |
 
-Gate 7 re-run after the Part A fixes (durations measured in the final run):
+Gate 7 re-run after the Part A fixes, measured from a clean clone
+(`git clone`, Node 24.15.0; Playwright browsers reused from the user cache):
 
 | Gate | Command | Result | Duration |
 |---|---|---|---|
-| 7a | `npm ci` | PASS (153 packages, 0 vulnerabilities) | (measured in final run) |
-| 7b | `npm run typecheck` | PASS, zero errors | (measured in final run) |
-| 7c | `npm run lint` | PASS, zero warnings | (measured in final run) |
-| 7d | `npm run validate:db` | PASS — 81 species (berry 38, mushroom 28, plant 15), 12 universal rules, all cross-references resolve | (measured in final run) |
-| 7e | `npm test` | PASS — 12 files, 42 tests (was 23 at the base; +19 new) | (measured in final run) |
-| 7f | `npm run build` | PASS — precache 71 entries (~126 MB); verify-build OK | (measured in final run) |
-| 7g | `npm run test:e2e` | PASS — 7 Playwright tests | (measured in final run) |
-| 7h | `npm run check:offline` | PASS — COOP/COEP, SW active, 1 same-origin host / 0 CDN, offline Scan + DB from SW (`fromServiceWorker()`) | (measured in final run) |
-| 7i | placeholder grep (`TODO\|FIXME\|lorem ipsum\|not implemented`, `src scripts public/data`) | PASS — no matches | (measured in final run) |
-| smoke | `npm run test:smoke` (Tier 1, Node CPU q4, cached weights) | PASS — ‖e‖ = 1.0000, 768-d, audio encoder skipped, 2/3 real fixtures | (measured in final run) |
+| 7a | `npm ci` | PASS (153 packages, 0 vulnerabilities) | 6 s |
+| 7b | `npm run typecheck` | PASS, zero errors | 2 s |
+| 7c | `npm run lint` | PASS, zero warnings | 1 s |
+| 7d | `npm run validate:db` | PASS — 81 species (berry 38, mushroom 28, plant 15), 12 universal rules, all cross-references resolve | <1 s |
+| 7e | `npm test` | PASS — 13 files, 48 tests (was 6 files / 23 tests at the base) | 4 s |
+| 7f | `npm run build` | PASS — precache 71 entries (~126 MB); verify-build OK | 6 s |
+| 7g | `npm run test:e2e` | PASS — 7 Playwright tests (6 app + 1 gate spec) | 4 s |
+| 7h | `npm run check:offline` | PASS — COOP/COEP, SW active, 1 same-origin host / 0 CDN, offline Scan + DB from SW (`fromServiceWorker()`) | 5 s |
+| 7i | placeholder grep (`TODO\|FIXME\|lorem ipsum\|not implemented`, `src scripts public/data`) | PASS — no matches | <1 s |
+| smoke | `npm run test:smoke` (Tier 1, Node CPU q4, cached weights; run in the working repo, not the clone) | PASS — ‖e‖ = 1.0000, 768-d, audio encoder skipped, 2/3 real fixtures | ~1 min |
 
 ### 4. Dependency table (all pinned exactly, no ^/~)
 
@@ -323,9 +325,11 @@ the dataset.
   progress aggregator and Deep Look type definitions; `make-icons.mjs`
   fallback + malformed favicon path; smoke one-hot fallback + thin
   attribution; cache-inspector full-body reads.
-- `docs/NEXT_STEPS.md` + `docs/VERIFICATION_REPORT.md` remain untracked
-  working inputs (D-014); the latter's literal "not implemented" would trip
-  a repo-wide placeholder grep.
+- `docs/NEXT_STEPS.md`, `docs/VERIFICATION_REPORT.md`,
+  `docs/RENDER_DEPLOY.md`, `docs/LINKEDIN_POST.md`, and the rewritten
+  `docs/DEV_POST.md` are the author's files: committed as-is in the closing
+  `docs:` commit, never edited here (the report's literal "not implemented"
+  is why the placeholder grep stays scoped to `src scripts public/data`).
 
 ### 7. Next steps for the human
 
