@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { getStorageEstimate } from "../../db/persistence.ts";
 import { formatBytes } from "../../lib/format.ts";
-import { isWebGPUAvailable } from "../../ai/detectDevice.ts";
+import { hasUsableWebGPU } from "../../ai/detectDevice.ts";
 
 export interface GateResult {
   webgpu: boolean;
@@ -15,7 +15,8 @@ const REQUIRED_GB = 4.5;
 const REQUIRED_MEM_GB = 8;
 
 export async function checkTier2Gate(): Promise<GateResult> {
-  const webgpu = isWebGPUAvailable();
+  // Adapter-aware: presence without a resolving adapter fails the gate.
+  const webgpu = await hasUsableWebGPU();
   const nav = navigator as Navigator & { deviceMemory?: number };
   const deviceMemoryGB = typeof nav.deviceMemory === "number" ? nav.deviceMemory : null;
   const est = await getStorageEstimate();

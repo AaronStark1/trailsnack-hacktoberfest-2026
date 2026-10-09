@@ -34,8 +34,17 @@ try {
   const browser = await chromium.launch();
   try {
     const context = await browser.newContext();
-    const page = await context.newPage();
+    // Screen every request from the very first navigation, at context level
+    // so service-worker traffic is included.
     const seen = new Set();
+    context.on("request", (req) => {
+      try {
+        seen.add(new URL(req.url()).host);
+      } catch {
+        // ignore
+      }
+    });
+    const page = await context.newPage();
 
     // --- Header assertions on the document response ---
     const docResponse = await page.goto(`${BASE}/`, { waitUntil: "domcontentloaded" });
@@ -45,14 +54,6 @@ try {
     if (coop !== "same-origin") throw new Error(`COOP header wrong: ${coop}`);
     if (coep !== "require-corp") throw new Error(`COEP header wrong: ${coep}`);
     console.log(`headers OK: COOP=${coop} COEP=${coep}`);
-
-    page.on("request", (req) => {
-      try {
-        seen.add(new URL(req.url()).host);
-      } catch {
-        // ignore
-      }
-    });
 
     // Accept the disclaimer so the Scan screen is reachable.
     await page.getByRole("checkbox", { name: /i understand/i }).check();

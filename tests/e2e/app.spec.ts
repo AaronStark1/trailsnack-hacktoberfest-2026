@@ -99,21 +99,3 @@ test.describe("assessment verdicts (mocked Tier 1)", () => {
     expect(dl.suggestedFilename()).toMatch(/trailsnack-log\.json/);
   });
 });
-
-test.describe("models screen", () => {
-  test("shows storage estimate and Tier 2 WebGPU gate", async ({ page }) => {
-    await acceptDisclaimer(page);
-    await page.goto("/models");
-    await expect(page.getByTestId("quota-inspector")).toBeVisible();
-    await expect(page.getByTestId("quota-text")).toContainText(/used/);
-    // Exact text, chosen by the real capability: the UI must reflect reality,
-    // not print a fixed string. Headless environments differ (SwiftShader
-    // exposes navigator.gpu in some builds).
-    const webgpu = await page.evaluate(
-      () => typeof navigator !== "undefined" && "gpu" in navigator && !!(navigator as unknown as { gpu?: unknown }).gpu,
-    );
-    await expect(page.locator("li", { hasText: "WebGPU available" })).toContainText(
-      webgpu ? "WebGPU available: yes" : "WebGPU unavailable",
-    );
-  });
-});

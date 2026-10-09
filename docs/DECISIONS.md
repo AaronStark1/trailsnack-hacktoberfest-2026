@@ -165,7 +165,14 @@ Format: ID · date · decision · rationale · alternatives rejected.
   exposes `currentDevice()` (the tracked `chosenDevice`, which the fallback
   rewrites) and Assess reads it after `initTier` resolves. Covered by a client
   test where the first init fails `webgpu-unavailable` and the retry succeeds:
-  two inits posted (webgpu then wasm) and   `currentDevice()` reports `wasm`.
+  two inits posted (webgpu then wasm) and `currentDevice()` reports `wasm`.
+- **D-023 · 2026-10-09 · A2-4: poison-oak split from the atlantic entry; DB count/version pinned in tests.**
+  Rationale: `poison-oak` (*T. diversilobum*, western) wrongly claimed
+  "Atlantic poison oak" as a common name while not linking the real
+  `atlantic-poison-oak` entry — now it names only itself and lists the
+  atlantic species as a confusable. `flora-db.test.ts` additionally pins
+  version `2026.10.2` and 81 species so silent additions or removals fail
+  loudly; `validate:db` still enforces the structural rules.
 - **D-024 · 2026-10-09 · A2-5: Welcome records real bytes; progress reports per-file numbers only.**
   Rationale: Welcome duplicated Models' `bytes: 0` manifest write and showed
   neither bytes nor device during the first-run download, so the fix mirrors
@@ -177,10 +184,16 @@ Format: ID · date · decision · rationale · alternatives rejected.
   `totalBytes: 0`), verified to fail under the old substitution. The Welcome
   screen wiring itself has no dedicated unit test (worker+idb coupling) and is
   covered by typecheck, build, and e2e.
-- **D-023 · 2026-10-09 · A2-4: poison-oak split from the atlantic entry; DB count/version pinned in tests.**
-  Rationale: `poison-oak` (*T. diversilobum*, western) wrongly claimed
-  "Atlantic poison oak" as a common name while not linking the real
-  `atlantic-poison-oak` entry — now it names only itself and lists the
-  atlantic species as a confusable. `flora-db.test.ts` additionally pins
-  version `2026.10.2` and 81 species so silent additions or removals fail
-  loudly; `validate:db` still enforces the structural rules.
+- **D-025 · 2026-10-09 · A2-6: Tier 2 gate requires a resolving adapter; gate test asserts the fixed string.**
+  Rationale: probed five launch flags (`--disable-gpu`, `WebGPU`/`Vulkan`
+  feature kills, ANGLE/SwiftShader overrides) — none removes `navigator.gpu`
+  in this Chromium, and the headless shell here exposes presence with
+  `requestAdapter()` resolving null, which the old presence-only gate
+  reported as "yes" (R2-3's second half). `checkTier2Gate` now uses
+  `hasUsableWebGPU()` (presence plus resolving adapter), so the gate prints
+  the fixed "WebGPU unavailable" wherever Tier 2 could never load, and the
+  e2e test (split into `models-gate.spec.ts`) asserts exactly that.
+  `verdict.test.tsx` asserts per-badge icon classes (verified against the
+  real lucide-react 1.54.0 aliases, e.g. HelpCircle renders
+  `lucide-help-circle`), and `check-offline.mjs` moved its request listener
+  to `context.on` before the first navigation.
