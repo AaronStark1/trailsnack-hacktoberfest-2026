@@ -24,6 +24,12 @@ function loadDb(): FloraJson {
 }
 
 describe("flora database corrections (H2)", () => {
+  it("has the expected species count and version", () => {
+    const db = loadDb();
+    expect(db.version).toBe("2026.10.2");
+    expect(db.species).toHaveLength(81);
+  });
+
   it("contains deadly false hellebore linked both ways with ramps", () => {
     const db = loadDb();
     const hellebore = db.species.find((s) => s.id === "false-hellebore");
@@ -40,6 +46,13 @@ describe("flora database corrections (H2)", () => {
     const oak = db.species.find((s) => s.id === "atlantic-poison-oak");
     expect(oak?.edibility).toBe("contact_hazard");
     expect(oak?.category).toBe("plant");
+  });
+
+  it("keeps pacific poison oak separate from the atlantic entry", () => {
+    const db = loadDb();
+    const oak = db.species.find((s) => s.id === "poison-oak");
+    expect(oak?.common_names).not.toContain("Atlantic poison oak");
+    expect(oak?.confusable_with.map((c) => c.species_id)).toContain("atlantic-poison-oak");
   });
 
   it("drops the inaccurate alternate common names", () => {

@@ -166,3 +166,10 @@ Format: ID · date · decision · rationale · alternatives rejected.
   rewrites) and Assess reads it after `initTier` resolves. Covered by a client
   test where the first init fails `webgpu-unavailable` and the retry succeeds:
   two inits posted (webgpu then wasm) and `currentDevice()` reports `wasm`.
+- **D-023 · 2026-10-09 · A2-4: poison-oak split from the atlantic entry; DB count/version pinned in tests.**
+  Rationale: `poison-oak` (*T. diversilobum*, western) wrongly claimed
+  "Atlantic poison oak" as a common name while not linking the real
+  `atlantic-poison-oak` entry — now it names only itself and lists the
+  atlantic species as a confusable. `flora-db.test.ts` additionally pins
+  version `2026.10.2` and 81 species so silent additions or removals fail
+  loudly; `validate:db` still enforces the structural rules.

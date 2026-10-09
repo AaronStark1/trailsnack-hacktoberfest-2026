@@ -2252,7 +2252,7 @@
     },
     {
       "id": "poison-oak",
-      "common_names": ["Pacific poison oak", "Atlantic poison oak"],
+      "common_names": ["Pacific poison oak"],
       "scientific_name": "Toxicodendron diversilobum",
       "category": "plant",
       "edibility": "contact_hazard",
@@ -2275,7 +2275,8 @@
         "Any three rounded leaflets in range are treated as poison oak"
       ],
       "confusable_with": [
-        { "species_id": "poison-ivy", "how_to_tell_apart": "Poison ivy leaflets are pointed; poison oak leaflets are rounded and oak-lobed. Same urushiol hazard either way." }
+        { "species_id": "poison-ivy", "how_to_tell_apart": "Poison ivy leaflets are pointed; poison oak leaflets are rounded and oak-lobed. Same urushiol hazard either way." },
+        { "species_id": "atlantic-poison-oak", "how_to_tell_apart": "Atlantic poison oak is the low hairy shrub of eastern sands; Pacific poison oak is the larger vine or shrub of the west coast. Same urushiol hazard either way." }
       ],
       "symptoms_if_ingested": "Same as poison ivy: blistering rash, mouth injury.",
       "onset": "12–72 hours for rash.",
