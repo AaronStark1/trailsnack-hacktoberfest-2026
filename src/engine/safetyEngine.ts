@@ -170,9 +170,10 @@ export function computeVerdict(
   } else if (
     confidence === "confident" &&
     topSpecies &&
-    topSpecies.category !== "mushroom" &&
     plausible.every((s) => s.edibility === "edible_with_caution")
   ) {
+    // (Not a mushroom here: the mushroom category branch above already returned
+    // CAUTION, so reaching this branch implies a non-mushroom top candidate.)
     badge = "EDIBLE";
     reasons.push("Edible gate: confident, every plausible species edible_with_caution, no hazardous confusables, not a mushroom → EDIBLE (still verify every checklist item).");
   } else {
