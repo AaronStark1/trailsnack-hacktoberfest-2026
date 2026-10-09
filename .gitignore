@@ -1,0 +1,8 @@
+node_modules/
+dist/
+public/ort/
+playwright-report/
+test-results/
+.cache/
+*.local
+.DS_Store

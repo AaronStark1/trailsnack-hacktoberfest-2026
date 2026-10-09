@@ -1,0 +1,54 @@
+{
+  "version": "2026.10.1",
+  "disclaimer": "Educational reference only. Never eat any wild plant, berry, or fungus based on an app. Confirm with a qualified local expert.",
+  "universal_rules": [
+    { "id": "no-app-confirmation", "applies_to": ["berry", "mushroom", "plant"], "text": "No wild mushroom is ever confirmed by an app." }
+  ],
+  "species": [
+    {
+      "id": "lowbush-blueberry",
+      "common_names": ["Lowbush blueberry"],
+      "scientific_name": "Vaccinium angustifolium",
+      "category": "berry",
+      "edibility": "edible_with_caution",
+      "toxicity_mechanism": "None when ripe and correctly identified; gastrointestinal upset if large quantities of unripe fruit eaten.",
+      "regions": ["north-america"],
+      "seasons": ["summer"],
+      "habitat": "Acidic barrens and open woods.",
+      "visual_prompts": [
+        "Whole lowbush blueberry shrub with small oval leaves and clusters of round dusty-blue berries",
+        "Close-up of ripe round blue berries with crown-like calyx scar on blueberry bush",
+        "Detail of small oval finely toothed blueberry leaves turning red in autumn",
+        "Low spreading blueberry barrens growth habit with many stems"
+      ],
+      "verification_checklist": [
+        "Berries are round, dusty blue with a pale bloom",
+        "Calyx forms a five-pointed crown on the blossom end",
+        "Leaves are small, oval, finely toothed",
+        "Shrub is low and spreading, not a tall vine",
+        "No thorns on stems",
+        "Berries grow singly or in small clusters, not in elongated racemes"
+      ],
+      "confusable_with": [],
+      "symptoms_if_ingested": "None expected for ripe fruit; unripe fruit may cause mild stomach upset.",
+      "onset": "N/A for ripe fruit.",
+      "first_aid": ["Rinse mouth.", "Observe for symptoms.", "Contact poison control if uncertain of identification."],
+      "contact_precautions": "None.",
+      "notes": "Scaffold entry; full database lands in Phase 4."
+    }
+  ],
+  "emergency": {
+    "universal": [
+      "Call your local emergency number if there is difficulty breathing, seizures, or loss of consciousness.",
+      "Do not induce vomiting unless instructed by poison control.",
+      "Photograph and bag a sample of what was eaten.",
+      "Note the time of ingestion and amount."
+    ],
+    "regions": [
+      { "id": "north-america", "label": "United States", "poison_control": "1-800-222-1222", "emergency": "911", "note": "Verify for your area; Canadian provinces use regional poison centres." },
+      { "id": "uk-ireland", "label": "UK & Ireland", "poison_control": "NHS 111 (UK) / 01 809 2166 (IE)", "emergency": "999 / 112" },
+      { "id": "europe", "label": "EU", "poison_control": "National poison centre (varies by country)", "emergency": "112" },
+      { "id": "australia-nz", "label": "Australia & New Zealand", "poison_control": "13 11 26 (AU) / 0800 764 766 (NZ)", "emergency": "000 / 111" }
+    ]
+  }
+}
