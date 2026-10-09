@@ -86,14 +86,6 @@ export default function CameraView({ onFrame }: Props) {
         <div role="alert" className="rounded-2xl bg-(--color-caution-bg) p-4 text-(--color-caution)">
           <p className="font-semibold">Camera unavailable</p>
           <p className="mt-1">{error}</p>
-          {needsGesture && (
-            <button
-              className="mt-2 min-h-12 rounded-xl border-2 border-current px-4 font-semibold"
-              onClick={() => void videoRef.current?.play().then(() => setNeedsGesture(false)).catch(() => undefined)}
-            >
-              Tap to start the camera
-            </button>
-          )}
         </div>
       ) : (
         <div className="relative overflow-hidden rounded-2xl bg-black">
@@ -103,6 +95,14 @@ export default function CameraView({ onFrame }: Props) {
             Fill the square with one specimen; include leaves, stem, or cap underside if possible.
           </p>
         </div>
+      )}
+      {needsGesture && (
+        <button
+          className="mt-2 min-h-12 rounded-xl border-2 border-current px-4 font-semibold"
+          onClick={() => void videoRef.current?.play().then(() => setNeedsGesture(false)).catch(() => undefined)}
+        >
+          Tap to start the camera
+        </button>
       )}
       <div className="mt-3">
         <CaptureControls
