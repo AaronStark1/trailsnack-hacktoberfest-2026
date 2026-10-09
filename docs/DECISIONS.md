@@ -75,3 +75,64 @@ Format: ID · date · decision · rationale · alternatives rejected.
   audio+vision together unless `textOnly` (which would drop vision too), so its
   ~171 MB audio encoder cannot be skipped — budgeted in the 4.5 GB free-space
   gate instead, exactly as the spec anticipated.
+- **D-012 · 2026-10-09 · C1/C2/C3 fixes: guard on both sides, sync decode helper, criteria-based abort.**
+  Rationale: (C1) both the worker (posts `ready` with `loadMs: 0` on the
+  already-loaded path) and the client (skips the round-trip when the zustand
+  store shows the tier ready on the same device) were fixed, so either side
+  alone prevents the 600 s hang. (C2) prompt slicing lives in the pure helper
+  `src/workers/deepLookDecode.ts` (`promptTokenLength` + `decodeGeneratedOutput`)
+  so it is unit-testable without weights; `[promptLen, null]` end bounds are
+  valid at runtime (tensor.js treats null end as dim size) even though the
+  `.d.ts` types them as `number[]`. Streamer-accumulated text is the decode
+  fallback. (C3) one `InterruptableStoppingCriteria` per Deep Look request is
+  passed as `stopping_criteria`; the client posts `abort` directly with no
+  pending entry (an `abort` sent through `send()` would collide with the
+  in-flight deep-look entry and time out), and Assess exposes a Cancel button.
+- **D-013 · 2026-10-09 · TabBar extracted; off-list Lucide icons retained as a logged deviation.**
+  Rationale: `src/components/layout/TabBar.tsx` now owns the tab bar (was inline
+  in `AppShell.tsx`). The ten icons flagged outside the spec allowlist
+  (Settings, RefreshCw, Zap, ZapOff, Leaf, Nut, Sprout, Upload, Save, plus one
+  further non-list icon) are all standard exports of the pinned `lucide-react`
+  1.54.0 and each carries UI meaning (torch, save, upload, species plates).
+  Swapping them would churn the interface for no functional gain, so they stay
+  and the deviation is recorded here instead.
+- **D-014 · 2026-10-09 · Flora DB bumped to 2026.10.2 with 81 species; verifier docs left untracked.**
+  Rationale: adding false-hellebore and atlantic-poison-oak moves 79 → 81, so
+  the version was bumped (the embedding cache key hashes content, so on-device
+  caches invalidate automatically) and counts updated in README, DEV_POST, and
+  SOURCES.md. `docs/NEXT_STEPS.md` and `docs/VERIFICATION_REPORT.md` stay
+  untracked working inputs: the latter contains the literal string
+  "not implemented" (finding C3's title), which would trip a repo-wide
+  no-placeholder grep even though the code is clean.
+- **D-015 · 2026-10-09 · Section 11 report (A8) written after A9 and Gate 7, not in listed order.**
+  Rationale: NEXT_STEPS lists the AGENT_LOG report as A8, but its gate-results
+  table can only be final after all fixes land and the full gate sequence
+  re-runs. The report was therefore composed last; no fix content changed as a
+  result of the reordering.
+- **D-016 · 2026-10-09 · `isEdibleNeighborhood` extracted; mushroom clause is defense-in-depth.**
+  Rationale: with the shipped thresholds (MARGIN_CONFIDENT 0.06 >
+  AMBIGUITY_BAND 0.05) a mushroom inside the plausible band always costs
+  confidence first, so the new `category !== "mushroom"` clause cannot fire
+  today — a scenario test alone could not isolate it. Extracting the pure
+  predicate lets a unit test pin the invariant directly for post-calibration
+  thresholds, where band ≥ margin could reopen the hole.
+- **D-017 · 2026-10-09 · Typography rule already satisfied; only the cascade layer changed.**
+  Rationale: A9 asked for `html { font-size: 18px }` or replacing `text-base`
+  with `text-lg`, but `body` already sets 18px/1.55, so the ≥18px body rule is
+  met. The fix was limited to wrapping the `min-height: 48px` rule in
+  `@layer base` so `min-h-14`/`min-h-16` utilities (56px primary buttons) win
+  the cascade again.
+- **D-018 · 2026-10-09 · IndexedDB bumped to version 2 for the verdict.badge index.**
+  Rationale: changing an index keyPath requires a version change; fresh
+  installs create the corrected index directly and a v1→v2 branch deletes and
+  re-creates it for existing users. The fresh-install path plus a badge-query
+  round-trip test are covered; the upgrade branch itself is code-reviewed only
+  (no v1 fixture exists in the test suite).
+- **D-019 · 2026-10-09 · Offline proof and Tier 2 gate text tightened to the environment.**
+  Rationale: `check-offline.mjs` now asserts `response.fromServiceWorker()`
+  instead of inferring from a 200 status, and the Tier 2 e2e test asserts the
+  exact gate string for the actual capability (`navigator.gpu` present or not)
+  instead of accepting `/unavailable|yes/` either way. Headless Chromium
+  builds differ — the verifier's had no WebGPU while this run's SwiftShader
+  build exposes it — so the expectation is keyed off the live capability; a UI
+  that printed a fixed string would fail in one of the two environments.
