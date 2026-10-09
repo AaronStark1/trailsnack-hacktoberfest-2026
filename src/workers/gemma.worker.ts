@@ -105,7 +105,13 @@ function docText(commonName: string, scientificName: string, prompt: string): st
 }
 
 async function loadTier1(device: Device, requestId: string): Promise<void> {
-  if (tier1Model && tier1Processor && tier1Device === device) return;
+  if (tier1Model && tier1Processor && tier1Device === device) {
+    // Already loaded for this device: acknowledge immediately so repeat init
+    // calls (the Assess page inits on every assessment) resolve instead of
+    // hanging until the client timeout. Regression guard: C1.
+    post({ type: "ready", requestId, tier: "field-id", device, loadMs: 0 });
+    return;
+  }
   configureOfflineRuntime();
   const t0 = performance.now();
   const started = new Map<string, { loaded: number; total: number }>();
@@ -243,7 +249,11 @@ async function loadTier2(requestId: string): Promise<boolean> {
     });
     return false;
   }
-  if (tier2Model && tier2Processor) return true;
+  if (tier2Model && tier2Processor) {
+    // Same already-loaded acknowledgement as Tier 1 (C1).
+    post({ type: "ready", requestId, tier: "deep-look", device: "webgpu", loadMs: 0 });
+    return true;
+  }
   configureOfflineRuntime();
   const t0 = performance.now();
   const started = new Map<string, { loaded: number; total: number }>();

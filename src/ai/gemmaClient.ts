@@ -1,6 +1,7 @@
 import type { Device, Tier, WorkerEvent, WorkerRequest } from "../workers/protocol.ts";
 import { detectDevice } from "./detectDevice.ts";
 import { TIER1_MODEL_ID, TIER2_MODEL_ID } from "./types.ts";
+import { useModelStore } from "../stores/modelStore.ts";
 
 export type ModelStatus = "idle" | "loading" | "ready" | "error";
 
@@ -123,6 +124,12 @@ class GemmaClient {
     const p = (async () => {
       const device = await this.getDevice(opts?.device ?? "auto");
       const target: Device = tier === "deep-look" ? "webgpu" : device;
+      // Already-ready fast path (C1): skip the worker round-trip entirely when
+      // the store already shows this tier ready on the same device. The worker
+      // also acknowledges repeat inits, so either side alone fixes the hang.
+      const key = tier === "field-id" ? "fieldId" : "deepLook";
+      const known = useModelStore.getState()[key];
+      if (known.status === "ready" && known.device === target) return;
       const requestId = newId();
       try {
         const res = await this.send(
