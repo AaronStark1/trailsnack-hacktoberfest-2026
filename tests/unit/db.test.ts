@@ -1,6 +1,6 @@
 import { beforeEach, afterEach, describe, expect, it } from "vitest";
 import "fake-indexeddb/auto";
-import { closeDB } from "../../src/db/index.ts";
+import { closeDB, getDB } from "../../src/db/index.ts";
 import {
   addFieldLogEntry,
   deleteFieldLogEntry,
@@ -48,6 +48,21 @@ describe("field log store", () => {
     await deleteFieldLogEntry("b");
     expect(await getFieldLogEntry("b")).toBeUndefined();
     expect((await listFieldLogEntries()).map((e) => e.id)).toEqual(["c", "a"]);
+  });
+
+  it("indexes field log entries by verdict badge", async () => {
+    const base = {
+      imageBlob: new Blob(["img"], { type: "image/jpeg" }),
+      thumbnailBlob: new Blob(["thumb"], { type: "image/jpeg" }),
+      tier1: { scores: [] },
+      dbVersion: "2026.10.2",
+      appVersion: "0.1.0",
+    };
+    await addFieldLogEntry({ ...base, id: "t1", createdAt: 100, verdict: { badge: "TOXIC" } });
+    await addFieldLogEntry({ ...base, id: "u1", createdAt: 200, verdict: { badge: "UNKNOWN" } });
+    const db = await getDB();
+    const toxic = await db.getAllFromIndex("fieldLog", "verdict", "TOXIC");
+    expect(toxic.map((e) => e.id)).toEqual(["t1"]);
   });
 });
 

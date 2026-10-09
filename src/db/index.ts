@@ -69,14 +69,23 @@ let dbPromise: Promise<IDBPDatabase<TrailSnackDB>> | null = null;
 
 export function getDB(): Promise<IDBPDatabase<TrailSnackDB>> {
   if (!dbPromise) {
-    dbPromise = openDB<TrailSnackDB>("trailsnack", 1, {
-      upgrade(db) {
-        const log = db.createObjectStore("fieldLog", { keyPath: "id" });
-        log.createIndex("createdAt", "createdAt");
-        log.createIndex("verdict", "verdict");
-        db.createObjectStore("speciesEmbeddings", { keyPath: "cacheKey" });
-        db.createObjectStore("settings", { keyPath: "key" });
-        db.createObjectStore("modelManifest", { keyPath: "tier" });
+    dbPromise = openDB<TrailSnackDB>("trailsnack", 2, {
+      upgrade(db, oldVersion, _newVersion, tx) {
+        if (oldVersion < 1) {
+          const log = db.createObjectStore("fieldLog", { keyPath: "id" });
+          log.createIndex("createdAt", "createdAt");
+          log.createIndex("verdict", "verdict.badge");
+          db.createObjectStore("speciesEmbeddings", { keyPath: "cacheKey" });
+          db.createObjectStore("settings", { keyPath: "key" });
+          db.createObjectStore("modelManifest", { keyPath: "tier" });
+        }
+        if (oldVersion >= 1) {
+          // v1 keyed the verdict index on the whole verdict object, so
+          // IndexedDB silently omitted every record from it. Re-key on badge.
+          const store = tx.objectStore("fieldLog");
+          if (store.indexNames.contains("verdict")) store.deleteIndex("verdict");
+          store.createIndex("verdict", "verdict.badge");
+        }
       },
     });
   }

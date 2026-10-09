@@ -30,12 +30,14 @@ body {
   min-height: 100dvh;
 }
 
-button,
-a,
-input,
-select,
-[role="button"] {
-  min-height: 48px;
+@layer base {
+  button,
+  a,
+  input,
+  select,
+  [role="button"] {
+    min-height: 48px;
+  }
 }
 
 /* High-contrast mode */
