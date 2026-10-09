@@ -173,3 +173,105 @@ Results:
 - `verify-build.mjs` reworded to avoid literal marker strings so the
   no-placeholder grep gate passes literally (same enforcement).
 - Gate 7: FULL clean-clone run PASS (below).
+
+## Section 11 — Final report: NEXT_STEPS Part A fixes (2026-10-09)
+
+Follow-up session by Muse Spark 1.3 in OpenCode, working from
+`docs/NEXT_STEPS.md` + `docs/VERIFICATION_REPORT.md` (independent
+verification of commit `b9bd61b`, verdict: PARTIAL — C1 second scan hangs,
+C2 Deep Look never returns, C3 abort unimplemented). All of Part A (A1–A9)
+is now fixed in order, each with `npm run typecheck && npm test` green
+before committing. Tier 2 weights were never downloaded, per instruction.
+
+### 1. Status: DONE
+
+All three critical runtime bugs are fixed, all high findings in scope are
+fixed, the A9 hardening batch is in, and the full Gate 7 sequence passes
+from a clean `npm ci`, including the Tier 1 smoke test against cached
+weights. 12 new commits on `main`, no push.
+
+### 2. Fix log (each row = one commit, typecheck + tests green)
+
+| Item | Commit | What changed |
+|---|---|---|
+| A1 (C1) | `6667e31` fix | Worker posts `ready`/`loadMs: 0` on already-loaded Tier 1/2; `initTier` skips the round-trip when the store shows the tier ready on the same device. `init-tier-guard` tests (5). |
+| A2 (C2) | `47136c6` fix | Sync decode with prompt sliced at `input_ids` length via tested `deepLookDecode.ts` helper; streamer text fallback. `deep-look-decode` tests (2). |
+| A3 (C3) | `12160da` fix | Per-request `InterruptableStoppingCriteria` passed as `stopping_criteria`, interrupt on `abort` (no throwing assert); `gemmaClient.abortDeepLook()` + Cancel button. `deep-look-abort` tests (3). |
+| A4 (H2) | `f2fb165` fix | Added deadly false-hellebore (both-way link with ramps) and Atlantic poison oak; removed 4 wrong alternate names; DB 2026.10.2, 81 species; README/DEV_POST counts updated. `flora-db` tests (4). |
+| A5 (H3) | `d326d7f` fix | EDIBLE gate requires `isEdibleNeighborhood` (all edible_with_caution AND no mushroom); scenario + direct unit tests (2). |
+| A6 (H5) | `73ca1fc` fix | `registerSW` updater kept on `window.__trailsnackUpdateSW`; prompt calls `updateSW(true)`. `update-prompt` test (1). |
+| A7 (H6) | `8f057d0` fix | Gesture button renders whenever `needsGesture`, independent of `error`. `camera-view` test (1). |
+| A9a | `592342e` fix | `@eslint/js` pinned 10.0.1; verdict index re-keyed on `verdict.badge` (idb v2 + migration); touch rule into `@layer base`. Badge-index test (1). |
+| A9b | `c34181f` feat | Real 256px thumbnails end-to-end; initTier reports byte totals, Models records/shows them; Tier 2 gate fails closed; SOURCES.md in Settings; TabBar extracted. |
+| A9c | `43e29c9` test | Verdict icon assertions; Tier 2 gate exact text; `check-offline` asserts `fromServiceWorker()`. |
+| e2e follow-up | `e0633f3` test | Gate text keyed off live `navigator.gpu` (SwiftShader exposes it here; verifier's build had none). |
+| docs | D-012–D-019 | Decisions for every fix recorded in `docs/DECISIONS.md`. |
+
+### 3. Gate results table (clean `npm ci`, Node 24.15.0)
+
+| Gate | Command | Result |
+|---|---|---|
+| 7a | `npm ci` | PASS (153 packages, 0 vulnerabilities) |
+| 7b | `npm run typecheck` | PASS, zero errors |
+| 7c | `npm run lint` | PASS, zero warnings |
+| 7d | `npm run validate:db` | PASS — 81 species (berry 38, mushroom 28, plant 15), 12 universal rules, all cross-references resolve |
+| 7e | `npm test` | PASS — 12 files, 42 tests (was 23 at `b9bd61b`; +19 new) |
+| 7f | `npm run build` | PASS — precache 71 entries (~126 MB); verify-build OK |
+| 7g | `npm run test:e2e` | PASS — 7 Playwright tests |
+| 7h | `npm run check:offline` | PASS — COOP/COEP, SW active, 1 same-origin host / 0 CDN, offline Scan + DB from SW (`fromServiceWorker()`) |
+| 7i | placeholder grep (`TODO\|FIXME\|lorem ipsum\|not implemented`, `src scripts public/data`) | PASS — no matches |
+| smoke | `npm run test:smoke` (Tier 1, Node CPU q4, cached weights) | PASS — ‖e‖ = 1.0000, 768-d, audio encoder skipped, 2/3 real fixtures |
+
+### 4. Dependency table (all pinned exactly, no ^/~)
+
+`@huggingface/transformers 4.3.1`, `transformers-structured-output 4.3.1`,
+`vite 8.3.4`, `@vitejs/plugin-react 6.1.2`, `react 19.3.0`,
+`react-dom 19.3.0`, `typescript 5.9.3` (D-001), `tailwindcss 4.3.3`,
+`@tailwindcss/vite 4.3.3`, `vite-plugin-pwa 2.0.0`, `idb 8.0.4`,
+`lucide-react 1.54.0`, `zustand 5.0.15`, `react-router-dom 7.18.4`,
+`vitest 5.0.3`, `@playwright/test 1.64.0`, `eslint 10.12.0`,
+`typescript-eslint 8.71.1`, `@eslint/js 10.0.1` (caret removed in A9a),
+`@types/react 19.3.0`, `@types/react-dom 19.3.0`, `@types/node 26.6.4`,
+`jsdom 30.1.2`, `@testing-library/react 16.3.3`,
+`@testing-library/jest-dom 7.0.1`, `fake-indexeddb 6.2.5`.
+
+### 5. Model facts observed in this session
+
+Tier 1 (`onnx-community/embeddinggemma-2-ONNX`, q4, Node cache) behaves as
+before: 768-d, all norms 1.0000, audio encoder skipped. Smoke ranking on the
+12-entry subset is unchanged (blackberry → allegheny-blackberry 0.742;
+synthetic poison-ivy → lowbush-blueberry 0.599). **Tier 2 weights were not
+downloaded** (explicit instruction); the C2/C3 repairs are therefore proven
+by types, unit tests with fakes/mocks, and the capability-gated UI — not by
+a live 3.3 GB generation run. The added DB entries (false-hellebore,
+atlantic-poison-oak) were authored from general knowledge like the rest of
+the dataset.
+
+### 6. Known limitations and unverified items
+
+- Tier 2 never exercised with real weights; verify on a WebGPU device with
+  ≥ 8 GB RAM before trusting Deep Look (the fail-closed gate now enforces
+  this).
+- Thresholds (`thresholds.ts`) still uncalibrated (H4, out of A1–A9 scope);
+  run `npm run calibrate` on labelled photos — smoke still shows 0.60–0.74
+  zero-shot noise on off-vocabulary photos.
+- The 81-species dataset (including the 2 new entries) still needs qualified
+  expert review before reliance.
+- OOM handling is still load-time only (H7, out of scope); no
+  `GPUDevice.lost` listener, inference-time errors still code `unknown`.
+- The idb v1→v2 migration branch is code-reviewed only (D-018); only fresh
+  installs are test-covered.
+- `docs/NEXT_STEPS.md` + `docs/VERIFICATION_REPORT.md` remain untracked
+  working inputs (D-014); the latter's literal "not implemented" would trip
+  a repo-wide placeholder grep.
+
+### 7. Next steps for the human
+
+1. Deploy via Render Blueprint (`render.yaml`), set the live URL in README + DEV_POST.
+2. Run the trail test and fill in the Trail Test Log (README's only author-fill section).
+3. Run `npm run calibrate -- --dir <photos> --labels <labels.json>` on real photos; adjust thresholds.
+4. Get the 81-species dataset reviewed by a qualified botanist/mycologist
+   (call out the 2 new entries).
+5. Publish the DEV post before **2026-10-11 23:59 PDT** with tags
+   `#devchallenge #hf26challenge`; note any post-deadline commits in the
+   README section provided.
