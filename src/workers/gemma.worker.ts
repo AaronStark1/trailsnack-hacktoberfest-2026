@@ -378,11 +378,11 @@ self.onmessage = async (ev: MessageEvent<WorkerRequest>) => {
             computeMs: 0,
           });
         } else {
-          // Species entries here carry prompts only; common/scientific names are
-          // embedded in the prompt strings by the caller (document prefix format).
+          // Species entries carry display names so document prefixes follow the
+          // model card format: title: {common} ({scientific}) | text: {prompt}.
           await buildSpeciesIndex(
             msg.requestId,
-            msg.species.map((s) => ({ id: s.id, prompts: s.prompts })),
+            msg.species.map((s) => ({ id: s.id, prompts: s.prompts, commonName: s.commonName, scientificName: s.scientificName })),
           );
         }
         break;

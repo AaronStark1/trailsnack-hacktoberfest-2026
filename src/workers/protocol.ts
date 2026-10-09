@@ -25,7 +25,7 @@ export type WorkerRequest =
       type: "prepare-species-index";
       requestId: string;
       dbHash: string;
-      species: { id: string; prompts: string[] }[];
+      species: { id: string; prompts: string[]; commonName: string; scientificName: string }[];
       cached?: {
         matrix: ArrayBuffer;
         dims: number;

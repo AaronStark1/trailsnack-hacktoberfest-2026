@@ -26,7 +26,7 @@ function newId(): string {
 
 type TestHook = {
   enabled: boolean;
-  identifyScores?: { speciesId: string; similarity: number }[];
+  identifyScores?: { speciesId: string; similarity: number }[] | undefined;
 };
 
 const testHook: TestHook = { enabled: false };
@@ -162,7 +162,7 @@ class GemmaClient {
   }
 
   async prepareSpeciesIndex(
-    species: { id: string; prompts: string[] }[],
+    species: { id: string; prompts: string[]; commonName: string; scientificName: string }[],
     opts?: {
       cached?: { matrix: ArrayBuffer; dims: number; speciesIds: string[]; promptOffsets: number[] };
       dbHash?: string;
@@ -204,6 +204,28 @@ class GemmaClient {
     const res = await this.send({ type: "identify", requestId, image, topK }, { timeoutMs: 180_000 });
     if (res.type === "identify-result") {
       return { embedding: res.embedding, scores: res.scores, inferenceMs: res.inferenceMs };
+    }
+    if (res.type === "error") throw new Error(res.message);
+    throw new Error(`Unexpected response: ${res.type}`);
+  }
+
+  async deepLook(
+    image: { data: ArrayBuffer; width: number; height: number },
+    candidates: { id: string; commonName: string; scientificName: string; checklist: string[] }[],
+    onToken?: (text: string) => void,
+  ): Promise<{ json: import("../workers/protocol.ts").DeepLookJson; inferenceMs: number }> {
+    const requestId = newId();
+    const res = await this.send(
+      { type: "deep-look", requestId, image, candidates },
+      {
+        timeoutMs: 600_000,
+        onEvent: (ev) => {
+          if (ev.type === "deep-look-token") onToken?.(ev.text);
+        },
+      },
+    );
+    if (res.type === "deep-look-result") {
+      return { json: res.json, inferenceMs: res.inferenceMs };
     }
     if (res.type === "error") throw new Error(res.message);
     throw new Error(`Unexpected response: ${res.type}`);

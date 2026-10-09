@@ -1,4 +1,4 @@
-import { Navigate, Route, Routes } from "react-router-dom";
+import { Navigate, Route, Routes, useLocation } from "react-router-dom";
 import Welcome from "./pages/Welcome.tsx";
 import Scan from "./pages/Scan.tsx";
 import Assess from "./pages/Assess.tsx";
@@ -8,11 +8,27 @@ import Models from "./pages/Models.tsx";
 import Settings from "./pages/Settings.tsx";
 import NotFound from "./pages/NotFound.tsx";
 import AppShell from "./components/layout/AppShell.tsx";
+import { useSettingsStore } from "./stores/settingsStore.ts";
+
+function FirstRunGate({ children }: { children: React.ReactNode }) {
+  const acceptedAt = useSettingsStore((s) => s.disclaimerAcceptedAt);
+  const location = useLocation();
+  if (!acceptedAt && location.pathname !== "/welcome") {
+    return <Navigate to="/welcome" replace />;
+  }
+  return <>{children}</>;
+}
 
 export default function AppRoutes() {
   return (
     <Routes>
-      <Route element={<AppShell />}>
+      <Route
+        element={
+          <FirstRunGate>
+            <AppShell />
+          </FirstRunGate>
+        }
+      >
         <Route path="/" element={<Navigate to="/scan" replace />} />
         <Route path="/welcome" element={<Welcome />} />
         <Route path="/scan" element={<Scan />} />

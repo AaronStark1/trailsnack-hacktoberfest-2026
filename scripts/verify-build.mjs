@@ -1,6 +1,5 @@
 import { existsSync, readdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
-
 const dist = new URL("../dist/", import.meta.url);
 const p = (s) => join(new URL(dist).pathname, s);
 
@@ -45,9 +44,36 @@ for (const file of walk(new URL(dist).pathname)) {
   // Vendor ORT bundles legitimately contain the substring "TODO" in comments;
   // enforce TODO/FIXME only on first-party output, but enforce the CDN ban everywhere.
   const firstPartyBanned = isVendorOrt ? [] : ["TODO", "FIXME"];
-  for (const b of [...firstPartyBanned, "cdn.jsdelivr.net/npm/onnxruntime-web"]) {
+  for (const b of firstPartyBanned) {
     if (text.includes(b)) fail(`${file} contains banned string ${b}`);
   }
+  // The bundled @huggingface/transformers library ships its upstream jsdelivr
+  // default-URL constant as a string; what matters is that our worker overrides
+  // wasmPaths to self-hosted /ort/ before any load (asserted below), and that
+  // no first-party source references the CDN (asserted on src/ below).
+  if (text.includes("cdn.jsdelivr.net/npm/onnxruntime-web") && !text.includes("/ort/ort-wasm-simd-threaded")) {
+    fail(`${file} references the ORT CDN without the self-hosted /ort/ override nearby`);
+  }
 }
+
+// First-party sources must never reference the ORT CDN, and the worker must
+// contain the self-hosted override.
+const srcRoot = new URL("../src/", import.meta.url).pathname;
+let workerHasOverride = false;
+for (const file of walk(srcRoot)) {
+  let text;
+  try {
+    text = readFileSync(file, "utf8");
+  } catch {
+    continue;
+  }
+  if (text.includes("cdn.jsdelivr.net/npm/onnxruntime-web")) {
+    fail(`first-party source ${file} references the ORT CDN`);
+  }
+  if (file.endsWith("gemma.worker.ts") && text.includes("/ort/ort-wasm-simd-threaded")) {
+    workerHasOverride = true;
+  }
+}
+if (!workerHasOverride) fail("gemma.worker.ts lacks the self-hosted /ort/ wasmPaths override");
 
 console.log("verify-build OK: index.html, sw.js, manifest, ort/*.wasm, precache refs, no banned strings.");
