@@ -65,7 +65,15 @@ vi.mock("@huggingface/transformers", () => {
 
   return {
     AutoConfig: { from_pretrained: async (_id: unknown) => ({ audio_config: {} }) },
-    AutoModel: { from_pretrained: async (_id: unknown, _opts: unknown) => ({}) },
+    AutoModel: {
+      from_pretrained: async (_id: unknown, opts: unknown) => {
+        const cb = (opts as { progress_callback?: (ev: unknown) => void }).progress_callback;
+        cb?.({ status: "initiate", file: "a", total: 100 });
+        cb?.({ status: "progress", file: "a", loaded: 50, total: 100 });
+        cb?.({ status: "progress", file: "b", loaded: 10 });
+        return {};
+      },
+    },
     AutoProcessor: { from_pretrained: async (_id: unknown) => fakeProcessor },
     Gemma4ForConditionalGeneration: { from_pretrained: async (_id: unknown, _opts: unknown) => fakeModel },
     InterruptableStoppingCriteria,
@@ -168,8 +176,7 @@ describe("worker message handler with a mocked Tier 2 model", () => {
     expect(events[events.length - 1]).toMatchObject({ type: "error", code: "aborted" });
   });
 
-  it("reports aborted even when generate returns valid output after the interrupt (A2-2)", async () => {
-    harness().mode = "hang-valid";
+  it("reports aborted even when generate returns valid output after the interrupt (A2-2)", async () => {    harness().mode = "hang-valid";
     const pending = dispatch({
       type: "deep-look",
       requestId: "dl-3",
@@ -185,5 +192,13 @@ describe("worker message handler with a mocked Tier 2 model", () => {
     const events = forRequest("dl-3").filter((e) => e.type !== "deep-look-token");
     expect(events.some((e) => e.type === "deep-look-result")).toBe(false);
     expect(events[events.length - 1]).toMatchObject({ type: "error", code: "aborted" });
+  });
+
+  it("reports per-file progress numbers without grand-total substitution (M6)", async () => {
+    await dispatch({ type: "init", tier: "field-id", device: "wasm", requestId: "init-t1" });
+    const progress = forRequest("init-t1").filter((e) => e.type === "progress");
+    expect(progress.length).toBeGreaterThanOrEqual(3);
+    const noTotal = progress[progress.length - 1];
+    expect(noTotal).toMatchObject({ file: "b", loadedBytes: 10, totalBytes: 0 });
   });
 });

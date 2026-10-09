@@ -9,7 +9,7 @@ import { useModelStore } from "../stores/modelStore.ts";
 import { gemmaClient } from "../ai/gemmaClient.ts";
 import { requestPersistentStorage } from "../db/persistence.ts";
 import { putModelManifest } from "../db/modelManifest.ts";
-import { formatEta } from "../lib/format.ts";
+import { formatBytes, formatEta } from "../lib/format.ts";
 
 const REGIONS = ["north-america", "uk-ireland", "europe", "australia-nz", "global"];
 
@@ -23,6 +23,7 @@ export default function Welcome() {
   const [gps, setGps] = useState(settings.gpsEnabled);
   const [downloading, setDownloading] = useState(false);
   const [startedAt, setStartedAt] = useState(0);
+  const [dlBytes, setDlBytes] = useState(0);
   const [error, setError] = useState<string | null>(null);
 
   async function acceptAndContinue() {
@@ -35,27 +36,34 @@ export default function Welcome() {
   async function setupOffline() {
     setDownloading(true);
     setError(null);
+    setDlBytes(0);
     setTier("field-id", { status: "loading", progressPct: 0, currentFile: "", error: null });
     const t0 = Date.now();
     setStartedAt(t0);
+    const totals = new Map<string, number>();
     try {
       await requestPersistentStorage();
       const device = await gemmaClient.getDevice(settings.preferredDevice);
       setTier("field-id", { device });
       await gemmaClient.initTier("field-id", {
         device: settings.preferredDevice,
-        onProgress: (pct, file) => {
+        onProgress: (pct, file, _loaded, total) => {
           setTier("field-id", { progressPct: pct, currentFile: file });
+          if (typeof total === "number" && total > 0) {
+            totals.set(file, total);
+            setDlBytes([...totals.values()].reduce((a, b) => a + b, 0));
+          }
         },
       });
       setTier("field-id", { status: "ready", progressPct: 100, error: null });
+      const bytes = [...totals.values()].reduce((a, b) => a + b, 0);
       await putModelManifest({
         tier: "field-id",
         modelId: gemmaClient.modelIds().tier1,
         dtype: device === "webgpu" ? "q4f16" : "q4",
         device,
         downloadedAt: Date.now(),
-        bytes: 0,
+        bytes,
         status: "ready",
       });
     } catch (err) {
@@ -138,6 +146,10 @@ export default function Welcome() {
           <div className="mt-3">
             <ProgressBar pct={fieldId.progressPct} label={`${fieldId.progressPct}% · ${eta}`} />
             <p className="mt-1 truncate text-base opacity-70">{fieldId.currentFile}</p>
+            <p className="mt-1 text-base opacity-70" data-testid="welcome-dl-status">
+              {formatBytes(dlBytes > 0 ? dlBytes : null)}
+              {fieldId.device ? ` · ${fieldId.device}` : ""}
+            </p>
           </div>
         )}
         {fieldId.status === "ready" && <p className="mt-2 font-semibold text-(--color-edible)">Offline ID ready{fieldId.device ? ` (${fieldId.device})` : ""}.</p>}

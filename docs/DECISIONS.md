@@ -165,7 +165,18 @@ Format: ID · date · decision · rationale · alternatives rejected.
   exposes `currentDevice()` (the tracked `chosenDevice`, which the fallback
   rewrites) and Assess reads it after `initTier` resolves. Covered by a client
   test where the first init fails `webgpu-unavailable` and the retry succeeds:
-  two inits posted (webgpu then wasm) and `currentDevice()` reports `wasm`.
+  two inits posted (webgpu then wasm) and   `currentDevice()` reports `wasm`.
+- **D-024 · 2026-10-09 · A2-5: Welcome records real bytes; progress reports per-file numbers only.**
+  Rationale: Welcome duplicated Models' `bytes: 0` manifest write and showed
+  neither bytes nor device during the first-run download, so the fix mirrors
+  the Models totals map and adds a bytes-plus-device status line. The worker's
+  progress callback no longer substitutes grand totals for a file that reports
+  no `total` (unknowns are 0, which clients already skip when summing);
+  `overallPct` still uses the aggregate. Covered by a handler test where file
+  `b` reports `loaded` without `total` (asserts `loadedBytes: 10`,
+  `totalBytes: 0`), verified to fail under the old substitution. The Welcome
+  screen wiring itself has no dedicated unit test (worker+idb coupling) and is
+  covered by typecheck, build, and e2e.
 - **D-023 · 2026-10-09 · A2-4: poison-oak split from the atlantic entry; DB count/version pinned in tests.**
   Rationale: `poison-oak` (*T. diversilobum*, western) wrongly claimed
   "Atlantic poison oak" as a common name while not linking the real

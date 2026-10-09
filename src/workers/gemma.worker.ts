@@ -90,13 +90,15 @@ function makeProgressCallback(tier: Tier, requestId: string, startedFiles: Map<s
       total += v.total;
     }
     const overallPct = total > 0 ? Math.min(100, Math.round((loaded / total) * 100)) : 0;
+    // Report this file's own numbers only: substituting the grand totals for
+    // a file that reports no total inflates per-file sums on the client (M6).
     post({
       type: "progress",
       requestId,
       tier,
       file,
-      loadedBytes: typeof ev.loaded === "number" ? ev.loaded : loaded,
-      totalBytes: typeof ev.total === "number" ? ev.total : total,
+      loadedBytes: typeof ev.loaded === "number" ? ev.loaded : 0,
+      totalBytes: typeof ev.total === "number" ? ev.total : 0,
       overallPct,
     });
   };
