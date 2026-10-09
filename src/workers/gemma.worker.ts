@@ -291,13 +291,18 @@ async function deepLook(
   candidates: { id: string; commonName: string; scientificName: string; checklist: string[] }[],
 ): Promise<void> {
   const t0 = performance.now();
-  // No ready acknowledgement under the deep-look request id: the caller is
-  // waiting for deep-look-result, and a ready event would resolve it early.
-  const ok = await loadTier2(requestId, false);
-  if (!ok || !tier2Model || !tier2Processor) return;
+  // Register the abort flag before loading so an abort during the Tier 2
+  // download is honoured too. No ready acknowledgement under the deep-look
+  // request id: the caller is waiting for deep-look-result, and a ready
+  // event would resolve it early.
   const stopCriteria = new InterruptableStoppingCriteria();
   const flag = { aborted: false, criteria: stopCriteria as InterruptableStoppingCriteria | null };
   deepLookAborts.set(requestId, flag);
+  const ok = await loadTier2(requestId, false);
+  if (!ok || !tier2Model || !tier2Processor) {
+    deepLookAborts.delete(requestId);
+    return;
+  }
 
   const list = candidates
     .map((c) => `- ${c.commonName} (${c.scientificName}) [${c.id}]: ${c.checklist.join("; ")}`)
@@ -349,6 +354,12 @@ async function deepLook(
       stopping_criteria: stopCriteria,
       ...(constraint ? { logits_processor: constraint } : {}),
     });
+    // interrupt() resolves generate normally, so check the flag explicitly:
+    // an abort near the end must report aborted, never a partial result.
+    if (flag.aborted) {
+      post({ type: "error", requestId, tier: "deep-look", code: "aborted", message: "Deep Look aborted.", recoverable: true });
+      return;
+    }
     // generate returns the full sequence (prompt + new tokens): slice the
     // prompt off, then decode synchronously — batch_decode returns string[]
     // and has no .then (C2). Fall back to streamer text if decoding is empty.

@@ -2,7 +2,7 @@ import { afterAll, beforeAll, describe, expect, it, vi } from "vitest";
 import type { WorkerEvent, WorkerRequest } from "../../src/workers/protocol.ts";
 
 interface HarnessState {
-  mode: "ok" | "hang";
+  mode: "ok" | "hang" | "hang-valid";
 }
 
 function harness(): HarnessState {
@@ -40,7 +40,7 @@ vi.mock("@huggingface/transformers", () => {
 
   const fakeModel = {
     generate: async (opts: Record<string, unknown>) => {
-      if (state.mode === "hang") {
+      if (state.mode !== "ok") {
         const criteria = opts["stopping_criteria"] as { interrupted: boolean };
         const deadline = Date.now() + 5000;
         while (!criteria.interrupted && Date.now() < deadline) {
@@ -59,7 +59,7 @@ vi.mock("@huggingface/transformers", () => {
       tokenizer: null,
       apply_chat_template: async (_messages: unknown, _opts: unknown) => "CHAT_PROMPT",
       batch_decode: (_ids: unknown, _opts: unknown) =>
-        state.mode === "ok" ? [VALID_JSON] : ["{partial-output"],
+        state.mode === "hang" ? ["{partial-output"] : [VALID_JSON],
     },
   );
 
@@ -165,6 +165,25 @@ describe("worker message handler with a mocked Tier 2 model", () => {
     harness().mode = "ok";
     const events = forRequest("dl-2").filter((e) => e.type !== "deep-look-token");
     expect(events.length).toBeGreaterThan(0);
+    expect(events[events.length - 1]).toMatchObject({ type: "error", code: "aborted" });
+  });
+
+  it("reports aborted even when generate returns valid output after the interrupt (A2-2)", async () => {
+    harness().mode = "hang-valid";
+    const pending = dispatch({
+      type: "deep-look",
+      requestId: "dl-3",
+      image: { data: new ArrayBuffer(16), width: 2, height: 2 },
+      candidates: [
+        { id: "fly-agaric", commonName: "Fly agaric", scientificName: "Amanita muscaria", checklist: ["red cap"] },
+      ],
+    });
+    await sleep(50);
+    await dispatch({ type: "abort", requestId: "dl-3" });
+    await pending;
+    harness().mode = "ok";
+    const events = forRequest("dl-3").filter((e) => e.type !== "deep-look-token");
+    expect(events.some((e) => e.type === "deep-look-result")).toBe(false);
     expect(events[events.length - 1]).toMatchObject({ type: "error", code: "aborted" });
   });
 });

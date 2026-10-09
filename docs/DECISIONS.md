@@ -147,3 +147,14 @@ Format: ID · date · decision · rationale · alternatives rejected.
   init→deep-look→first non-token event is deep-look-result, and abort during a
   hanging generate→`aborted` error. The test was verified to fail with the old
   call. Both source-grep tests were deleted with it.
+- **D-021 · 2026-10-09 · A2-2: abort flag registered before load, checked explicitly after generate.**
+  Rationale: previously the flag existed only after Tier 2 finished loading,
+  so an abort during the 3.3 GB download was silently dropped, and the
+  `aborted` code was reachable only when truncated JSON failed to parse — a
+  late abort with valid output would have posted a result for a cancelled
+  request. The flag is now registered first (the early return on load failure
+  needs no extra post: `loadTier2` already answers every failure), and an
+  explicit `if (flag.aborted)` after `generate` reports `aborted` before any
+  decoding. Covered by a `hang-valid` handler case (generate returns good
+  JSON after the interrupt; the test asserts no `deep-look-result` and an
+  `aborted` error), verified to fail without the check.
