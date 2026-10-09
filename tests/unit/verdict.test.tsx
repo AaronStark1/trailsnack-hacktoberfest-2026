@@ -12,11 +12,13 @@ describe("VerdictBadge", () => {
   ];
   for (const c of cases) {
     it(`renders ${c.badge} with its headline, icon, and confidence`, () => {
-      render(<VerdictBadge badge={c.badge} headline={c.headline} confidence="moderate" />);
+      const { container } = render(<VerdictBadge badge={c.badge} headline={c.headline} confidence="moderate" />);
       expect(screen.getByRole("status", { name: new RegExp(`Verdict: ${c.badge}`) })).toBeInTheDocument();
       expect(screen.getByText(c.badge)).toBeInTheDocument();
       expect(screen.getByText(c.headline)).toBeInTheDocument();
       expect(screen.getByText("moderate")).toBeInTheDocument();
+      // Each badge must render its Lucide icon (an inline svg), not text alone.
+      expect(container.querySelector("svg")).toBeInTheDocument();
     });
   }
 });

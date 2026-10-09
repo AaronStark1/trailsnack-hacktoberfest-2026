@@ -106,6 +106,6 @@ test.describe("models screen", () => {
     await page.goto("/models");
     await expect(page.getByTestId("quota-inspector")).toBeVisible();
     await expect(page.getByTestId("quota-text")).toContainText(/used/);
-    await expect(page.locator("li", { hasText: "WebGPU available" })).toContainText(/unavailable|yes/);
+    await expect(page.locator("li", { hasText: "WebGPU available" })).toContainText("WebGPU unavailable");
   });
 });

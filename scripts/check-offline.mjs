@@ -87,6 +87,14 @@ try {
       return res.status;
     });
     if (dbStatus !== 200) throw new Error(`flora_safety_db.json offline status ${dbStatus}`);
+    // Prove SW serving via the response object, not just the 200 status.
+    const [dbResp] = await Promise.all([
+      page.waitForResponse((r) => r.url().endsWith("/data/flora_safety_db.json")),
+      page.evaluate(() => fetch("/data/flora_safety_db.json")),
+    ]);
+    if (!dbResp.fromServiceWorker()) {
+      throw new Error("flora_safety_db.json was not served from the service worker");
+    }
     console.log("offline OK: /data/flora_safety_db.json served from the service worker");
   } finally {
     await browser.close();
