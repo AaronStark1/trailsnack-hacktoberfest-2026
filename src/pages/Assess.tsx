@@ -16,6 +16,7 @@ import SectionHeader from "../components/ui/SectionHeader.tsx";
 import { useScanStore } from "../stores/scanStore.ts";
 import { useSettingsStore } from "../stores/settingsStore.ts";
 import { useModelStore } from "../stores/modelStore.ts";
+import { useThicketHold } from "../stores/atmosphereStore.ts";
 import { computeVerdict } from "../engine/safetyEngine.ts";
 import type { FloraDB, SafetyVerdict, Species, TierScore } from "../engine/types.ts";
 import type { DeepLookJson } from "../engine/deepLookSchema.ts";
@@ -56,6 +57,9 @@ export default function Assess() {
   const [deepLookJson, setDeepLookJson] = useState<DeepLookJson | null>(null);
   const [deepLooking, setDeepLooking] = useState(false);
   const [imageHash, setImageHash] = useState<string | null>(null);
+
+  // Decorative backdrop yields the GPU while identification or Deep Look is running.
+  useThicketHold(phase === "loading" || phase === "identifying" || deepLooking);
 
   // Object URL for the specimen photo. Created and revoked inside one effect so
   // the URL in state is always live (a memoised URL is left revoked when React

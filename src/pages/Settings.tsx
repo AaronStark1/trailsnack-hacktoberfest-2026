@@ -1,10 +1,11 @@
 import { useEffect, useState, type ReactNode } from "react";
 import { Link } from "react-router-dom";
-import { ChevronDown, Flame, Microscope, Satellite, Sun } from "lucide-react";
+import { ChevronDown, Flame, House, Microscope, Satellite, Sun } from "lucide-react";
 import { buttonClass } from "../components/ui/Button.tsx";
 import Toggle from "../components/ui/Toggle.tsx";
 import SectionHeader from "../components/ui/SectionHeader.tsx";
 import HotlineCard from "../components/settings/HotlineCard.tsx";
+import HomeLink from "../components/layout/HomeLink.tsx";
 import { useGeoPermission, type GeoPermission } from "../components/layout/useGeoPermission.ts";
 import { useSettingsStore } from "../stores/settingsStore.ts";
 import { loadDatabase } from "../engine/loadDatabase.ts";
@@ -160,6 +161,9 @@ export default function Settings() {
         <Link to="/welcome" className={`${buttonClass("secondary")} mt-5 w-full`}>
           Re-read the safety promise and first-run setup
         </Link>
+        <HomeLink className={`${buttonClass("ghost")} mt-2 w-full`}>
+          <House size={20} aria-hidden /> Back to the home page
+        </HomeLink>
       </section>
 
       <section aria-labelledby="licenses-h" className="plate p-5 sm:p-6">

@@ -1,25 +1,24 @@
 import { useEffect } from "react";
-import { Link, Outlet, useLocation } from "react-router-dom";
-import ForestBackdrop from "../atmosphere/ForestBackdrop.tsx";
+import { Outlet, useLocation } from "react-router-dom";
+import ThicketBackground from "../atmosphere/ThicketBackground.tsx";
 import Emblem from "../ui/Emblem.tsx";
 import TelemetryRack from "./TelemetryRack.tsx";
 import UpdatePrompt from "./UpdatePrompt.tsx";
 import InstallBanner from "./InstallBanner.tsx";
 import TabBar from "./TabBar.tsx";
-import { useModelStore } from "../../stores/modelStore.ts";
+import HomeLink from "./HomeLink.tsx";
+import SiteFooter from "./SiteFooter.tsx";
+import { NAV_LINK, SHELL } from "./shell.ts";
 import { useSettingsStore } from "../../stores/settingsStore.ts";
 
 /** Screens that get the wide, dual-column canvas on desktop. */
 const WIDE_ROUTE = /^\/(assess|log)\/./;
-/** Screens where the camera or on-device inference needs the device: the forest holds still. */
-const INSTRUMENT_ROUTE = /^\/(scan|assess)(\/|$)/;
 
 export default function AppShell() {
   const { pathname } = useLocation();
   const accepted = useSettingsStore((s) => s.disclaimerAcceptedAt !== null);
   const darkMode = useSettingsStore((s) => s.darkMode);
   const highContrast = useSettingsStore((s) => s.highContrast);
-  const modelBusy = useModelStore((s) => s.fieldId.status === "loading" || s.deepLook.status === "loading");
 
   // Every screen opens at its top: a new route never inherits the last one's scroll.
   useEffect(() => {
@@ -27,11 +26,20 @@ export default function AppShell() {
   }, [pathname]);
 
   const wide = WIDE_ROUTE.test(pathname);
-  const calm = modelBusy || INSTRUMENT_ROUTE.test(pathname);
 
   return (
-    <div className="relative isolate min-h-dvh text-ink">
-      {!highContrast && <ForestBackdrop calm={calm} mode={darkMode ? "night-camp" : "forest"} />}
+    <div className="relative isolate flex min-h-dvh flex-col text-ink">
+      {/* The living thicket shared with the home page. High contrast removes it. */}
+      {!highContrast && <ThicketBackground mode={darkMode ? "night-camp" : "forest"} />}
+      {/* Reading veil: a light one. The thicket stays clearly present behind the
+          frosted cards; text that sits directly on it carries its own soft shadow
+          (see .on-thicket). */}
+      {!highContrast && (
+        <div
+          aria-hidden
+          className="pointer-events-none fixed inset-0 -z-10 bg-bg/20 md:bg-transparent md:bg-[linear-gradient(90deg,transparent,rgb(6_11_8/0.22)_24%,rgb(6_11_8/0.22)_76%,transparent)]"
+        />
+      )}
 
       <a
         href="#main"
@@ -40,29 +48,35 @@ export default function AppShell() {
         Skip to content
       </a>
 
+      {/* Header: the same metrics as the home page header (index.html) — 64px
+          tall, 72px from 821px up; shell container; 32px emblem; 26px wordmark;
+          one frosted-moss recipe. */}
       <header className="glass sticky top-0 z-40 border-b border-line pt-safe">
-        <div className="mx-auto flex min-h-16 w-full max-w-5xl items-center gap-3 px-4 py-2 sm:px-6">
-          <Link
-            to="/scan"
-            aria-label="TrailSnack — go to Scan"
-            className="flex shrink-0 items-center gap-2.5 rounded-full pr-2 text-ink no-underline press"
+        <div className={`${SHELL} flex min-h-16 items-center gap-4 min-[821px]:min-h-[72px]`}>
+          <HomeLink
+            aria-label="TrailSnack home page"
+            className="flex min-h-12 shrink-0 items-center gap-2.5 text-ink no-underline press"
           >
             <Emblem size={32} className="text-ink" />
-            <span className="flex flex-col">
-              <span className="display text-[1.625rem] leading-none tracking-[0.04em] uppercase">TrailSnack</span>
-              <span className="mono-label mt-1 hidden text-ink-faint md:block">
-                Offline Wild Foraging Companion
-              </span>
-            </span>
-          </Link>
-          <TelemetryRack />
+            <span className="display text-[1.625rem] leading-none tracking-[0.04em] uppercase">TrailSnack</span>
+          </HomeLink>
+          <span className="mono-label hidden h-[26px] items-center gap-2 rounded-full border border-line-strong px-2.5 text-[0.625rem] tracking-[0.14em] whitespace-nowrap text-ink-muted xl:inline-flex">
+            <span aria-hidden className="size-1.5 rounded-full bg-glow shadow-glow-ok" />
+            Offline Wild Foraging Companion
+          </span>
+          <div className="ml-auto flex min-w-0 items-center gap-1">
+            <nav aria-label="Site" className="hidden min-[821px]:block">
+              <HomeLink className={NAV_LINK}>Home</HomeLink>
+            </nav>
+            <TelemetryRack />
+          </div>
         </div>
       </header>
 
       <main
         id="main"
         tabIndex={-1}
-        className={`relative mx-auto w-full px-4 pt-6 pb-36 outline-none sm:px-6 sm:pt-8 ${wide ? "max-w-5xl" : "max-w-3xl"}`}
+        className={`on-thicket relative mx-auto w-full flex-1 px-4 pt-6 pb-14 outline-none sm:px-6 sm:pt-8 ${wide ? "max-w-5xl" : "max-w-3xl"}`}
       >
         <div className="mb-6 grid gap-3 empty:hidden">
           <InstallBanner />
@@ -70,6 +84,8 @@ export default function AppShell() {
         </div>
         <Outlet />
       </main>
+
+      <SiteFooter accepted={accepted} />
 
       {/* The dock appears once the Safety Covenant is accepted: before that every
           destination would only bounce back to the covenant. */}

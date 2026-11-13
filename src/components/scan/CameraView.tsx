@@ -4,6 +4,7 @@ import Button from "../ui/Button.tsx";
 import FramingOverlay from "./FramingOverlay.tsx";
 import CaptureControls from "./CaptureControls.tsx";
 import { useDeviceLevel } from "./useDeviceLevel.ts";
+import { useAtmosphereStore } from "../../stores/atmosphereStore.ts";
 
 interface Props {
   onFrame: (video: HTMLVideoElement) => void;
@@ -75,6 +76,13 @@ export default function CameraView({ onFrame }: Props) {
       streamRef.current = null;
     };
   }, [facing]);
+
+  // Focus dimming: while real frames are on screen the backdrop steps right back.
+  const setCameraLive = useAtmosphereStore((s) => s.setCameraLive);
+  useEffect(() => {
+    setCameraLive(live && !error);
+    return () => setCameraLive(false);
+  }, [live, error, setCameraLive]);
 
   async function toggleTorch() {
     const track = streamRef.current?.getVideoTracks()[0];

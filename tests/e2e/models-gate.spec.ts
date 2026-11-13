@@ -5,7 +5,7 @@ import { expect, test, type Page } from "@playwright/test";
 // no launch flag removes navigator.gpu in this Chromium, which is why the
 // expectation is a fixed string rather than a flag-derived one.)
 async function acceptDisclaimer(page: Page): Promise<void> {
-  await page.goto("/");
+  await page.goto("/scan");
   await expect(page).toHaveURL(/\/welcome/);
   const accept = page.getByRole("button", { name: /accept and hit the trail/i });
   await expect(accept).toBeDisabled();

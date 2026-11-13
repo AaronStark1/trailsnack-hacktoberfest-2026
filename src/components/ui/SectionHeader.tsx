@@ -65,7 +65,7 @@ export default function SectionHeader({
         </div>
         {right && <div className="shrink-0 pb-1">{right}</div>}
       </div>
-      {lede && <p className="mt-3 max-w-prose text-ink-muted">{lede}</p>}
+      {lede && <p className="mt-3 max-w-prose text-ink/80">{lede}</p>}
     </div>
   );
 }

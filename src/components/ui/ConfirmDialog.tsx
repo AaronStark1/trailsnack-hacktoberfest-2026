@@ -1,11 +1,13 @@
 import { useRef } from "react";
+import { createPortal } from "react-dom";
 import { TriangleAlert } from "lucide-react";
 import Button from "./Button.tsx";
 import { useDialogFocus } from "./useDialogFocus.ts";
 
 /**
  * Destructive-action confirmation. Focus lands on Cancel (the safe choice),
- * Tab stays inside, Escape or the scrim cancels.
+ * Tab stays inside, Escape or the scrim cancels. Portalled to <body> so no
+ * frosted or animated ancestor can capture its fixed positioning.
  */
 export default function ConfirmDialog({
   title,
@@ -22,7 +24,7 @@ export default function ConfirmDialog({
 }) {
   const panelRef = useRef<HTMLDivElement>(null);
   useDialogFocus(panelRef, onCancel);
-  return (
+  return createPortal(
     <div
       role="alertdialog"
       aria-modal="true"
@@ -57,6 +59,7 @@ export default function ConfirmDialog({
           </div>
         </div>
       </div>
-    </div>
+    </div>,
+    document.body,
   );
 }

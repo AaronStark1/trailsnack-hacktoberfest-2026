@@ -57,7 +57,7 @@ function Boot() {
       el.classList.toggle("dark", darkMode);
     }
     const themeColor = document.querySelector<HTMLMetaElement>('meta[name="theme-color"]');
-    if (themeColor) themeColor.content = highContrast ? "#000000" : darkMode ? "#0a0806" : "#070d09";
+    if (themeColor) themeColor.content = highContrast ? "#000000" : darkMode ? "#0a0806" : "#060b08";
   }, [highContrast, darkMode]);
 
   if (!loaded)

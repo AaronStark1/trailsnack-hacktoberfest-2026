@@ -5,7 +5,7 @@ import { dirname, join } from "node:path";
 const FIXTURE = join(dirname(fileURLToPath(import.meta.url)), "fixtures", "specimen.png");
 
 async function acceptDisclaimer(page: Page): Promise<void> {
-  await page.goto("/");
+  await page.goto("/scan");
   await expect(page).toHaveURL(/\/welcome/);
   const accept = page.getByRole("button", { name: /accept and hit the trail/i });
   await expect(accept).toBeDisabled();
@@ -97,5 +97,19 @@ test.describe("assessment verdicts (mocked Tier 1)", () => {
     await page.getByRole("button", { name: /export json/i }).click();
     const dl = await download;
     expect(dl.suggestedFilename()).toMatch(/trailsnack-log\.json/);
+  });
+});
+
+test.describe("landing page", () => {
+  test("root serves the landing page and Launch Scanner enters the gated app", async ({ page }) => {
+    const errors: string[] = [];
+    page.on("pageerror", (e) => errors.push(e.message));
+    await page.goto("/");
+    await expect(page).toHaveURL(/\/$/);
+    await expect(page.getByRole("heading", { level: 1, name: "Wild, not reckless." })).toBeVisible();
+    await page.getByRole("link", { name: "Launch Scanner" }).first().click();
+    await expect(page).toHaveURL(/\/welcome/);
+    await expect(page.getByRole("button", { name: /accept and hit the trail/i })).toBeVisible();
+    expect(errors).toEqual([]);
   });
 });

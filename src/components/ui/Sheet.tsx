@@ -1,4 +1,5 @@
 import { useRef, type ReactNode } from "react";
+import { createPortal } from "react-dom";
 import Button from "./Button.tsx";
 import { useDialogFocus } from "./useDialogFocus.ts";
 
@@ -13,7 +14,7 @@ export default function Sheet({
 }) {
   const panelRef = useRef<HTMLDivElement>(null);
   useDialogFocus(panelRef, onClose);
-  return (
+  return createPortal(
     <div
       role="dialog"
       aria-modal="true"
@@ -34,6 +35,7 @@ export default function Sheet({
           Close
         </Button>
       </div>
-    </div>
+    </div>,
+    document.body,
   );
 }
