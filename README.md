@@ -13,6 +13,13 @@
 **Live demo:** `https://trailsnack.onrender.com` — *the author sets the final URL
 after the first Render deploy (see Post-deadline commits below).*
 
+### Showcase
+
+[![TrailSnack Showcase Reel](docs/trailsnack-showreel-poster.jpg)](docs/trailsnack-showreel.mp4)
+
+*40-second cinematic reel — dark botanical UI, living WebGL2 berry thicket,
+on-device Gemma AI scanning, and the full field-to-verdict flow.*
+
 ## What TrailSnack does and how it gets people outside
 
 TrailSnack is an offline-first mobile web app for hikers and trail foragers. On a
@@ -94,19 +101,51 @@ nothing per query, and keeps working when the trail goes dark. That is only
 possible because the weights and the runtime are open. TrailSnack itself is
 Apache-2.0 for the same reason.
 
+## UI & Visual Design
+
+The November 2026 UI revamp wraps TrailSnack in a dark botanical theme that
+mirrors the wild berry foraging context.
+
+- **Palette:** pitch obsidian `#060b08` backgrounds, spore cream `#f5efe2` text,
+  berry-red / currant / cloudberry amber accents.
+- **Typography:** Antonio (condensed display headlines), Manrope (body & UI),
+  JetBrains Mono (telemetry data). All fonts bundled locally — no external CDN
+  at runtime.
+- **Two-document architecture:** `index.html` is an editorial landing page with
+  the full-screen 3D thicket, Safety Covenant, 3-step usage guide, and regional
+  emergency hotlines. `app.html` is the React SPA shell. A custom Vite plugin
+  (`appShellFallback()`) rewrites non-`/` HTML requests to `app.html`.
+- **WebGL2 night berry thicket** (`src/thicket/engine.ts`): a procedural
+  point-sprite engine rendering thousands of wild berries and foliage — 5 fruit
+  species (blackberry, wild strawberry, cloudberry, currant, elderberry),
+  bioluminescent spores, firefly particles, touch/mouse deflection, gyroscope
+  tilt parallax on mobile, and a generated ambient forest soundscape. The
+  thicket runs as a shared background across both the landing page and the React
+  app via `src/components/atmosphere/ThicketBackground.tsx`.
+- **Frosted moss glass cards:** `backdrop-filter: blur(14px)` surfaces with
+  organic border radii, dark mode / Night Camp Mode toggle, and a high-contrast
+  accessibility mode.
+
 ## Architecture
 
 ```
 trailsnack/
+├── index.html                        # editorial landing page (3D thicket hero)
+├── app.html                          # React SPA shell entry point
 ├── public/data/flora_safety_db.json  # 81 species, 12 universal rules, emergency numbers
 ├── public/ort/                       # self-hosted ONNX Runtime (generated, git-ignored)
 ├── src/ai/                           # gemmaClient, device detection, progress aggregation
 ├── src/workers/                      # protocol + Gemma Web Worker (only ML importer)
 ├── src/engine/                       # safetyEngine, thresholds, ranking, schemas
+├── src/thicket/                      # WebGL2 procedural berry thicket engine
+├── src/landing/                      # landing page scripts (index.html interactivity)
+├── src/components/atmosphere/        # ThicketBackground, shared ambient layer
 ├── src/db/                           # idb: fieldLog, embeddings, settings, manifests
-├── src/stores/                       # zustand: model, settings, scan draft
+├── src/stores/                       # zustand: model, settings, scan draft, atmosphere
 ├── src/pages/ + src/components/      # Welcome, Scan, Assess, Log, Models, Settings
+├── src/components/layout/            # AppShell, HomeLink (safe / → landing nav)
 ├── scripts/                          # copy-ort, validate-db, verify-build, smoke, calibrate, offline
+├── showreel/                         # 40s showcase reel: renderer, storyboard, audio synth
 └── tests/unit + tests/e2e            # vitest + Playwright (mocked-worker flows)
 ```
 
@@ -136,7 +175,7 @@ Requires Node ≥ 22.
 git clone <this-repo> && cd trailsnack
 npm ci
 npm run validate:db   # database checks
-npm test              # 23 unit tests
+npm test              # 56 unit tests
 npm run build         # typecheck + PWA build + verify-build
 npm run test:e2e      # 7 Playwright flows (mocked Tier 1)
 npm run check:offline # airplane-mode verification
@@ -209,13 +248,26 @@ honestly in the final build report inside `docs/AGENT_LOG.md`.
 ## Credits
 
 Google DeepMind (Gemma), Hugging Face (Transformers.js, `onnx-community` ONNX
-exports), Lucide icons, Render hosting. Non-trivial open-source use is credited
-in [`docs/SOURCES.md`](./docs/SOURCES.md).
+exports), Gladeye (night valley engine inspiration), Lucide icons, Render
+hosting. Non-trivial open-source use is credited in
+[`docs/SOURCES.md`](./docs/SOURCES.md).
+
+## Regional coverage
+
+Emergency poison-control hotlines are bundled for: **US** (1-800-222-1222),
+**UK** (111), **EU** (112), **Australia/NZ** (13 11 26 / 0800 764 766),
+and **India** (AIIMS National Poisons Information Centre, 1800-116-117;
+emergency 112).
 
 ## Post-deadline commits
 
 Commits after the DEV submission (2026-10-11 23:59 PDT) will be noted here with
 dates. At submission time this section is empty by definition.
+
+- **2026-11 — UI revamp & India region:** Twilight botanical theme with WebGL2
+  procedural berry thicket, editorial landing page, two-document architecture,
+  India region (AIIMS NPIC 1800-116-117), wild strawberry species, 40-second
+  showcase reel, and 56 unit tests (up from 23).
 
 ## License
 
