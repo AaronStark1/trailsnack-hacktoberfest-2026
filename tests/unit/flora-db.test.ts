@@ -17,6 +17,7 @@ interface SpeciesEntry {
 interface FloraJson {
   version: string;
   species: SpeciesEntry[];
+  emergency: { regions: { id: string; label: string; poison_control: string; emergency: string }[] };
 }
 
 function loadDb(): FloraJson {
@@ -26,8 +27,15 @@ function loadDb(): FloraJson {
 describe("flora database corrections (H2)", () => {
   it("has the expected species count and version", () => {
     const db = loadDb();
-    expect(db.version).toBe("2026.10.2");
+    expect(db.version).toBe("2026.11.1");
     expect(db.species).toHaveLength(81);
+  });
+
+  it("carries India's poison line and emergency number", () => {
+    const india = loadDb().emergency.regions.find((r) => r.id === "india");
+    expect(india?.label).toBe("India");
+    expect(india?.poison_control).toBe("1800-116-117");
+    expect(india?.emergency).toBe("112");
   });
 
   it("contains deadly false hellebore linked both ways with ramps", () => {

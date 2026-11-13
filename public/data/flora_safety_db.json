@@ -1,5 +1,5 @@
 {
-  "version": "2026.10.2",
+  "version": "2026.11.1",
   "disclaimer": "Educational reference only. Never eat any wild plant, berry, or fungus based on an app. Confirm with a qualified local expert.",
   "universal_rules": [
     { "id": "no-app-confirmation", "applies_to": ["berry", "mushroom", "plant"], "text": "No wild mushroom is ever confirmed by an app; treat every mushroom ID as provisional until a qualified expert confirms it in person." },
@@ -2731,7 +2731,8 @@
       { "id": "north-america", "label": "United States", "poison_control": "1-800-222-1222", "emergency": "911", "note": "Verify for your area; Canadian provinces use regional poison centres." },
       { "id": "uk-ireland", "label": "UK & Ireland", "poison_control": "NHS 111 (UK) / 01 809 2166 (IE)", "emergency": "999 / 112" },
       { "id": "europe", "label": "EU", "poison_control": "National poison centre (varies by country)", "emergency": "112" },
-      { "id": "australia-nz", "label": "Australia & New Zealand", "poison_control": "13 11 26 (AU) / 0800 764 766 (NZ)", "emergency": "000 / 111" }
+      { "id": "australia-nz", "label": "Australia & New Zealand", "poison_control": "13 11 26 (AU) / 0800 764 766 (NZ)", "emergency": "000 / 111" },
+      { "id": "india", "label": "India", "poison_control": "1800-116-117", "emergency": "112", "note": "National Poisons Information Centre, AIIMS New Delhi (toll-free)." }
     ]
   }
 }

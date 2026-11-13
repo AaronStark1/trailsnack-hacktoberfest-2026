@@ -12,7 +12,10 @@ on it, and the app itself never clears anything for ingestion regardless.**
 ## Reference categories used
 
 - Regional poison control centres (US 1-800-222-1222; UK NHS 111 / IE 01 809 2166;
-  EU national centres via 112; AU 13 11 26 / NZ 0800 764 766) — emergency numbers
+  EU national centres via 112; AU 13 11 26 / NZ 0800 764 766; India 1800-116-117,
+  the National Poisons Information Centre at AIIMS New Delhi, as published at
+  https://aiims.edu/index.php/en/npic_intro and in the NCDC list of poison
+  information centres, with 112 as the national emergency number) — emergency numbers
   only; medical content is general field-guide knowledge, not their advice.
 - National park and university extension-service foraging safety guidance
   (leave-no-trace, lookalike warnings, "no app confirms mushrooms" policies).

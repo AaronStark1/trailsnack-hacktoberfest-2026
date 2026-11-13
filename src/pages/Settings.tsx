@@ -12,13 +12,14 @@ import { loadDatabase } from "../engine/loadDatabase.ts";
 import type { FloraDB } from "../engine/types.ts";
 import sourcesRaw from "../../docs/SOURCES.md?raw";
 
-const REGIONS = ["north-america", "uk-ireland", "europe", "australia-nz", "global"];
+const REGIONS = ["north-america", "uk-ireland", "europe", "australia-nz", "india", "global"];
 
 const REGION_LABELS: Record<string, string> = {
   "north-america": "North America",
   "uk-ireland": "UK & Ireland",
   europe: "Europe",
   "australia-nz": "Australia & NZ",
+  india: "India",
   global: "Global",
 };
 

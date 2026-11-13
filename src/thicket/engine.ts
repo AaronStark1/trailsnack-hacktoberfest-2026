@@ -40,12 +40,83 @@ export interface Thicket {
   dispose(): void;
 }
 
+/** One fruit of the thicket: offset from the path's centre line, and distance along it. */
+export interface ThicketFruit {
+  kind: "blackberry" | "strawberry" | "cloudberry" | "currant" | "elderberry";
+  x: number;
+  y: number;
+  z: number;
+  size: number;
+}
+
+/** A cluster of wild strawberries planted where a film wants its subject. */
+export interface ThicketSprig {
+  x: number;
+  y: number;
+  z: number;
+  /** Number of strawberries (default 5). */
+  fruits?: number;
+  scale?: number;
+}
+
+export interface ThicketFilmOptions {
+  /** Backing-store size in pixels; the film never reads the layout. */
+  width: number;
+  height: number;
+  density?: number;
+  /** Corridor proportions. Defaults to the live rule: tall in portrait, 1:1 otherwise. */
+  shape?: readonly [number, number];
+  sprigs?: readonly ThicketSprig[];
+}
+
+/** Everything one frame depends on. Two equal frames always paint the same picture. */
+export interface ThicketFrame {
+  /** Seconds: drives sway, breathing, spores and grain. */
+  time: number;
+  /** Position along the path, in world units. */
+  travel: number;
+  /** View direction (yaw, pitch) in radians: see `heading` and `aim`. */
+  look: readonly [number, number];
+  /** Lens multiplier; 1 is the live engine's lens. */
+  zoom?: number;
+  tilt?: readonly [number, number];
+  /** 0..1: fruit let go and drift as embers. */
+  disperse?: number;
+  /** 0..1: Night Camp Mode. */
+  ember?: number;
+  /** 0..1: how strongly clusters swell and glow. */
+  breathe?: number;
+  /** 0..1: the vignette and fringing of fast travel. */
+  rush?: number;
+  /** Pointer wake, newest first: [ndc x, ndc y, strength 0..1], at most six points. */
+  wake?: readonly (readonly [number, number, number])[];
+}
+
+/**
+ * The thicket as a pure function of a frame description: no clock, no input
+ * listeners, no state carried from one render to the next. For offline
+ * rendering, where every frame must be reproducible from its timestamp.
+ */
+export interface ThicketFilm {
+  /** Length of the looping path. */
+  readonly length: number;
+  readonly fruit: readonly ThicketFruit[];
+  /** The view direction the live engine settles on at this point of the path. */
+  heading(travel: number): [number, number];
+  /** The view direction that centres a point of the thicket in the frame. */
+  aim(travel: number, x: number, y: number, z: number): [number, number];
+  render(frame: ThicketFrame): void;
+  dispose(): void;
+}
+
 type Vec3 = readonly [number, number, number];
 
 const LEN = 36; // length of the looping thicket, in world units
 const TAU = Math.PI * 2;
 const RESUME_KEY = "trailsnack:thicket-travel";
 const TRAIL = 6;
+const PORTRAIT_SHAPE = [0.7, 1.55] as const;
+const SQUARE_SHAPE = [1, 1] as const;
 
 const PATH = `
   vec2 path(float z){ return vec2(sin(z*0.105)*1.5 + sin(z*0.043+1.3)*0.8, sin(z*0.081+0.6)*0.42); }
@@ -338,7 +409,11 @@ const THORN = 3;
 const SPORE = 4;
 const HALO = 5;
 
-function grow(density: number): { solid: Float32Array; light: Float32Array } {
+function grow(
+  density: number,
+  sprigs: readonly ThicketSprig[] = [],
+): { solid: Float32Array; light: Float32Array; fruit: ThicketFruit[] } {
+  const fruitLog: ThicketFruit[] = [];
   const R = prng(20261113);
   const solid: number[] = [];
   const light: number[] = [];
@@ -373,7 +448,8 @@ function grow(density: number): { solid: Float32Array; light: Float32Array } {
   }
 
   // Wild strawberry (Fragaria vesca): a ruby cone, golden achenes, a green calyx crown.
-  function strawberry(x: number, y: number, z: number, s: number) {
+  // `lum` scales the fruit's own light: a film subject is lit softly so its skin and seeds stay readable.
+  function strawberry(x: number, y: number, z: number, s: number, lum = 1) {
     const seed = R();
     const k = s * (0.95 + R() * 0.45);
     const body = 0.058 * k;
@@ -381,7 +457,7 @@ function grow(density: number): { solid: Float32Array; light: Float32Array } {
     beads(26, (bx, by, bz) => {
       const w = shape(by);
       put(solid, x + bx * body * w, y + by * body * 1.35, z + bz * body * w,
-        tint([0.92, 0.12, 0.16], 0.82 + R() * 0.3), 0.05 * k, BEAD, seed, 0.2 + R() * 0.16);
+        tint([0.92, 0.12, 0.16], 0.82 + R() * 0.3), 0.05 * k, BEAD, seed, (0.2 + R() * 0.16) * lum);
     });
     // Achenes sit on the skin of the side that faces the walker, so they read as seeds, not sparks.
     const achenes = 8 + Math.floor(R() * 5);
@@ -403,7 +479,7 @@ function grow(density: number): { solid: Float32Array; light: Float32Array } {
         [0.12, 0.42, 0.16], 0.1 * s, LEAF, seed, rot + 0.001);
     }
     put(solid, x, top + 0.035 * s, z, [0.1, 0.3, 0.12], 0.014 * s, CANE, seed, 0);
-    put(light, x, y, z, [1.0, 0.2, 0.22], 0.75 * s, HALO, seed, 1.05);
+    put(light, x, y, z, [1.0, 0.2, 0.22], 0.75 * s, HALO, seed, 1.05 * lum);
   }
 
   // Cloudberry: a small, glowing, translucent amber aggregate.
@@ -479,11 +555,14 @@ function grow(density: number): { solid: Float32Array; light: Float32Array } {
         const by = y - 0.07 - R() * 0.1;
         const s = 0.95 + R() * 0.5;
         // Five fruits: 25% blackberry · 20% strawberry · 20% cloudberry · 20% currant · 15% elderberry.
-        if (fruit < 0.25) blackberry(bx, by, z, s);
-        else if (fruit < 0.45) strawberry(bx, by, z, s);
-        else if (fruit < 0.65) cloudberry(bx, by, z, s);
-        else if (fruit < 0.85) currants(bx, by, z, s);
+        const kind: ThicketFruit["kind"] =
+          fruit < 0.25 ? "blackberry" : fruit < 0.45 ? "strawberry" : fruit < 0.65 ? "cloudberry" : fruit < 0.85 ? "currant" : "elderberry";
+        if (kind === "blackberry") blackberry(bx, by, z, s);
+        else if (kind === "strawberry") strawberry(bx, by, z, s);
+        else if (kind === "cloudberry") cloudberry(bx, by, z, s);
+        else if (kind === "currant") currants(bx, by, z, s);
         else elderberry(bx, by, z, s);
+        fruitLog.push({ kind, x: bx, y: by, z: ((z % LEN) + LEN) % LEN, size: s });
       }
     }
   }
@@ -500,11 +579,40 @@ function grow(density: number): { solid: Float32Array; light: Float32Array } {
       : roll < 0.55 ? [0.92, 0.86, 0.7] : roll < 0.8 ? [0.2, 0.9, 0.55] : roll < 0.94 ? [0.95, 0.62, 0.22] : [0.6, 0.45, 1.0];
     put(light, Math.cos(a) * rr * 1.3, Math.sin(a) * rr * 0.85, R() * LEN, c, fly ? 0.075 : 0.02 + R() * 0.035, SPORE, R(), fly ? 1 : 0);
   }
-  return { solid: new Float32Array(solid), light: new Float32Array(light) };
+
+  // Film subjects: a crown of leaves with strawberries hanging from it on fine
+  // pedicels. Planted last, so the thicket itself is the same with or without them.
+  for (const spec of sprigs) {
+    const k = spec.scale ?? 1;
+    const count = spec.fruits ?? 5;
+    const seed = R();
+    const crown = spec.y + 0.36 * k;
+    for (let i = 0; i < 5; i++) {
+      const a = Math.PI * (0.08 + 0.84 * (i / 4));
+      put(solid, spec.x + Math.cos(a) * 0.2 * k, crown + Math.sin(a) * 0.1 * k, spec.z + 0.05 + i * 0.012,
+        [0.05 + R() * 0.04, 0.24 + R() * 0.12, 0.1 + R() * 0.05], (0.2 + R() * 0.08) * k, LEAF, seed, 0);
+    }
+    for (let i = 0; i < count; i++) {
+      const t = count > 1 ? i / (count - 1) : 0.5;
+      const s = k * (0.95 + R() * 0.4);
+      const fx = spec.x + (t - 0.5) * 0.62 * k + (R() - 0.5) * 0.04 * k;
+      const fy = spec.y - Math.sin(t * Math.PI) * 0.1 * k + (i % 2) * 0.17 * k;
+      const fz = spec.z + (R() - 0.5) * 0.12 * k;
+      strawberry(fx, fy, fz, s, 0.22);
+      const top = fy + 0.11 * s;
+      for (let j = 1; j < 14; j++) {
+        const u = j / 14;
+        const v = 1 - u;
+        put(solid, v * v * spec.x + 2 * u * v * fx + u * u * fx, v * v * crown + 2 * u * v * crown + u * u * top,
+          spec.z + (fz - spec.z) * u + 0.01, [0.1, 0.24, 0.1], 0.011 * k, CANE, seed, 0);
+      }
+    }
+  }
+  return { solid: new Float32Array(solid), light: new Float32Array(light), fruit: fruitLog };
 }
 
 /* ------------------------------------------------------------------------- */
-/* Engine                                                                     */
+/* Stage: the GL pipeline                                                     */
 /* ------------------------------------------------------------------------- */
 
 interface Program {
@@ -526,12 +634,46 @@ interface Targets {
   b2: Target;
 }
 
+/** Everything a painted frame depends on. The stage keeps nothing between paints. */
+interface View {
+  time: number;
+  travel: number;
+  lookX: number;
+  lookY: number;
+  tiltX: number;
+  tiltY: number;
+  disperse: number;
+  ember: number;
+  breathe: number;
+  rush: number;
+  zoom: number;
+  /** Corridor proportions, or null for the live rule (tall in portrait). */
+  shape: readonly [number, number] | null;
+  /** TRAIL × (ndc x, ndc y, strength). */
+  trail: Float32Array;
+}
+
+interface Stage {
+  g: WebGL2RenderingContext;
+  fruit: ThicketFruit[];
+  /** Sizes the canvas and its render targets, in backing-store pixels. */
+  setSize(w: number, h: number): void;
+  paint(view: View): void;
+  /** Releases GPU objects but keeps the context: the same canvas may be started again. */
+  dispose(): void;
+}
+
+function headingAt(travel: number): [number, number] {
+  const here = pathAt(travel);
+  const ahead = pathAt(travel + 3.2);
+  return [Math.atan2(ahead[0] - here[0], 3.2) * 0.85, Math.atan2(ahead[1] - here[1], 3.2) * 0.85];
+}
+
 /**
- * Starts the thicket on `canvas`. Returns null — and leaves the canvas blank,
- * so the page's static backdrop shows through — when WebGL2 or its shaders are
- * unavailable.
+ * Compiles the shaders and uploads the geometry. Returns null — and leaves the
+ * canvas blank — when WebGL2 or its shaders are unavailable.
  */
-export function createThicket(canvas: HTMLCanvasElement, options: ThicketOptions = {}): Thicket | null {
+function createStage(canvas: HTMLCanvasElement, density: number, sprigs: readonly ThicketSprig[] = []): Stage | null {
   const context = (() => {
     try {
       return canvas.getContext("webgl2", { antialias: false, alpha: false, depth: false, powerPreference: "high-performance" });
@@ -541,13 +683,6 @@ export function createThicket(canvas: HTMLCanvasElement, options: ThicketOptions
   })();
   if (!context || context.isContextLost()) return null;
   const g: WebGL2RenderingContext = context;
-
-  const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
-  const touchFirst = window.matchMedia("(hover: none)").matches;
-  const compact = touchFirst || Math.min(window.innerWidth, window.innerHeight) < 700;
-  const maxDpr = options.maxDpr ?? (compact ? 1.5 : 2);
-  const breathe = options.breathe ?? (touchFirst ? 1 : 0.35);
-  let fps = options.fps ?? 60;
 
   function compile(type: number, source: string): WebGLShader {
     const shader = g.createShader(type);
@@ -613,7 +748,7 @@ export function createThicket(canvas: HTMLCanvasElement, options: ThicketOptions
     buffers.push(buffer);
     return { vao, count: data.length / 10 };
   }
-  const geometry = grow(options.density ?? (compact ? 0.62 : 1));
+  const geometry = grow(density, sprigs);
   const solid = upload(geometry.solid);
   const light = upload(geometry.light);
   const quad = g.createVertexArray();
@@ -626,7 +761,6 @@ export function createThicket(canvas: HTMLCanvasElement, options: ThicketOptions
   let targets: Targets | null = null;
   let width = 0;
   let height = 0;
-  let quality = 1;
 
   function target(w: number, h: number, depth: boolean): Target {
     const tex = g.createTexture();
@@ -658,10 +792,7 @@ export function createThicket(canvas: HTMLCanvasElement, options: ThicketOptions
     }
     targets = null;
   }
-  function resize() {
-    const dpr = Math.min(window.devicePixelRatio || 1, maxDpr) * quality;
-    const w = Math.max(2, Math.round(canvas.clientWidth * dpr));
-    const h = Math.max(2, Math.round(canvas.clientHeight * dpr));
+  function setSize(w: number, h: number) {
     if (w === width && h === height && targets) return;
     width = w;
     height = h;
@@ -679,6 +810,143 @@ export function createThicket(canvas: HTMLCanvasElement, options: ThicketOptions
       b1: target(qw, qh, false),
       b2: target(qw, qh, false),
     };
+  }
+
+  function pass(prog: Program, out: WebGLFramebuffer | null, w: number, h: number) {
+    g.bindFramebuffer(g.FRAMEBUFFER, out);
+    g.viewport(0, 0, w, h);
+    g.useProgram(prog.prog);
+  }
+  function bindTex(unit: number, tex: WebGLTexture, location: WebGLUniformLocation | null) {
+    g.activeTexture(g.TEXTURE0 + unit);
+    g.bindTexture(g.TEXTURE_2D, tex);
+    g.uniform1i(location, unit);
+  }
+  function blur(src: Target, dst: Target, dx: number, dy: number) {
+    pass(P.blur, dst.fbo, dst.w, dst.h);
+    bindTex(0, src.tex, loc(P.blur, "u_tex"));
+    g.uniform2f(loc(P.blur, "u_dir"), dx, dy);
+    g.drawArrays(g.TRIANGLES, 0, 3);
+  }
+
+  function paint(view: View) {
+    const S = targets;
+    if (!S) return;
+    const aspect = width / height;
+    const focal = (aspect < 1 ? 1.22 : 1.66) * view.zoom;
+    // Portrait: the corridor becomes tall instead of wide so the thicket fills a phone.
+    const shape = view.shape ?? (aspect < 1 ? PORTRAIT_SHAPE : SQUARE_SHAPE);
+
+    // 1 · Scene
+    pass(P.bg, S.scene.fbo, width, height);
+    g.disable(g.DEPTH_TEST);
+    g.disable(g.BLEND);
+    g.depthMask(true);
+    g.clearDepth(1);
+    g.clear(g.DEPTH_BUFFER_BIT);
+    g.uniform1f(loc(P.bg, "u_aspect"), aspect);
+    g.uniform2f(loc(P.bg, "u_look"), view.lookX, view.lookY);
+    g.bindVertexArray(quad);
+    g.drawArrays(g.TRIANGLES, 0, 3);
+
+    g.useProgram(P.sprite.prog);
+    const sp = P.sprite;
+    g.uniform1f(loc(sp, "u_time"), view.time);
+    g.uniform1f(loc(sp, "u_travel"), view.travel);
+    g.uniform1f(loc(sp, "u_len"), LEN);
+    g.uniform1f(loc(sp, "u_aspect"), aspect);
+    g.uniform1f(loc(sp, "u_focal"), focal);
+    g.uniform1f(loc(sp, "u_px"), height * focal * 0.5);
+    g.uniform1f(loc(sp, "u_disperse"), view.disperse);
+    g.uniform1f(loc(sp, "u_breathe"), view.breathe);
+    g.uniform1f(loc(sp, "u_maxPt"), maxPoint);
+    g.uniform2f(loc(sp, "u_look"), view.lookX, view.lookY);
+    g.uniform2f(loc(sp, "u_tilt"), view.tiltX, view.tiltY);
+    g.uniform2f(loc(sp, "u_shape"), shape[0], shape[1]);
+    g.uniform3fv(loc(sp, "u_trail"), view.trail);
+
+    g.enable(g.DEPTH_TEST);
+    g.depthFunc(g.LEQUAL);
+    g.enable(g.BLEND);
+    g.blendFuncSeparate(g.SRC_ALPHA, g.ONE_MINUS_SRC_ALPHA, g.ONE, g.ONE_MINUS_SRC_ALPHA);
+    g.bindVertexArray(solid.vao);
+    g.drawArrays(g.POINTS, 0, solid.count);
+
+    g.depthMask(false);
+    g.blendFunc(g.ONE, g.ONE);
+    g.bindVertexArray(light.vao);
+    g.drawArrays(g.POINTS, 0, light.count);
+    g.depthMask(true);
+    g.disable(g.DEPTH_TEST);
+    g.disable(g.BLEND);
+
+    // 2 · Bloom
+    g.bindVertexArray(quad);
+    pass(P.bright, S.a1.fbo, S.a1.w, S.a1.h);
+    bindTex(0, S.scene.tex, loc(P.bright, "u_tex"));
+    g.drawArrays(g.TRIANGLES, 0, 3);
+    blur(S.a1, S.a2, 1 / S.a1.w, 0);
+    blur(S.a2, S.a1, 0, 1 / S.a1.h);
+    blur(S.a1, S.b1, 1.6 / S.b1.w, 0);
+    blur(S.b1, S.b2, 0, 1.6 / S.b1.h);
+    blur(S.b2, S.b1, 2.4 / S.b1.w, 0);
+    blur(S.b1, S.b2, 0, 2.4 / S.b1.h);
+
+    // 3 · Final: bloom, mist, wake light, vignette, chromatic grain
+    pass(P.final, null, width, height);
+    const fin = P.final;
+    bindTex(0, S.scene.tex, loc(fin, "u_scene"));
+    bindTex(1, S.a1.tex, loc(fin, "u_bloomA"));
+    bindTex(2, S.b2.tex, loc(fin, "u_bloomB"));
+    g.uniform1f(loc(fin, "u_time"), view.time);
+    g.uniform1f(loc(fin, "u_aspect"), aspect);
+    g.uniform1f(loc(fin, "u_vig"), 0.5 + 0.45 * view.rush);
+    g.uniform1f(loc(fin, "u_ca"), 0.012 + 0.06 * view.rush);
+    g.uniform1f(loc(fin, "u_disperse"), view.disperse);
+    g.uniform1f(loc(fin, "u_ember"), view.ember);
+    g.uniform2f(loc(fin, "u_look"), view.lookX, view.lookY);
+    g.uniform3fv(loc(fin, "u_trail"), view.trail);
+    g.drawArrays(g.TRIANGLES, 0, 3);
+    g.bindVertexArray(null);
+  }
+
+  function dispose() {
+    freeTargets();
+    for (const buffer of buffers) g.deleteBuffer(buffer);
+    g.deleteVertexArray(solid.vao);
+    g.deleteVertexArray(light.vao);
+    g.deleteVertexArray(quad);
+    for (const p of Object.values(P)) g.deleteProgram(p.prog);
+  }
+
+  return { g, fruit: geometry.fruit, setSize, paint, dispose };
+}
+
+/* ------------------------------------------------------------------------- */
+/* Engine: the live thicket                                                   */
+/* ------------------------------------------------------------------------- */
+
+/**
+ * Starts the thicket on `canvas`. Returns null — and leaves the canvas blank,
+ * so the page's static backdrop shows through — when WebGL2 or its shaders are
+ * unavailable.
+ */
+export function createThicket(canvas: HTMLCanvasElement, options: ThicketOptions = {}): Thicket | null {
+  const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
+  const touchFirst = window.matchMedia("(hover: none)").matches;
+  const compact = touchFirst || Math.min(window.innerWidth, window.innerHeight) < 700;
+  const maxDpr = options.maxDpr ?? (compact ? 1.5 : 2);
+  const breathe = options.breathe ?? (touchFirst ? 1 : 0.35);
+  let fps = options.fps ?? 60;
+
+  const stage = createStage(canvas, options.density ?? (compact ? 0.62 : 1));
+  if (!stage) return null;
+  const g = stage.g;
+
+  let quality = 1;
+  function resize() {
+    const dpr = Math.min(window.devicePixelRatio || 1, maxDpr) * quality;
+    stage?.setSize(Math.max(2, Math.round(canvas.clientWidth * dpr)), Math.max(2, Math.round(canvas.clientHeight * dpr)));
   }
 
   /* ------------------------------ state ------------------------------ */
@@ -732,23 +1000,6 @@ export function createThicket(canvas: HTMLCanvasElement, options: ThicketOptions
     }
   }
 
-  function pass(prog: Program, out: WebGLFramebuffer | null, w: number, h: number) {
-    g.bindFramebuffer(g.FRAMEBUFFER, out);
-    g.viewport(0, 0, w, h);
-    g.useProgram(prog.prog);
-  }
-  function bindTex(unit: number, tex: WebGLTexture, location: WebGLUniformLocation | null) {
-    g.activeTexture(g.TEXTURE0 + unit);
-    g.bindTexture(g.TEXTURE_2D, tex);
-    g.uniform1i(location, unit);
-  }
-  function blur(src: Target, dst: Target, dx: number, dy: number) {
-    pass(P.blur, dst.fbo, dst.w, dst.h);
-    bindTex(0, src.tex, loc(P.blur, "u_tex"));
-    g.uniform2f(loc(P.blur, "u_dir"), dx, dy);
-    g.drawArrays(g.TRIANGLES, 0, 3);
-  }
-
   function draw(dt: number) {
     const still = reducedMotion.matches;
     if (!still) time += dt;
@@ -781,95 +1032,31 @@ export function createThicket(canvas: HTMLCanvasElement, options: ThicketOptions
     });
 
     // Heading follows the path; pointer and gyroscope lean the view.
-    const here = pathAt(travel);
-    const ahead = pathAt(travel + 3.2);
+    const [headX, headY] = headingAt(travel);
     tiltX += (tiltGoalX - tiltX) * (1 - Math.exp(-dt * 3));
     tiltY += (tiltGoalY - tiltY) * (1 - Math.exp(-dt * 3));
     const lean = pointerLive && !touchFirst;
-    const goalX = Math.atan2(ahead[0] - here[0], 3.2) * 0.85 + (lean ? pointerX * 0.09 : 0) + tiltX * 0.16;
-    const goalY = Math.atan2(ahead[1] - here[1], 3.2) * 0.85 + (lean ? pointerY * 0.05 : 0) + tiltY * 0.1;
+    const goalX = headX + (lean ? pointerX * 0.09 : 0) + tiltX * 0.16;
+    const goalY = headY + (lean ? pointerY * 0.05 : 0) + tiltY * 0.1;
     lookX += (goalX - lookX) * (1 - Math.exp(-dt * 2.5));
     lookY += (goalY - lookY) * (1 - Math.exp(-dt * 2.5));
 
     resize();
-    const S = targets;
-    if (!S) return;
-    const aspect = width / height;
-    const focal = aspect < 1 ? 1.22 : 1.66;
-
-    // 1 · Scene
-    pass(P.bg, S.scene.fbo, width, height);
-    g.disable(g.DEPTH_TEST);
-    g.disable(g.BLEND);
-    g.depthMask(true);
-    g.clearDepth(1);
-    g.clear(g.DEPTH_BUFFER_BIT);
-    g.uniform1f(loc(P.bg, "u_aspect"), aspect);
-    g.uniform2f(loc(P.bg, "u_look"), lookX, lookY);
-    g.bindVertexArray(quad);
-    g.drawArrays(g.TRIANGLES, 0, 3);
-
-    g.useProgram(P.sprite.prog);
-    const sp = P.sprite;
-    g.uniform1f(loc(sp, "u_time"), time);
-    g.uniform1f(loc(sp, "u_travel"), travel);
-    g.uniform1f(loc(sp, "u_len"), LEN);
-    g.uniform1f(loc(sp, "u_aspect"), aspect);
-    g.uniform1f(loc(sp, "u_focal"), focal);
-    g.uniform1f(loc(sp, "u_px"), height * focal * 0.5);
-    g.uniform1f(loc(sp, "u_disperse"), disperse);
-    g.uniform1f(loc(sp, "u_breathe"), still ? 0 : breathe);
-    g.uniform1f(loc(sp, "u_maxPt"), maxPoint);
-    g.uniform2f(loc(sp, "u_look"), lookX, lookY);
-    g.uniform2f(loc(sp, "u_tilt"), tiltX, tiltY);
-    // Portrait: the corridor becomes tall instead of wide so the thicket fills a phone.
-    if (aspect < 1) g.uniform2f(loc(sp, "u_shape"), 0.7, 1.55);
-    else g.uniform2f(loc(sp, "u_shape"), 1, 1);
-    g.uniform3fv(loc(sp, "u_trail"), trail);
-
-    g.enable(g.DEPTH_TEST);
-    g.depthFunc(g.LEQUAL);
-    g.enable(g.BLEND);
-    g.blendFuncSeparate(g.SRC_ALPHA, g.ONE_MINUS_SRC_ALPHA, g.ONE, g.ONE_MINUS_SRC_ALPHA);
-    g.bindVertexArray(solid.vao);
-    g.drawArrays(g.POINTS, 0, solid.count);
-
-    g.depthMask(false);
-    g.blendFunc(g.ONE, g.ONE);
-    g.bindVertexArray(light.vao);
-    g.drawArrays(g.POINTS, 0, light.count);
-    g.depthMask(true);
-    g.disable(g.DEPTH_TEST);
-    g.disable(g.BLEND);
-
-    // 2 · Bloom
-    g.bindVertexArray(quad);
-    pass(P.bright, S.a1.fbo, S.a1.w, S.a1.h);
-    bindTex(0, S.scene.tex, loc(P.bright, "u_tex"));
-    g.drawArrays(g.TRIANGLES, 0, 3);
-    blur(S.a1, S.a2, 1 / S.a1.w, 0);
-    blur(S.a2, S.a1, 0, 1 / S.a1.h);
-    blur(S.a1, S.b1, 1.6 / S.b1.w, 0);
-    blur(S.b1, S.b2, 0, 1.6 / S.b1.h);
-    blur(S.b2, S.b1, 2.4 / S.b1.w, 0);
-    blur(S.b1, S.b2, 0, 2.4 / S.b1.h);
-
-    // 3 · Final: bloom, mist, wake light, vignette, chromatic grain
-    pass(P.final, null, width, height);
-    const fin = P.final;
-    bindTex(0, S.scene.tex, loc(fin, "u_scene"));
-    bindTex(1, S.a1.tex, loc(fin, "u_bloomA"));
-    bindTex(2, S.b2.tex, loc(fin, "u_bloomB"));
-    g.uniform1f(loc(fin, "u_time"), time);
-    g.uniform1f(loc(fin, "u_aspect"), aspect);
-    g.uniform1f(loc(fin, "u_vig"), 0.5 + 0.45 * rush);
-    g.uniform1f(loc(fin, "u_ca"), 0.012 + 0.06 * rush);
-    g.uniform1f(loc(fin, "u_disperse"), disperse);
-    g.uniform1f(loc(fin, "u_ember"), ember);
-    g.uniform2f(loc(fin, "u_look"), lookX, lookY);
-    g.uniform3fv(loc(fin, "u_trail"), trail);
-    g.drawArrays(g.TRIANGLES, 0, 3);
-    g.bindVertexArray(null);
+    stage?.paint({
+      time,
+      travel,
+      lookX,
+      lookY,
+      tiltX,
+      tiltY,
+      disperse,
+      ember,
+      breathe: still ? 0 : breathe,
+      rush,
+      zoom: 1,
+      shape: null,
+      trail,
+    });
   }
 
   function frame(now: number) {
@@ -929,12 +1116,7 @@ export function createThicket(canvas: HTMLCanvasElement, options: ThicketOptions
   canvas.addEventListener("webglcontextlost", onContextLost);
 
   // Start already facing down the path, so nothing swings into place on load.
-  {
-    const here = pathAt(travel);
-    const ahead = pathAt(travel + 3.2);
-    lookX = Math.atan2(ahead[0] - here[0], 3.2) * 0.85;
-    lookY = Math.atan2(ahead[1] - here[1], 3.2) * 0.85;
-  }
+  [lookX, lookY] = headingAt(travel);
 
   // Always put one frame on screen, even if the caller pauses straight away.
   draw(0);
@@ -982,14 +1164,64 @@ export function createThicket(canvas: HTMLCanvasElement, options: ThicketOptions
       window.removeEventListener("pagehide", remember);
       window.removeEventListener("resize", onResize);
       canvas.removeEventListener("webglcontextlost", onContextLost);
-      // Release GPU objects but keep the context: the same canvas may be started again.
-      freeTargets();
-      for (const buffer of buffers) g.deleteBuffer(buffer);
-      g.deleteVertexArray(solid.vao);
-      g.deleteVertexArray(light.vao);
-      g.deleteVertexArray(quad);
-      for (const p of Object.values(P)) g.deleteProgram(p.prog);
+      stage.dispose();
     },
+  };
+}
+
+/* ------------------------------------------------------------------------- */
+/* Film: the thicket as a pure function of a frame                            */
+/* ------------------------------------------------------------------------- */
+
+/**
+ * Prepares `canvas` for offline rendering at a fixed pixel size. Nothing runs
+ * until `render` is called, and a render reads only the frame it is given — the
+ * same frame always paints the same picture, in any order. Returns null when
+ * WebGL2 or its shaders are unavailable.
+ */
+export function createThicketFilm(canvas: HTMLCanvasElement, options: ThicketFilmOptions): ThicketFilm | null {
+  const stage = createStage(canvas, options.density ?? 1, options.sprigs);
+  if (!stage) return null;
+  stage.setSize(Math.max(2, Math.round(options.width)), Math.max(2, Math.round(options.height)));
+  const shape = options.shape ?? (options.width < options.height ? PORTRAIT_SHAPE : SQUARE_SHAPE);
+  const trail = new Float32Array(TRAIL * 3);
+
+  return {
+    length: LEN,
+    fruit: stage.fruit,
+    heading: headingAt,
+    aim(travel, x, y, z) {
+      const ahead = (((z - travel) % LEN) + LEN) % LEN;
+      const here = pathAt(travel);
+      const there = pathAt(travel + ahead);
+      const px = there[0] - here[0] + x * shape[0];
+      const py = there[1] - here[1] + y * shape[1];
+      return [Math.atan2(px, ahead), Math.atan2(py, Math.hypot(px, ahead))];
+    },
+    render(frame) {
+      for (let i = 0; i < TRAIL; i++) {
+        const point = frame.wake?.[i];
+        trail[i * 3] = point ? point[0] : 9;
+        trail[i * 3 + 1] = point ? point[1] : 9;
+        trail[i * 3 + 2] = point ? point[2] : 0;
+      }
+      stage.paint({
+        time: frame.time,
+        travel: frame.travel,
+        lookX: frame.look[0],
+        lookY: frame.look[1],
+        tiltX: frame.tilt?.[0] ?? 0,
+        tiltY: frame.tilt?.[1] ?? 0,
+        disperse: frame.disperse ?? 0,
+        ember: frame.ember ?? 0,
+        breathe: frame.breathe ?? 0.35,
+        rush: frame.rush ?? 0,
+        zoom: frame.zoom ?? 1,
+        shape,
+        trail,
+      });
+    },
+    dispose: stage.dispose,
   };
 }
 

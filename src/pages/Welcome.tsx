@@ -17,13 +17,14 @@ import { requestPersistentStorage } from "../db/persistence.ts";
 import { putModelManifest } from "../db/modelManifest.ts";
 import { formatBytes } from "../lib/format.ts";
 
-const REGIONS = ["north-america", "uk-ireland", "europe", "australia-nz", "global"] as const;
+const REGIONS = ["north-america", "uk-ireland", "europe", "australia-nz", "india", "global"] as const;
 
 const REGION_LABELS: Record<(typeof REGIONS)[number], string> = {
   "north-america": "North America",
   "uk-ireland": "UK & Ireland",
   europe: "Europe",
   "australia-nz": "Australia & NZ",
+  india: "India",
   global: "Global",
 };
 
