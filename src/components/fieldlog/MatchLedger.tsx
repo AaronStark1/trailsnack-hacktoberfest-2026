@@ -5,32 +5,34 @@ interface Score {
   similarity: number;
 }
 
-/** Tier 1 ledger: index, raw species id (exactly as stored) and a thin similarity meter. */
+/**
+ * Tier 1 ledger: rank, raw species id (exactly as stored) and a thin
+ * similarity meter. Similarity is embedding closeness — never a probability
+ * of edibility — so the meter stays in neutral cream and amber.
+ */
 export default function MatchLedger({ scores }: { scores: Score[] }) {
   return (
-    <ol className="well mt-3 overflow-hidden rounded-tac">
+    <ol className="well overflow-hidden rounded-field">
       {scores.map((s, i) => {
         const pct = matchPercent(s.similarity);
         return (
           <li
             key={s.speciesId}
-            className="grid grid-cols-[2rem_minmax(0,1fr)_auto] items-center gap-x-3 border-b border-line px-3 py-2.5 last:border-b-0"
+            className="grid grid-cols-[1.75rem_minmax(0,1fr)_auto] items-center gap-x-3 border-b border-line px-4 py-3 last:border-b-0"
           >
-            <span className={`mono-value text-sm font-bold ${i === 0 ? "text-trail" : "text-ink-muted"}`}>
+            <span className={`mono-value text-sm ${i === 0 ? "text-amber" : "text-ink-faint"}`}>
               {String(i + 1).padStart(2, "0")}
             </span>
             <span className="min-w-0">
-              <span className="block break-all font-mono text-base font-semibold leading-tight text-ink">
-                {s.speciesId}
-              </span>
-              <span aria-hidden className="mt-1.5 block h-1.5 w-full overflow-hidden rounded-full bg-led-off">
+              <span className="block font-mono text-[0.9375rem] leading-tight break-all text-ink">{s.speciesId}</span>
+              <span aria-hidden className="mt-2 block h-1 w-full overflow-hidden rounded-full bg-surface-3">
                 <span
-                  className={`block h-full rounded-full ${i === 0 ? "bg-trail-glow" : "bg-line-strong"}`}
+                  className={`block h-full rounded-full ${i === 0 ? "bg-amber" : "bg-ink-faint"}`}
                   style={{ width: `${pct}%` }}
                 />
               </span>
             </span>
-            <span className="mono-value text-base font-bold text-ink">{(s.similarity * 100).toFixed(0)}%</span>
+            <span className="mono-value text-[0.9375rem] text-ink">{(s.similarity * 100).toFixed(0)}%</span>
           </li>
         );
       })}

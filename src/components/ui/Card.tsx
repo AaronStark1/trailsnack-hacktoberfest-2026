@@ -3,16 +3,16 @@ import type { ReactNode } from "react";
 interface Props {
   children: ReactNode;
   className?: string;
-  /** raised = default card; inset = recessed well; flat = hairline only. */
+  /** raised = bramble plate; inset = recessed well; flat = etched hairline only. */
   variant?: "raised" | "inset" | "flat";
 }
 
 const variants: Record<NonNullable<Props["variant"]>, string> = {
-  raised: "tac-card",
-  inset: "well rounded-tac-lg",
-  flat: "rounded-tac-lg border border-line bg-transparent",
+  raised: "plate",
+  inset: "well rounded-plate",
+  flat: "rounded-plate border border-line bg-transparent",
 };
 
 export default function Card({ children, className = "", variant = "raised" }: Props) {
-  return <div className={`${variants[variant]} p-4 ${className}`}>{children}</div>;
+  return <div className={`${variants[variant]} p-5 ${className}`}>{children}</div>;
 }

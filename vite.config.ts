@@ -21,8 +21,8 @@ export default defineConfig({
         short_name: "TrailSnack",
         description:
           "Offline-first trail companion: identify wild berries, plants and mushrooms with on-device Gemma AI and a deterministic safety database.",
-        theme_color: "#1A3826",
-        background_color: "#EFEFE8",
+        theme_color: "#070d09",
+        background_color: "#070d09",
         display: "standalone",
         orientation: "portrait",
         start_url: "/",
@@ -40,7 +40,7 @@ export default defineConfig({
         ],
       },
       workbox: {
-        globPatterns: ["**/*.{js,mjs,css,html,ico,png,svg,webmanifest,wasm,json}"],
+        globPatterns: ["**/*.{js,mjs,css,html,ico,png,svg,webmanifest,wasm,json,woff2}"],
         maximumFileSizeToCacheInBytes: 80 * 1024 * 1024,
         navigateFallback: "/index.html",
         cleanupOutdatedCaches: true,

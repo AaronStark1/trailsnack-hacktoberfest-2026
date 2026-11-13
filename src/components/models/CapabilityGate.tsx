@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { Check, X } from "lucide-react";
 import { getStorageEstimate } from "../../db/persistence.ts";
 import { formatBytes } from "../../lib/format.ts";
 import { hasUsableWebGPU } from "../../ai/detectDevice.ts";
@@ -35,9 +36,9 @@ export async function checkTier2Gate(): Promise<GateResult> {
   };
 }
 
-const ledTones = {
-  pass: "bg-edible-bg text-edible border-edible/40",
-  fail: "bg-danger-bg text-danger border-danger/50",
+const marks = {
+  pass: "border-glow/35 bg-spruce/45 text-glow",
+  fail: "border-danger/60 bg-danger-bg text-danger-ink",
 } as const;
 
 export default function CapabilityGate({ onResult }: { onResult?: (g: GateResult) => void }) {
@@ -51,10 +52,12 @@ export default function CapabilityGate({ onResult }: { onResult?: (g: GateResult
 
   if (!gate) {
     return (
-      <p className="mono-label flex min-h-12 items-center gap-2 text-ink-muted">
-        <span aria-hidden className="size-2.5 shrink-0 rounded-full bg-trail-glow shadow-glow animate-breathe" />
-        Checking device capabilities…
-      </p>
+      <div role="status" className="grid gap-2.5">
+        <span className="sr-only">Checking device capabilities…</span>
+        <span aria-hidden className="skeleton h-12" />
+        <span aria-hidden className="skeleton h-12" />
+        <span aria-hidden className="skeleton h-12" />
+      </div>
     );
   }
   const rows: [string, string, boolean][] = [
@@ -71,19 +74,19 @@ export default function CapabilityGate({ onResult }: { onResult?: (g: GateResult
     ],
   ];
   return (
-    <ul aria-label="Tier 2 capability checks" className="grid">
+    <ul aria-label="Tier 2 capability checks" className="well divide-y divide-line rounded-field">
       {rows.map(([label, value, ok]) => (
-        <li key={label} className="flex min-h-12 items-center gap-3 border-b border-line py-2 last:border-0">
+        <li key={label} className="flex min-h-14 items-center gap-3 px-3.5 py-3">
           <span
-            className={`mono-label inline-flex h-7 shrink-0 items-center gap-1.5 rounded-tac-sm border px-2 ${
-              ok ? ledTones.pass : ledTones.fail
+            className={`mono-label inline-flex h-7 w-[4.25rem] shrink-0 items-center justify-center gap-1 rounded-full border ${
+              ok ? marks.pass : marks.fail
             }`}
           >
-            <span aria-hidden>{ok ? "✓" : "✗"}</span>
-            {ok ? "PASS" : "FAIL"}
+            {ok ? <Check size={13} strokeWidth={3} aria-hidden /> : <X size={13} strokeWidth={3} aria-hidden />}
+            {ok ? "Pass" : "Fail"}
           </span>
-          <span className="min-w-0 text-base leading-snug">
-            <strong>{label}:</strong> {value}
+          <span className="min-w-0 leading-snug text-ink-muted">
+            <strong className="font-semibold text-ink">{label}:</strong> {value}
           </span>
         </li>
       ))}

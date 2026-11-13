@@ -1,36 +1,79 @@
-import { Outlet } from "react-router-dom";
+import { useEffect } from "react";
+import { Link, Outlet, useLocation } from "react-router-dom";
+import ForestBackdrop from "../atmosphere/ForestBackdrop.tsx";
 import Emblem from "../ui/Emblem.tsx";
 import TelemetryRack from "./TelemetryRack.tsx";
 import UpdatePrompt from "./UpdatePrompt.tsx";
 import InstallBanner from "./InstallBanner.tsx";
 import TabBar from "./TabBar.tsx";
+import { useModelStore } from "../../stores/modelStore.ts";
+import { useSettingsStore } from "../../stores/settingsStore.ts";
+
+/** Screens that get the wide, dual-column canvas on desktop. */
+const WIDE_ROUTE = /^\/(assess|log)\/./;
+/** Screens where the camera or on-device inference needs the device: the forest holds still. */
+const INSTRUMENT_ROUTE = /^\/(scan|assess)(\/|$)/;
 
 export default function AppShell() {
+  const { pathname } = useLocation();
+  const accepted = useSettingsStore((s) => s.disclaimerAcceptedAt !== null);
+  const darkMode = useSettingsStore((s) => s.darkMode);
+  const highContrast = useSettingsStore((s) => s.highContrast);
+  const modelBusy = useModelStore((s) => s.fieldId.status === "loading" || s.deepLook.status === "loading");
+
+  // Every screen opens at its top: a new route never inherits the last one's scroll.
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [pathname]);
+
+  const wide = WIDE_ROUTE.test(pathname);
+  const calm = modelBusy || INSTRUMENT_ROUTE.test(pathname);
+
   return (
-    <div className="topo min-h-dvh bg-bg text-ink">
-      <header className="sticky top-0 z-40 frosted border-b border-line">
-        <div className="mx-auto flex min-h-[60px] w-full max-w-3xl items-center gap-3 px-4 py-2">
-          <div className="flex shrink-0 items-center gap-2.5">
-            <Emblem size={30} className="text-trail" />
-            <div className="flex flex-col gap-1">
-              <span className="display-caps text-xl tracking-wide text-ink" aria-label="TrailSnack home">
-                TrailSnack
+    <div className="relative isolate min-h-dvh text-ink">
+      {!highContrast && <ForestBackdrop calm={calm} mode={darkMode ? "night-camp" : "forest"} />}
+
+      <a
+        href="#main"
+        className="sr-only focus-visible:not-sr-only focus-visible:fixed focus-visible:top-3 focus-visible:left-3 focus-visible:z-50 focus-visible:flex focus-visible:items-center focus-visible:rounded-full focus-visible:bg-amber focus-visible:px-5 focus-visible:font-semibold focus-visible:text-on-amber"
+      >
+        Skip to content
+      </a>
+
+      <header className="glass sticky top-0 z-40 border-b border-line pt-safe">
+        <div className="mx-auto flex min-h-16 w-full max-w-5xl items-center gap-3 px-4 py-2 sm:px-6">
+          <Link
+            to="/scan"
+            aria-label="TrailSnack — go to Scan"
+            className="flex shrink-0 items-center gap-2.5 rounded-full pr-2 text-ink no-underline press"
+          >
+            <Emblem size={32} className="text-ink" />
+            <span className="flex flex-col">
+              <span className="display text-[1.625rem] leading-none tracking-[0.04em] uppercase">TrailSnack</span>
+              <span className="mono-label mt-1 hidden text-ink-faint md:block">
+                Offline Wild Foraging Companion
               </span>
-              <span className="mono-label hidden text-ink-faint sm:block">Field unit · Offline-first</span>
-            </div>
-          </div>
+            </span>
+          </Link>
           <TelemetryRack />
         </div>
-        <div aria-hidden className="h-0.5 w-full bg-linear-to-r from-trail via-trail-glow/70 to-transparent" />
       </header>
-      <main className="relative mx-auto w-full max-w-3xl px-4 pt-4 pb-36">
-        <div className="grid gap-3 empty:hidden">
+
+      <main
+        id="main"
+        tabIndex={-1}
+        className={`relative mx-auto w-full px-4 pt-6 pb-36 outline-none sm:px-6 sm:pt-8 ${wide ? "max-w-5xl" : "max-w-3xl"}`}
+      >
+        <div className="mb-6 grid gap-3 empty:hidden">
           <InstallBanner />
           <UpdatePrompt />
         </div>
         <Outlet />
       </main>
-      <TabBar />
+
+      {/* The dock appears once the Safety Covenant is accepted: before that every
+          destination would only bounce back to the covenant. */}
+      {accepted && <TabBar />}
     </div>
   );
 }

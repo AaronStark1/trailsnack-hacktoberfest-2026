@@ -23,17 +23,18 @@ export default function UpdatePrompt() {
     }
   }
   return (
-    <div role="status" className="tac-card border-l-8 border-l-caution p-4 animate-rise-in">
-      <div className="flex items-start gap-3">
-        <span className="flex size-12 shrink-0 items-center justify-center rounded-tac bg-caution-bg text-caution">
-          <RefreshCw size={24} aria-hidden />
-        </span>
-        <div className="min-w-0 flex-1">
-          <p className="mono-label text-caution">Update available</p>
-          <p className="mt-1 font-semibold leading-snug text-ink">A new TrailSnack version is available.</p>
-        </div>
+    <div
+      role="status"
+      className="flex flex-wrap items-center gap-4 rounded-plate border border-caution/50 bg-caution-bg p-4 animate-rise-in"
+    >
+      <span className="flex size-11 shrink-0 items-center justify-center rounded-full border border-caution/50 text-caution">
+        <RefreshCw size={20} aria-hidden />
+      </span>
+      <div className="min-w-0 flex-1 basis-44">
+        <p className="mono-label text-caution">Update available</p>
+        <p className="mt-1.5 leading-snug font-semibold text-ink">A new TrailSnack version is available.</p>
       </div>
-      <Button variant="secondary" className="mt-3 w-full sm:w-auto" onClick={reloadToUpdate}>
+      <Button variant="secondary" size="sm" className="w-full sm:w-auto" onClick={reloadToUpdate}>
         Reload to update
       </Button>
     </div>

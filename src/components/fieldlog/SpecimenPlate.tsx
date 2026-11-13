@@ -1,3 +1,4 @@
+import type { ReactNode } from "react";
 import { Clock, Database, MapPin } from "lucide-react";
 import { formatDateTime } from "../../lib/format.ts";
 import { gpsStamp, type GpsFix } from "./gps.ts";
@@ -9,43 +10,53 @@ interface Props {
   dbVersion: string;
 }
 
-const tick =
-  "pointer-events-none absolute size-5 border-hud [filter:drop-shadow(0_0_1.5px_rgba(0,0,0,0.7))]";
+const tick = "pointer-events-none absolute size-4 border-hud/80 [filter:drop-shadow(0_0_2px_rgb(0_0_0/0.8))]";
 
-/** Saved specimen photo on an etched plate with viewfinder corner ticks and a mono caption strip. */
+function Datum({ icon, label, children }: { icon: ReactNode; label: string; children: ReactNode }) {
+  return (
+    <div className="flex items-baseline justify-between gap-4 py-2.5">
+      <dt className="mono-label inline-flex shrink-0 items-center gap-2 text-ink-faint">
+        <span aria-hidden className="translate-y-0.5 [&>svg]:size-3.5">
+          {icon}
+        </span>
+        {label}
+      </dt>
+      <dd className="mono-value min-w-0 text-right text-sm break-words text-ink">{children}</dd>
+    </div>
+  );
+}
+
+/**
+ * Saved specimen as a herbarium plate: the untouched square photo inside fine
+ * viewfinder ticks, with its capture label underneath. The label only shows
+ * what was stored with the entry — no fix reads "NO FIX".
+ */
 export default function SpecimenPlate({ photoUrl, capturedAt, gps, dbVersion }: Props) {
   return (
-    <figure className="tac-card overflow-hidden p-0">
-      <div className="relative aspect-square w-full bg-surface-3">
+    <figure className="plate overflow-hidden">
+      <div className="relative aspect-square w-full bg-surface-2">
         {photoUrl ? (
           <img src={photoUrl} alt="Saved specimen photo" className="size-full object-cover" />
         ) : (
-          <div aria-hidden className="size-full grid-paper animate-breathe" />
+          <div aria-hidden className="skeleton size-full rounded-none" />
         )}
-        <span aria-hidden className={`${tick} left-2.5 top-2.5 rounded-tl-sm border-l-2 border-t-2`} />
-        <span aria-hidden className={`${tick} right-2.5 top-2.5 rounded-tr-sm border-r-2 border-t-2`} />
-        <span aria-hidden className={`${tick} bottom-2.5 left-2.5 rounded-bl-sm border-b-2 border-l-2`} />
-        <span aria-hidden className={`${tick} bottom-2.5 right-2.5 rounded-br-sm border-b-2 border-r-2`} />
-        <span
-          aria-hidden
-          className="mono-label absolute left-4 top-4 rounded-tac-sm border border-line px-2 py-1.5 text-ink frosted"
-        >
-          SPECIMEN PLATE
-        </span>
+        <span aria-hidden className={`${tick} top-3 left-3 border-t border-l`} />
+        <span aria-hidden className={`${tick} top-3 right-3 border-t border-r`} />
+        <span aria-hidden className={`${tick} bottom-3 left-3 border-b border-l`} />
+        <span aria-hidden className={`${tick} right-3 bottom-3 border-r border-b`} />
       </div>
-      <figcaption className="flex flex-wrap items-center gap-x-4 gap-y-2 border-t border-line bg-surface-2 px-3 py-2.5">
-        <span className="mono-label inline-flex items-center gap-1.5 text-ink-muted">
-          <Clock size={13} aria-hidden />
-          {formatDateTime(capturedAt)}
-        </span>
-        <span className="mono-label inline-flex items-center gap-1.5 text-ink-muted">
-          <MapPin size={13} aria-hidden />
-          {gpsStamp(gps, { accuracy: true })}
-        </span>
-        <span className="mono-label inline-flex items-center gap-1.5 text-ink-muted">
-          <Database size={13} aria-hidden />
-          DB {dbVersion}
-        </span>
+      <figcaption className="border-t border-line px-5 py-2">
+        <dl className="divide-y divide-line">
+          <Datum icon={<Clock />} label="Captured">
+            {formatDateTime(capturedAt)}
+          </Datum>
+          <Datum icon={<MapPin />} label="Location">
+            {gpsStamp(gps, { accuracy: true })}
+          </Datum>
+          <Datum icon={<Database />} label="Safety DB">
+            {dbVersion}
+          </Datum>
+        </dl>
       </figcaption>
     </figure>
   );

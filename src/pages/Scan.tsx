@@ -1,8 +1,9 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Crosshair, TriangleAlert } from "lucide-react";
+import { Crop } from "lucide-react";
 import CameraView from "../components/scan/CameraView.tsx";
 import FilePickerFallback from "../components/scan/FilePickerFallback.tsx";
+import Notice from "../components/ui/Notice.tsx";
 import Pill from "../components/ui/Pill.tsx";
 import SectionHeader from "../components/ui/SectionHeader.tsx";
 import { fileToSquareFrame, videoFrameToSquare } from "../lib/image.ts";
@@ -71,44 +72,35 @@ export default function Scan() {
   }
 
   return (
-    <section aria-labelledby="scan-h" className="grid gap-4">
+    <section aria-labelledby="scan-h" className="grid gap-6">
       <SectionHeader
         as="h1"
         id="scan-h"
-        eyebrow="01 · CAPTURE"
+        eyebrow="01 · Capture"
         title="Trail Camera"
         right={
-          <Pill tone="trail" icon={<Crosshair />}>
-            SQ · 1024
+          <Pill tone="neutral" icon={<Crop />} title="Every capture is centre-cropped to a 1024 px square">
+            1:1 · 1024 px
           </Pill>
         }
       />
       <CameraView onFrame={(v) => void handleVideo(v)} />
       {working && (
-        <div role="status" className="well overflow-hidden rounded-tac">
-          <div className="relative overflow-hidden px-4 py-3">
-            {/* Sweeping scan bar: `scanline` translates by ±120% of the element's own height, so a
-                half-height slab carries its lit 2px bottom edge from just above the strip to just
-                below it — the line stays on screen for most of the cycle. */}
-            <span
-              aria-hidden
-              className="pointer-events-none absolute inset-x-0 top-0 h-1/2 animate-scanline border-b-2 border-trail-glow bg-linear-to-b from-transparent via-transparent via-55% to-trail-glow/25"
-            />
-            <p className="mono-label relative flex items-center gap-2 text-trail">
-              <span aria-hidden className="size-2 shrink-0 rounded-full bg-trail-glow animate-blink" />
-              CROPPING TO 1024² · PREPARING SPECIMEN
-            </p>
-          </div>
+        <div role="status" className="well relative overflow-hidden rounded-field px-4 py-3.5">
+          <span
+            aria-hidden
+            className="pointer-events-none absolute inset-y-0 left-0 w-1/3 animate-sweep bg-linear-to-r from-transparent via-amber/25 to-transparent"
+          />
+          <p className="mono-label relative flex items-center gap-2.5 text-amber">
+            <span aria-hidden className="size-1.5 shrink-0 rounded-full bg-current animate-pulse-soft" />
+            Cropping to a 1024 px square · preparing specimen
+          </p>
         </div>
       )}
       {error && (
-        <p
-          role="alert"
-          className="flex items-start gap-3 rounded-tac-lg border-2 border-caution/50 bg-caution-bg p-4 text-ink"
-        >
-          <TriangleAlert size={24} aria-hidden className="mt-0.5 shrink-0 text-caution" />
-          <span>{error}</span>
-        </p>
+        <Notice tone="warn" role="alert" label="Could not use that photo">
+          {error}
+        </Notice>
       )}
       <FilePickerFallback onFile={(f) => void handleFile(f)} />
     </section>

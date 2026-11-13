@@ -34,18 +34,26 @@ export function scientificNameOf(verdict: unknown): string | null {
   return typeof name === "string" && name ? name : null;
 }
 
-/** Left rim of a specimen index card. Full class strings so Tailwind emits them. */
+/** Left rim of a specimen ledger card. Full class strings so Tailwind emits them. */
 export const rimClass: Record<Badge, string> = {
   TOXIC: "border-l-danger",
   CAUTION: "border-l-caution",
-  EDIBLE: "border-l-edible",
-  UNKNOWN: "border-l-unknown",
+  EDIBLE: "border-l-edible-line",
+  UNKNOWN: "border-l-line-strong",
 };
 
-/** Ink colour of the rubber-stamp verdict seal. */
+/** Ink colour of a verdict word. EDIBLE is a muted lichen, never the spruce glow. */
 export const stampClass: Record<Badge, string> = {
-  TOXIC: "text-danger",
+  TOXIC: "text-danger-ink",
   CAUTION: "text-caution",
   EDIBLE: "text-edible",
   UNKNOWN: "text-unknown",
+};
+
+/** Verdict tag capsule: ink, tinted fill and border. The tag always carries the word too. */
+export const tagClass: Record<Badge, string> = {
+  TOXIC: "border-danger/60 bg-danger-bg text-danger-ink",
+  CAUTION: "border-caution/50 bg-caution-bg text-caution",
+  EDIBLE: "border-edible-line bg-edible-bg text-edible",
+  UNKNOWN: "border-line-strong bg-unknown-bg text-unknown",
 };

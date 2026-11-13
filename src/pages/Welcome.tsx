@@ -1,14 +1,18 @@
-import { useState } from "react";
+import { useEffect, useState, type CSSProperties } from "react";
 import { useNavigate } from "react-router-dom";
-import { Check, ChevronDown, Download, Footprints, RefreshCw, TriangleAlert } from "lucide-react";
+import { Check, ChevronDown, Download, Footprints, RefreshCw } from "lucide-react";
 import Button from "../components/ui/Button.tsx";
 import Emblem from "../components/ui/Emblem.tsx";
+import Notice from "../components/ui/Notice.tsx";
+import Pill from "../components/ui/Pill.tsx";
 import SectionHeader from "../components/ui/SectionHeader.tsx";
 import Toggle from "../components/ui/Toggle.tsx";
 import ProvisioningBay from "../components/models/ProvisioningBay.tsx";
+import { useGeoPermission, type GeoPermission } from "../components/layout/useGeoPermission.ts";
 import { useSettingsStore } from "../stores/settingsStore.ts";
 import { useModelStore } from "../stores/modelStore.ts";
 import { gemmaClient } from "../ai/gemmaClient.ts";
+import { hasUsableWebGPU } from "../ai/detectDevice.ts";
 import { requestPersistentStorage } from "../db/persistence.ts";
 import { putModelManifest } from "../db/modelManifest.ts";
 import { formatBytes } from "../lib/format.ts";
@@ -22,6 +26,28 @@ const REGION_LABELS: Record<(typeof REGIONS)[number], string> = {
   "australia-nz": "Australia & NZ",
   global: "Global",
 };
+
+const FACTS = ["On-device Gemma", "Offline-first", "Deterministic safety engine"];
+
+/** What the browser says about location access, in plain words. Never requests a fix. */
+function gpsHint(available: boolean, permission: GeoPermission): { text: string; tone: string } {
+  if (!available) {
+    return { text: "Location is not available in this browser — entries will be saved without a fix.", tone: "text-caution" };
+  }
+  switch (permission) {
+    case "denied":
+      return {
+        text: "Location is blocked in this browser's site settings. Allow it there, or entries are saved without a fix.",
+        tone: "text-danger-ink",
+      };
+    case "granted":
+      return { text: "Location is allowed. A fix is taken only when you add one to an entry.", tone: "text-ink-muted" };
+    case "prompt":
+      return { text: "The browser will ask for location the first time you add a fix.", tone: "text-ink-muted" };
+    default:
+      return { text: "A fix is taken only when you add one to an entry.", tone: "text-ink-muted" };
+  }
+}
 
 export default function Welcome() {
   const nav = useNavigate();
@@ -37,6 +63,20 @@ export default function Welcome() {
   const [loadedBytes, setLoadedBytes] = useState(0);
   const [totalBytes, setTotalBytes] = useState(0);
   const [error, setError] = useState<string | null>(null);
+  // Presentational only: whether a WebGPU adapter actually resolves on this device.
+  const [webgpu, setWebgpu] = useState<boolean | null>(null);
+  const geoPermission = useGeoPermission();
+  const geoAvailable = typeof navigator !== "undefined" && "geolocation" in navigator;
+
+  useEffect(() => {
+    let cancelled = false;
+    void hasUsableWebGPU().then((ok) => {
+      if (!cancelled) setWebgpu(ok);
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   async function acceptAndContinue() {
     await settings.update("disclaimerAcceptedAt", Date.now());
@@ -99,26 +139,62 @@ export default function Welcome() {
   const tier1ModelId = gemmaClient.modelIds().tier1;
   const showBay = downloading || fieldId.status === "loading" || fieldId.status === "ready";
   const canStartDownload = !downloading && (fieldId.status === "idle" || fieldId.status === "error");
+  const hint = gpsHint(geoAvailable, geoPermission);
 
   return (
-    <section aria-labelledby="welcome-h" className="grid gap-5 animate-rise-in">
-      <SectionHeader
-        as="h1"
-        id="welcome-h"
-        eyebrow="00 · FIRST RUN"
-        title="The Safety Covenant"
-        right={<Emblem size={44} className="text-trail" />}
-      />
+    <section aria-labelledby="welcome-h" className="grid gap-8">
+      {/* Hero */}
+      <header className="animate-rise-in">
+        <div className="flex items-center gap-3">
+          <Emblem size={40} className="text-ink sm:hidden" />
+          <p className="mono-label flex items-center gap-2 text-amber">
+            <span aria-hidden className="h-px w-5 shrink-0 bg-current opacity-70" />
+            First run · Field journal
+          </p>
+        </div>
+        <div className="mt-5 flex items-end justify-between gap-6">
+          <h1 id="welcome-h" className="display text-display-xl text-ink">
+            Rooted in caution.{" "}
+            <span className="block text-amber">Built for the wild.</span>
+          </h1>
+          <span
+            aria-hidden
+            className="hidden size-36 shrink-0 items-center justify-center rounded-full border border-line-strong bg-surface-2/70 shadow-inset sm:flex md:size-40"
+          >
+            <Emblem size={96} className="text-ink" />
+          </span>
+        </div>
+        <p className="mt-6 max-w-prose text-lg leading-relaxed text-ink-muted">
+          TrailSnack compares your photo against a bundled safety database using Gemma models that
+          run entirely on this device. After a one-time setup it needs no signal — and a
+          deterministic safety engine, not the model, has the final word.
+        </p>
+        <ul className="mt-5 flex flex-wrap gap-x-5 gap-y-2">
+          {FACTS.map((fact) => (
+            <li key={fact} className="mono-label flex items-center gap-2 text-ink-faint">
+              <span aria-hidden className="size-1 rounded-full bg-amber" />
+              {fact}
+            </li>
+          ))}
+        </ul>
+        <div aria-hidden className="vein mt-8" />
+      </header>
 
       {/* Safety Covenant */}
-      <article className="tac-card overflow-hidden p-0">
-        <div aria-hidden className="hazard-stripes h-3" />
-        <div className="p-5">
-          <p className="mono-label text-danger">SAFETY COVENANT · READ BEFORE USE</p>
-          <p className="display-caps mt-3 text-2xl text-ink sm:text-3xl">
-            The app never says “eat this” — the worst-case always wins.
+      <article
+        aria-labelledby="covenant-h"
+        className="plate animate-rise-in overflow-hidden border-amber/45"
+        style={{ "--i": 1 } as CSSProperties}
+      >
+        <div aria-hidden className="h-1 bg-amber/70" />
+        <div className="p-5 sm:p-7">
+          <h2 id="covenant-h" className="mono-label text-amber">
+            The Safety Covenant · Read before use
+          </h2>
+          <p className="display mt-4 text-display-lg text-ink">
+            “The app never says ‘eat this’ — the worst case always wins.”
           </p>
-          <p className="mt-4 text-lg text-ink">
+          <p className="mt-5 max-w-prose leading-relaxed text-ink">
             TrailSnack is an educational reference, not a permission slip. Every assessment
             defaults to <strong>“Unidentified — do not ingest.”</strong> On-device AI only ranks
             photos against a bundled safety database; a deterministic safety engine computes the
@@ -126,13 +202,15 @@ export default function Welcome() {
             with a qualified local expert before touching or tasting anything wild.
           </p>
 
-          {/* Signature line */}
-          <label className="well mt-5 flex min-h-16 cursor-pointer items-center gap-4 rounded-tac p-3 select-none tac-press">
+          {/* Acknowledgement */}
+          <label
+            className={`mt-6 flex min-h-16 cursor-pointer items-center gap-4 rounded-field border p-4 select-none press ${
+              accepted ? "border-amber bg-amber/10" : "border-line-strong bg-surface-2 shadow-inset hover:border-ink/40"
+            }`}
+          >
             <span
-              className={`relative flex size-10 shrink-0 items-center justify-center rounded-tac-sm border-2 transition-colors duration-150 has-[:focus-visible]:outline-3 has-[:focus-visible]:outline-offset-2 has-[:focus-visible]:outline-trail-glow ${
-                accepted
-                  ? "border-trail bg-trail text-on-trail shadow-glow"
-                  : "border-line-strong bg-surface bevel-light"
+              className={`relative flex size-10 shrink-0 items-center justify-center rounded-chip border-2 transition-[background-color,border-color,box-shadow] duration-200 has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-offset-3 has-[:focus-visible]:outline-amber-bright ${
+                accepted ? "border-amber-bright bg-amber text-on-amber shadow-glow-amber" : "border-ink-muted bg-surface"
               }`}
             >
               <input
@@ -142,13 +220,13 @@ export default function Welcome() {
                 className="peer absolute inset-0 m-0 size-full cursor-pointer opacity-0"
                 aria-label="I understand this app never declares anything safe to eat"
               />
-              {accepted && <Check size={26} strokeWidth={3.2} aria-hidden />}
+              {accepted && <Check size={24} strokeWidth={3.2} aria-hidden />}
             </span>
             <span className="min-w-0 flex-1">
-              <span className={`mono-label block ${accepted ? "text-trail" : "text-ink-muted"}`}>
-                ACKNOWLEDGE
+              <span className={`mono-label block ${accepted ? "text-amber" : "text-ink-faint"}`}>
+                {accepted ? "Acknowledged" : "Tap to acknowledge"}
               </span>
-              <span className="mt-1.5 block text-base font-semibold leading-snug text-ink sm:text-lg">
+              <span className="mt-1.5 block leading-snug font-semibold text-ink">
                 I understand: this app never declares anything safe, and I will confirm with a
                 local expert before touching or eating anything wild.
               </span>
@@ -158,19 +236,24 @@ export default function Welcome() {
       </article>
 
       {/* Field setup */}
-      <article className="tac-card p-5">
-        <p className="mono-label text-ink-faint">FIELD SETUP</p>
+      <article
+        aria-labelledby="setup-h"
+        className="plate animate-rise-in p-5 sm:p-6"
+        style={{ "--i": 2 } as CSSProperties}
+      >
+        <SectionHeader id="setup-h" eyebrow="01 · Field setup" title="Where you forage" />
 
-        <div className="mt-4">
-          <label htmlFor="region" className="block text-lg font-semibold text-ink">
-            Region (sets emergency numbers)
+        <div className="mt-6">
+          <label htmlFor="region" className="block font-semibold text-ink">
+            Region
           </label>
-          <div className="relative mt-2">
+          <p className="mt-1 text-sm text-ink-muted">Sets the poison-control and emergency numbers shown with each assessment.</p>
+          <div className="relative mt-3">
             <select
               id="region"
               value={region}
               onChange={(e) => setRegion(e.target.value)}
-              className="well min-h-14 w-full appearance-none rounded-tac px-3 pr-12 text-lg font-semibold text-ink"
+              className="field min-h-14 w-full appearance-none px-4 pr-12 font-semibold"
             >
               {REGIONS.map((r) => (
                 <option key={r} value={r}>
@@ -179,37 +262,54 @@ export default function Welcome() {
               ))}
             </select>
             <ChevronDown
-              size={24}
+              size={22}
               aria-hidden
-              className="pointer-events-none absolute top-1/2 right-4 -translate-y-1/2 text-ink-muted"
+              className="pointer-events-none absolute top-1/2 right-4 -translate-y-1/2 text-amber"
             />
           </div>
         </div>
 
-        <div className="mt-5 flex items-center gap-4 border-t border-line pt-5">
-          <Toggle checked={gps} onChange={setGps} label="Enable GPS tagging of saved entries" />
+        <div className="mt-6 flex items-start gap-4 border-t border-line pt-6">
           <div className="min-w-0 flex-1">
-            <p className="text-lg font-semibold leading-snug text-ink">
-              Tag saved entries with GPS (optional, offline)
-            </p>
-            <p className="mono-label mt-1.5 text-ink-muted">WORKS WITHOUT SIGNAL</p>
+            <p className="leading-snug font-semibold text-ink">Tag saved entries with GPS</p>
+            <p className="mono-label mt-2 text-ink-faint">Optional · works without signal</p>
+            {gps && <p className={`mt-2.5 text-sm leading-snug ${hint.tone}`}>{hint.text}</p>}
           </div>
+          <Toggle checked={gps} onChange={setGps} label="Enable GPS tagging of saved entries" />
         </div>
       </article>
 
       {/* On-device model provisioning */}
-      <article className="tac-card p-5">
-        <p className="mono-label text-ink-faint">ON-DEVICE MODEL PROVISIONING BAY</p>
-        <h2 className="mt-2 text-2xl font-extrabold text-ink">Tier 1 · Field ID</h2>
-        <p className="mt-2 truncate font-mono text-xs font-semibold tracking-[0.12em] text-trail">
-          {tier1ModelId}
+      <article
+        aria-labelledby="provision-h"
+        className="plate animate-rise-in p-5 sm:p-6"
+        style={{ "--i": 3 } as CSSProperties}
+      >
+        <SectionHeader
+          id="provision-h"
+          eyebrow="02 · On-device model"
+          title="Tier 1 · Field ID"
+          right={<p className="mono-value text-sm text-ink-muted">≈280 MB</p>}
+        />
+        <p className="mono-value mt-4 text-sm break-all text-ink">{tier1ModelId}</p>
+        <p className="mt-2 text-ink-muted">
+          Downloads once over Wi-Fi, then works in airplane mode. You can also do this later from Models.
         </p>
-        <p className="mt-1 text-base text-ink-muted">
-          ≈280 MB · downloads once over Wi-Fi · then airplane mode
-        </p>
+        <div className="mt-4 flex flex-wrap items-center gap-2">
+          {webgpu === null ? (
+            <Pill tone="neutral" dot live>
+              Checking device
+            </Pill>
+          ) : webgpu ? (
+            <Pill tone="neutral">WebGPU adapter found</Pill>
+          ) : (
+            <Pill tone="neutral">No WebGPU · WASM fallback</Pill>
+          )}
+          <Pill tone="neutral">Preference: {settings.preferredDevice}</Pill>
+        </div>
 
         {showBay && (
-          <div className="mt-4">
+          <div className="mt-5">
             <ProvisioningBay
               pct={fieldId.status === "ready" ? 100 : fieldId.progressPct}
               currentFile={fieldId.currentFile}
@@ -224,43 +324,35 @@ export default function Welcome() {
 
         {(downloading || fieldId.status === "loading") && (
           <p className="mt-3 flex flex-wrap items-baseline gap-x-2 gap-y-1">
-            <span className="mono-label text-ink-muted">MANIFEST</span>
-            <span className="font-mono text-sm font-semibold text-ink-muted" data-testid="welcome-dl-status">
+            <span className="mono-label text-ink-faint">Manifest</span>
+            <span className="mono-value text-sm text-ink-muted" data-testid="welcome-dl-status">
               {formatBytes(dlBytes > 0 ? dlBytes : null)}
               {fieldId.device ? ` · ${fieldId.device}` : ""}
             </span>
           </p>
         )}
 
-        {canStartDownload && (
-          <Button variant="primary" size="lg" className="mt-4 w-full" onClick={() => void setupOffline()}>
-            <Download size={24} aria-hidden /> Download Tier 1 model
+        {canStartDownload && !error && (
+          <Button variant="secondary" size="lg" className="mt-5 w-full" onClick={() => void setupOffline()}>
+            <Download size={22} aria-hidden /> Download Tier 1 model
           </Button>
         )}
 
         {error && (
-          <div
+          <Notice
+            tone="warn"
             role="alert"
-            className="mt-4 overflow-hidden rounded-tac border-2 border-caution/60 bg-caution-bg"
-          >
-            <div className="flex items-start gap-3 p-4">
-              <span className="flex size-12 shrink-0 items-center justify-center rounded-tac-sm border-2 border-caution/50 bg-surface text-caution">
-                <TriangleAlert size={26} aria-hidden />
-              </span>
-              <div className="min-w-0 flex-1">
-                <p className="mono-label text-caution">DOWNLINK FAULT</p>
-                <p className="mt-1.5 text-lg font-bold text-ink">
-                  Download had trouble — progress is cached, retry any time.
-                </p>
-                <p className="mt-1 font-mono text-sm break-words text-ink-muted">{error}</p>
-              </div>
-            </div>
-            <div className="px-4 pb-4">
-              <Button variant="secondary" className="w-full" onClick={() => void setupOffline()}>
-                <RefreshCw size={22} aria-hidden /> Retry
+            label="Download interrupted"
+            className="mt-5"
+            actions={
+              <Button variant="secondary" size="sm" onClick={() => void setupOffline()}>
+                <RefreshCw size={18} aria-hidden /> Retry
               </Button>
-            </div>
-          </div>
+            }
+          >
+            <p className="font-semibold">Download had trouble — progress is cached, retry any time.</p>
+            <p className="mono-value mt-1.5 text-sm text-ink-muted">{error}</p>
+          </Notice>
         )}
       </article>
 
@@ -273,10 +365,10 @@ export default function Welcome() {
           onClick={() => void acceptAndContinue()}
           className="w-full"
         >
-          <Footprints size={24} aria-hidden /> Accept and hit the trail
+          <Footprints size={22} aria-hidden /> Accept and hit the trail
         </Button>
         {!accepted && (
-          <p className="text-center text-base font-medium text-ink-muted">
+          <p className="text-center text-sm text-ink-muted">
             Acknowledge the Safety Covenant above to continue.
           </p>
         )}

@@ -1,21 +1,21 @@
 import { Cpu, Gpu } from "lucide-react";
-import Pill, { type PillTone } from "../ui/Pill.tsx";
+import type { PillTone } from "../ui/Pill.tsx";
 import { useModelStore, type TierState } from "../../stores/modelStore.ts";
 
 export interface FieldIdTelemetry {
-  /** Short status phrase: "ID ready" | "Loading N%" | "ID unavailable" | "ID not set up". */
+  /** Short status phrase: "ID ready" | "Loading N%" | "ID unavailable" | "ID not loaded". */
   label: string;
-  /** Human device name: WebGPU | WASM | CPU. */
-  deviceName: string;
-  /** Mono pill text: "WEBGPU" | "WASM 42%" | "CPU 42%" | "WASM ERR" | "CPU —" (no device yet). */
+  /** Human device name: WebGPU | WASM, or null before a device is known. */
+  deviceName: string | null;
+  /** Capsule text: "T1 Ready" | "T1 42%" | "T1 Error" | "T1 Idle". */
   text: string;
-  /** Full sentence for the rack's aria-label; always contains `label`. */
+  /** Full sentence for the rack's aria-label; always contains the state. */
   sentence: string;
   tone: PillTone;
   live: boolean;
 }
 
-/** Derives every telemetry string for the Field ID tier in one place. */
+/** Derives every telemetry string for the Field ID tier from the model store, in one place. */
 export function describeFieldId(fieldId: TierState): FieldIdTelemetry {
   const { status, progressPct, device } = fieldId;
   const label =
@@ -25,42 +25,58 @@ export function describeFieldId(fieldId: TierState): FieldIdTelemetry {
         ? `Loading ${progressPct}%`
         : status === "error"
           ? "ID unavailable"
-          : "ID not set up";
-  const deviceName = device === "webgpu" ? "WebGPU" : device === "wasm" ? "WASM" : "CPU";
-  const deviceWord = deviceName.toUpperCase();
-  const on = device ? ` on ${deviceName}` : "";
+          : "ID not loaded";
+  const deviceName = device === "webgpu" ? "WebGPU" : device === "wasm" ? "WASM" : null;
+  const on = deviceName ? ` on ${deviceName}` : "";
   const text =
-    status === "loading"
-      ? `${deviceWord} ${progressPct}%`
-      : status === "error"
-        ? `${deviceWord} ERR`
-        : device
-          ? deviceWord
-          : "CPU —";
+    status === "ready"
+      ? "T1 Ready"
+      : status === "loading"
+        ? `T1 ${progressPct}%`
+        : status === "error"
+          ? "T1 Error"
+          : "T1 Idle";
   const sentence =
     status === "ready"
-      ? `Field ID ready${on}`
+      ? `Tier 1 Field ID ready${on}`
       : status === "loading"
-        ? `Field ID: Loading ${progressPct}%${on}`
+        ? `Tier 1 Field ID loading, ${progressPct}%${on}`
         : status === "error"
-          ? "Field ID unavailable"
-          : "Field ID not set up";
+          ? "Tier 1 Field ID unavailable"
+          : "Tier 1 Field ID not loaded in this session";
   const tone: PillTone =
     status === "ready" ? "ok" : status === "loading" ? "warn" : status === "error" ? "danger" : "neutral";
   return { label, deviceName, text, sentence, tone, live: status === "loading" };
 }
 
+const inks: Record<PillTone, string> = {
+  neutral: "text-ink-muted",
+  accent: "text-amber",
+  ok: "text-glow",
+  warn: "text-amber",
+  danger: "text-danger-ink",
+  violet: "text-violet-ink",
+};
+
 /**
- * Compute pill: which backend runs Field ID, with a status LED. Non-interactive;
- * TelemetryRack wraps it (with the signal and storage pills) in one link to
- * /models so the old "manage models" affordance survives.
+ * Model-readiness segment of the telemetry capsule: which backend runs Field
+ * ID and whether it is actually loaded. Reads the model store only — "Ready"
+ * appears solely when the tier really is ready. Non-interactive; TelemetryRack
+ * wraps the whole capsule in one link to /models.
  */
 export default function CacheStatusPill() {
   const fieldId = useModelStore((s) => s.fieldId);
   const t = describeFieldId(fieldId);
   return (
-    <Pill tone={t.tone} dot live={t.live} icon={fieldId.device === "webgpu" ? <Gpu /> : <Cpu />} title={t.sentence}>
+    <span title={t.sentence} className={`mono-label inline-flex shrink-0 items-center gap-1.5 ${inks[t.tone]}`}>
+      <span
+        aria-hidden
+        className={`size-1.5 rounded-full bg-current ${t.live ? "animate-pulse-soft" : ""} ${
+          fieldId.status === "ready" ? "shadow-glow-ok" : ""
+        }`}
+      />
+      {fieldId.device === "webgpu" ? <Gpu size={15} aria-hidden /> : <Cpu size={15} aria-hidden />}
       {t.text}
-    </Pill>
+    </span>
   );
 }

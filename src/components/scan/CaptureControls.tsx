@@ -1,4 +1,4 @@
-import { Camera, SwitchCamera, Zap, ZapOff } from "lucide-react";
+import { Flashlight, FlashlightOff, SwitchCamera } from "lucide-react";
 
 interface Props {
   canFlip: boolean;
@@ -10,30 +10,23 @@ interface Props {
   onTorch: () => void;
 }
 
-/** 60px round side control: light bevelled puck with a hairline rim. */
+/** 52px round side control: etched bramble puck. */
 const ROUND =
-  "inline-flex size-[60px] items-center justify-center rounded-full border bg-surface bevel-light tac-press";
+  "inline-flex size-[52px] items-center justify-center rounded-full border bg-surface press hover:bg-surface-3";
 
-const roundTone = {
-  idle: "border-line text-ink",
-  on: "border-trail-glow text-trail",
-};
-
-const shutterRing = {
-  idle: "border-line-strong shadow-inset",
-  capturing: "border-trail-glow animate-glow-pulse",
-};
-
-const statusTone = {
-  idle: "text-ink-muted",
-  capturing: "text-trail",
-};
+const SIDE = "flex w-16 flex-col items-center gap-2";
 
 /** Invisible stand-in that keeps the shutter centred when a side control is absent. */
 function Spacer() {
-  return <span aria-hidden className="invisible size-[60px]" />;
+  return <span aria-hidden className="invisible w-16" />;
 }
 
+/**
+ * Capture rack: a 72px dual-ring shutter with a lit cloudberry disc, flanked
+ * by flip and torch when the device really offers them. The press ripple is
+ * pure CSS on :active — capture fires on the click itself and is never held
+ * back by decoration.
+ */
 export default function CaptureControls({
   canFlip,
   torchOn,
@@ -43,17 +36,15 @@ export default function CaptureControls({
   onFlip,
   onTorch,
 }: Props) {
-  const ring = capturing ? shutterRing.capturing : shutterRing.idle;
-  const status = capturing ? statusTone.capturing : statusTone.idle;
   return (
-    <div className="flex items-center justify-center gap-6">
+    <div className="flex items-start justify-center gap-7">
       {canFlip ? (
-        <div className="flex w-[60px] flex-col items-center gap-2">
-          <button type="button" onClick={onFlip} aria-label="Switch camera" className={`${ROUND} ${roundTone.idle}`}>
-            <SwitchCamera size={26} aria-hidden />
+        <div className={`${SIDE} pt-2.5`}>
+          <button type="button" onClick={onFlip} aria-label="Switch camera" className={`${ROUND} border-line-strong text-ink`}>
+            <SwitchCamera size={22} aria-hidden />
           </button>
-          <span aria-hidden className="mono-label text-ink-muted">
-            FLIP
+          <span aria-hidden className="mono-label text-ink-faint">
+            Flip
           </span>
         </div>
       ) : (
@@ -66,33 +57,38 @@ export default function CaptureControls({
           onClick={onCapture}
           disabled={capturing}
           aria-label="Capture specimen"
-          className={`group relative size-[84px] rounded-full border-[3px] bg-surface-2 transition-[transform,box-shadow,border-color] duration-[120ms] ease-spring active:border-trail-glow active:shadow-glow disabled:cursor-wait ${ring}`}
+          className="group relative size-[72px] rounded-full border-2 border-ink/85 bg-transparent transition-[border-color] duration-150 hover:border-ink disabled:cursor-wait disabled:opacity-60"
         >
+          {/* Ripple: only while pressed. */}
           <span
             aria-hidden
-            className="absolute inset-[7px] flex items-center justify-center rounded-full bg-ink text-bg bevel transition-transform duration-[120ms] ease-spring group-active:scale-[.88] group-disabled:scale-100"
-          >
-            <Camera size={30} strokeWidth={2.25} />
-          </span>
+            className="pointer-events-none absolute -inset-0.5 rounded-full border-2 border-amber-bright opacity-0 group-active:animate-ripple"
+          />
+          <span
+            aria-hidden
+            className="absolute inset-[5px] rounded-full bg-amber shadow-[inset_0_2px_0_rgb(255_255_255/0.4),inset_0_-3px_6px_rgb(0_0_0/0.25),0_0_22px_-2px_var(--color-amber)] transition-transform duration-150 ease-spring group-hover:bg-amber-bright group-active:scale-[.86] group-disabled:scale-100"
+          />
         </button>
-        <span aria-hidden className={`mono-label ${status}`}>
-          {capturing ? "CAPTURING…" : "CAPTURE"}
+        <span aria-hidden className={`mono-label ${capturing ? "text-amber" : "text-ink-muted"}`}>
+          {capturing ? "Capturing…" : "Capture"}
         </span>
       </div>
 
       {torchSupported ? (
-        <div className="flex w-[60px] flex-col items-center gap-2">
+        <div className={`${SIDE} pt-2.5`}>
           <button
             type="button"
             onClick={onTorch}
             aria-label={torchOn ? "Turn torch off" : "Turn torch on"}
             aria-pressed={torchOn}
-            className={`${ROUND} ${torchOn ? roundTone.on : roundTone.idle}`}
+            className={`${ROUND} ${
+              torchOn ? "border-amber text-amber shadow-glow-amber" : "border-line-strong text-ink"
+            }`}
           >
-            {torchOn ? <ZapOff size={26} aria-hidden /> : <Zap size={26} aria-hidden />}
+            {torchOn ? <Flashlight size={22} aria-hidden /> : <FlashlightOff size={22} aria-hidden />}
           </button>
-          <span aria-hidden className="mono-label text-ink-muted">
-            {torchOn ? "TORCH ON" : "TORCH"}
+          <span aria-hidden className={`mono-label ${torchOn ? "text-amber" : "text-ink-faint"}`}>
+            {torchOn ? "Torch on" : "Torch"}
           </span>
         </div>
       ) : (

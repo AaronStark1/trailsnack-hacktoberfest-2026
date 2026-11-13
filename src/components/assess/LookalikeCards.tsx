@@ -17,10 +17,10 @@ function hazardIcon(edibility: Edibility): typeof ShieldAlert {
 }
 
 function edibilityLabel(edibility: Edibility): string {
-  return edibility.replaceAll("_", " ").toUpperCase();
+  return edibility.replaceAll("_", " ");
 }
 
-/** "A; B; C" → difference chips. A single clause stays a paragraph. */
+/** "A; B; C" → separate differences. A single clause stays a paragraph. */
 function splitDifferences(text: string): string[] {
   return text
     .split(";")
@@ -28,6 +28,13 @@ function splitDifferences(text: string): string[] {
     .filter((s) => s.length > 0);
 }
 
+/**
+ * Hazardous lookalikes, straight from the safety engine's verdict. Rendered
+ * immediately under the verdict and in full cranberry so they can never be
+ * mistaken for ordinary candidates, and never animated in: hazard information
+ * is on screen the moment the verdict is. The "how to tell apart" text is quoted
+ * from the bundled reference database only — when it has none, none is shown.
+ */
 export default function LookalikeCards({
   lookalikes,
   tellApart,
@@ -37,15 +44,15 @@ export default function LookalikeCards({
 }) {
   if (lookalikes.length === 0) return null;
   return (
-    <section aria-labelledby="lookalikes-h" className="grid gap-3">
+    <section aria-labelledby="lookalikes-h" className="grid gap-4">
       <SectionHeader
         id="lookalikes-h"
         tone="danger"
-        eyebrow="HAZARD · LOOKALIKES FIRST"
+        eyebrow="Hazard · check first"
         title="Hazardous lookalikes"
         right={
           <Pill tone="danger" dot>
-            {lookalikes.length} FLAGGED
+            {lookalikes.length} flagged
           </Pill>
         }
       />
@@ -53,52 +60,52 @@ export default function LookalikeCards({
         {lookalikes.map((sp) => {
           const Icon = hazardIcon(sp.edibility);
           const tell = tellApart.get(sp.id);
-          const chips = tell ? splitDifferences(tell) : [];
+          const differences = tell ? splitDifferences(tell) : [];
           const nameId = `lookalike-${sp.id}`;
           return (
             <article
               key={sp.id}
               aria-labelledby={nameId}
-              className="rounded-tac-lg border-2 border-l-8 border-danger bg-danger-bg p-4 shadow-card"
+              className="overflow-hidden rounded-plate border border-danger/70 bg-danger-bg shadow-plate"
             >
-              <div className="flex items-start gap-3">
-                <span className="well flex size-14 shrink-0 items-center justify-center rounded-tac text-danger">
-                  <Icon size={30} strokeWidth={2.25} aria-hidden />
-                </span>
-                <div className="min-w-0 flex-1">
-                  <h3 id={nameId} className="text-lg font-extrabold leading-tight text-ink">
-                    {sp.common_names[0] ?? sp.id}
-                  </h3>
-                  <p className="mt-0.5 italic text-ink-muted">{sp.scientific_name}</p>
+              <div aria-hidden className="thorn-edge text-danger" />
+              <div className="p-5">
+                <div className="flex items-start gap-4">
+                  <span className="flex size-12 shrink-0 items-center justify-center rounded-full border border-danger/60 bg-bg/40 text-danger-ink">
+                    <Icon size={24} strokeWidth={2} aria-hidden />
+                  </span>
+                  <div className="min-w-0 flex-1">
+                    <h3 id={nameId} className="font-sans text-xl leading-tight font-bold tracking-normal text-ink">
+                      {sp.common_names[0] ?? sp.id}
+                    </h3>
+                    <p className="sci mt-0.5 text-ink-muted">{sp.scientific_name}</p>
+                    <p className="mt-2.5 flex flex-wrap items-center gap-2">
+                      <span className="mono-label text-ink-faint">Reference class</span>
+                      <Pill tone="danger" icon={<Icon />}>
+                        {edibilityLabel(sp.edibility)}
+                      </Pill>
+                    </p>
+                  </div>
                 </div>
+
+                {tell && (
+                  <div className="mt-4 border-t border-danger/35 pt-4">
+                    <p className="mono-label text-danger-ink">How to tell apart · reference database</p>
+                    {differences.length > 1 ? (
+                      <ul className="mt-2.5 grid gap-2">
+                        {differences.map((d, j) => (
+                          <li key={j} className="flex gap-2.5 leading-snug font-medium text-ink">
+                            <span aria-hidden className="mt-[0.55em] size-1.5 shrink-0 rounded-full bg-danger" />
+                            <span>{d}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    ) : (
+                      <p className="mt-2.5 leading-snug font-medium text-ink">{tell}</p>
+                    )}
+                  </div>
+                )}
               </div>
-
-              <p className="mt-3 flex flex-wrap items-center gap-2">
-                <span className="mono-label text-ink-muted">Edibility:</span>
-                <Pill tone="danger" icon={<Icon aria-hidden />}>
-                  {edibilityLabel(sp.edibility)}
-                </Pill>
-              </p>
-
-              {tell && (
-                <div className="mt-3 border-t border-danger/30 pt-3">
-                  <p className="mono-label text-danger">How to tell apart</p>
-                  {chips.length > 1 ? (
-                    <ul className="mt-2 flex flex-wrap gap-2">
-                      {chips.map((c, i) => (
-                        <li
-                          key={i}
-                          className="rounded-tac-sm border border-danger/40 bg-surface px-2.5 py-1.5 text-base font-semibold text-ink"
-                        >
-                          {c}
-                        </li>
-                      ))}
-                    </ul>
-                  ) : (
-                    <p className="mt-2 text-base font-semibold text-ink">{tell}</p>
-                  )}
-                </div>
-              )}
             </article>
           );
         })}

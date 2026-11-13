@@ -1,46 +1,80 @@
 import { useEffect, useState } from "react";
-import { Cpu, Download, Gpu, Info, Trash2 } from "lucide-react";
+import { Cpu, Download, Gpu, Microscope, Sprout, Trash2 } from "lucide-react";
 import TierCard from "../components/models/TierCard.tsx";
-import DownloadProgress from "../components/models/DownloadProgress.tsx";
+import ProvisioningBay from "../components/models/ProvisioningBay.tsx";
 import QuotaInspector from "../components/models/QuotaInspector.tsx";
 import DeviceCards from "../components/models/DeviceCards.tsx";
 import CapabilityGate, { checkTier2Gate, type GateResult } from "../components/models/CapabilityGate.tsx";
 import Button from "../components/ui/Button.tsx";
+import ConfirmDialog from "../components/ui/ConfirmDialog.tsx";
+import Notice, { type NoticeTone } from "../components/ui/Notice.tsx";
 import Pill, { type PillTone } from "../components/ui/Pill.tsx";
 import SectionHeader from "../components/ui/SectionHeader.tsx";
 import { useModelStore, type TierState } from "../stores/modelStore.ts";
 import { useSettingsStore } from "../stores/settingsStore.ts";
-import { evictModel } from "../db/modelCacheInspector.ts";
+import { evictModel, type CacheReport } from "../db/modelCacheInspector.ts";
 import { requestPersistentStorage } from "../db/persistence.ts";
 import { getModelManifest, listModelManifests, putModelManifest } from "../db/modelManifest.ts";
 import type { ModelManifestRecord } from "../db/modelManifest.ts";
 import { gemmaClient } from "../ai/gemmaClient.ts";
-import { formatBytes, formatEta } from "../lib/format.ts";
+import { formatBytes } from "../lib/format.ts";
+
+type TierKey = "field-id" | "deep-look";
 
 const statusTones: Record<TierState["status"], PillTone> = {
   idle: "neutral",
-  loading: "trail",
+  loading: "accent",
   ready: "ok",
   error: "danger",
 };
 
-/** Idle/ready/error readout for a tier: status pill, device pill, error line. */
-function TierStatus({ tier }: { tier: TierState }) {
+/** Session state of a tier in plain words. "Not loaded" is not the same as "not cached". */
+const statusWords: Record<TierState["status"], string> = {
+  idle: "Not loaded",
+  loading: "Loading",
+  ready: "Ready",
+  error: "Error",
+};
+
+/** Real byte counters of the download in flight, summed from the worker's per-file progress. */
+interface Transfer {
+  startedAt: number;
+  loaded: number;
+  total: number;
+}
+
+const NO_TRANSFER: Transfer = { startedAt: 0, loaded: 0, total: 0 };
+
+function sum(values: Iterable<number>): number {
+  let total = 0;
+  for (const v of values) total += v;
+  return total;
+}
+
+/** Status pills for a tier: session state, device, compatibility and actual cache contents. */
+function TierBadges({
+  tier,
+  cached,
+  incompatible = false,
+}: {
+  tier: TierState;
+  /** From the Cache API report; null while unmeasured or stale. */
+  cached: boolean | null;
+  incompatible?: boolean;
+}) {
   return (
-    <div>
-      <div className="flex flex-wrap items-center gap-2">
-        <span className="mono-label text-ink-faint">Status</span>
-        <Pill tone={statusTones[tier.status]} dot live={tier.status === "loading"}>
-          {tier.status}
+    <>
+      <Pill tone={statusTones[tier.status]} dot live={tier.status === "loading"}>
+        {statusWords[tier.status]}
+      </Pill>
+      {incompatible && <Pill tone="danger">Incompatible</Pill>}
+      {cached !== null && <Pill tone="neutral">{cached ? "Cached" : "Uncached"}</Pill>}
+      {tier.device && (
+        <Pill tone="neutral" icon={tier.device === "webgpu" ? <Gpu /> : <Cpu />}>
+          {tier.device === "webgpu" ? "WebGPU" : "WASM"}
         </Pill>
-        {tier.device && (
-          <Pill tone="trail" icon={tier.device === "webgpu" ? <Gpu /> : <Cpu />}>
-            {tier.device}
-          </Pill>
-        )}
-      </div>
-      {tier.error && <p className="mt-2 text-base font-semibold break-words text-danger">{tier.error}</p>}
-    </div>
+      )}
+    </>
   );
 }
 
@@ -52,9 +86,16 @@ export default function Models() {
   const [tier2Confirm, setTier2Confirm] = useState("");
   const [gate, setGate] = useState<GateResult | null>(null);
   const [busy, setBusy] = useState<string | null>(null);
-  const [notice, setNotice] = useState<string | null>(null);
-  const [dlStart, setDlStart] = useState(0);
+  const [notice, setNotice] = useState<{ text: string; tone: NoticeTone } | null>(null);
+  const [transfers, setTransfers] = useState<Record<TierKey, Transfer>>({
+    "field-id": NO_TRANSFER,
+    "deep-look": NO_TRANSFER,
+  });
   const [manifests, setManifests] = useState<ModelManifestRecord[]>([]);
+  const [cacheReport, setCacheReport] = useState<CacheReport | null>(null);
+  // Tiers whose cache contents changed since the last measurement: no badge until re-measured.
+  const [cacheStale, setCacheStale] = useState<Record<TierKey, boolean>>({ "field-id": false, "deep-look": false });
+  const [confirmRemove, setConfirmRemove] = useState<{ tier: TierKey; modelId: string; name: string } | null>(null);
 
   useEffect(() => {
     void listModelManifests()
@@ -76,10 +117,26 @@ export default function Models() {
 
   function manifestLine(tier: string): string {
     const m = manifestFor(tier);
-    if (!m) return "Not downloaded yet.";
+    // An evicted model leaves an "absent" manifest behind: that is not on disk.
+    if (!m || m.status === "absent") return "Not downloaded yet.";
     const bytes = m.bytes > 0 ? formatBytes(m.bytes) : "size unknown (re-download to measure)";
     const when = new Date(m.downloadedAt).toLocaleDateString();
     return `On disk: ${bytes} · downloaded ${when} · ${m.device} · ${m.dtype}.`;
+  }
+
+  function onCacheReport(report: CacheReport) {
+    setCacheReport(report);
+    setCacheStale({ "field-id": false, "deep-look": false });
+  }
+
+  /** True/false from the measured Cache API contents; null when unmeasured or stale. */
+  function cachedState(tier: TierKey, modelId: string): boolean | null {
+    if (!cacheReport || cacheStale[tier]) return null;
+    return cacheReport.perModel.some((m) => m.modelId === modelId && m.fileCount > 0);
+  }
+
+  function markCacheStale(tier: TierKey) {
+    setCacheStale((s) => ({ ...s, [tier]: true }));
   }
 
   async function downloadTier1() {
@@ -87,18 +144,25 @@ export default function Models() {
     setNotice(null);
     setTier("field-id", { status: "loading", progressPct: 0, currentFile: "", error: null });
     const t0 = Date.now();
-    setDlStart(t0);
+    setTransfers((t) => ({ ...t, "field-id": { startedAt: t0, loaded: 0, total: 0 } }));
+    markCacheStale("field-id");
     // Sum of per-file totals seen on the progress callbacks = real bytes.
     const totals = new Map<string, number>();
+    const loadedMap = new Map<string, number>();
     try {
       await requestPersistentStorage();
       const device = await gemmaClient.getDevice(preferredDevice);
       setTier("field-id", { device });
       await gemmaClient.initTier("field-id", {
         device: preferredDevice,
-        onProgress: (pct, file, _loaded, total) => {
+        onProgress: (pct, file, loaded, total) => {
           setTier("field-id", { progressPct: pct, currentFile: file });
           if (typeof total === "number" && total > 0) totals.set(file, total);
+          if (typeof loaded === "number") loadedMap.set(file, loaded);
+          setTransfers((t) => ({
+            ...t,
+            "field-id": { startedAt: t0, loaded: sum(loadedMap.values()), total: sum(totals.values()) },
+          }));
         },
       });
       setTier("field-id", { status: "ready", progressPct: 100, error: null });
@@ -113,11 +177,14 @@ export default function Models() {
         status: "ready",
       });
       await refreshManifests();
-      setNotice(`Tier 1 ready on ${device}.`);
+      setNotice({ text: `Tier 1 ready on ${device}.`, tone: "ok" });
     } catch (err) {
       const message = err instanceof Error ? err.message : String(err);
       setTier("field-id", { status: "error", error: message });
-      setNotice(`Tier 1 download paused with cached progress — retry any time. (${message})`);
+      setNotice({
+        text: `Tier 1 download paused with cached progress — retry any time. (${message})`,
+        tone: "warn",
+      });
     } finally {
       setBusy(null);
     }
@@ -127,23 +194,35 @@ export default function Models() {
     const g = await checkTier2Gate();
     setGate(g);
     if (!g.webgpu) {
-      setNotice("Tier 2 needs WebGPU, which this device does not expose.");
+      setNotice({ text: "Tier 2 needs WebGPU, which this device does not expose.", tone: "warn" });
       return;
     }
     if (!g.memoryOk || !g.quotaOk) {
-      setNotice("Tier 2 blocked: the device does not report enough memory or free storage (need ≥ 8 GB RAM and ≥ 4.5 GB free).");
+      setNotice({
+        text: "Tier 2 blocked: the device does not report enough memory or free storage (need ≥ 8 GB RAM and ≥ 4.5 GB free).",
+        tone: "warn",
+      });
       return;
     }
     setBusy("deep-look");
     setTier("deep-look", { status: "loading", progressPct: 0, currentFile: "", error: null, device: "webgpu" });
+    const t0 = Date.now();
+    setTransfers((t) => ({ ...t, "deep-look": { startedAt: t0, loaded: 0, total: 0 } }));
+    markCacheStale("deep-look");
     const totals = new Map<string, number>();
+    const loadedMap = new Map<string, number>();
     try {
       await requestPersistentStorage();
       await gemmaClient.initTier("deep-look", {
         device: "webgpu",
-        onProgress: (pct, file, _loaded, total) => {
+        onProgress: (pct, file, loaded, total) => {
           setTier("deep-look", { progressPct: pct, currentFile: file });
           if (typeof total === "number" && total > 0) totals.set(file, total);
+          if (typeof loaded === "number") loadedMap.set(file, loaded);
+          setTransfers((t) => ({
+            ...t,
+            "deep-look": { startedAt: t0, loaded: sum(loadedMap.values()), total: sum(totals.values()) },
+          }));
         },
       });
       setTier("deep-look", { status: "ready", progressPct: 100, error: null });
@@ -158,80 +237,101 @@ export default function Models() {
         status: "ready",
       });
       await refreshManifests();
-      setNotice("Tier 2 ready on WebGPU.");
+      setNotice({ text: "Tier 2 ready on WebGPU.", tone: "ok" });
     } catch (err) {
       const message = err instanceof Error ? err.message : String(err);
       setTier("deep-look", { status: "error", error: message });
-      setNotice(`Tier 2 failed: ${message}`);
+      setNotice({ text: `Tier 2 failed: ${message}`, tone: "danger" });
     } finally {
       setBusy(null);
     }
   }
 
-  async function removeTier(tier: "field-id" | "deep-look", modelId: string) {
+  async function removeTier(tier: TierKey, modelId: string) {
     setBusy(tier);
     try {
       const removed = await evictModel(modelId);
       const manifest = await getModelManifest(tier).catch(() => undefined);
       void manifest;
       setTier(tier, { status: "idle", progressPct: 0, currentFile: "", error: null, device: null });
-      setNotice(`Removed ${removed} cached files for ${modelId}.`);
+      markCacheStale(tier);
+      await refreshManifests();
+      setNotice({ text: `Removed ${removed} cached files for ${modelId}.`, tone: "info" });
     } finally {
       setBusy(null);
     }
   }
 
-  const eta1 =
-    busy === "field-id" && fieldId.progressPct > 2
-      ? formatEta(((Date.now() - dlStart) / 1000 / fieldId.progressPct) * (100 - fieldId.progressPct))
-      : "calculating…";
-
+  const tier1Id = gemmaClient.modelIds().tier1;
+  const tier2Id = gemmaClient.modelIds().tier2;
   const tier2Blocked = gate !== null && (!gate.webgpu || !gate.memoryOk || !gate.quotaOk);
   const tier2Confirmed = tier2Confirm.trim() === "3.3 GB";
 
+  /** Recessed readout under a tier: live download dial, or the manifest line and any error. */
+  function tierStatus(key: TierKey, tier: TierState, testId: string, accent: "amber" | "violet") {
+    return (
+      <div className="grid gap-3">
+        {tier.status === "loading" && (
+          <ProvisioningBay
+            pct={tier.progressPct}
+            currentFile={tier.currentFile}
+            loadedBytes={transfers[key].loaded}
+            totalBytes={transfers[key].total}
+            startedAt={transfers[key].startedAt}
+            device={tier.device}
+            status="loading"
+            label={key === "field-id" ? "Tier 1 model download" : "Tier 2 model download"}
+            accent={accent}
+          />
+        )}
+        {tier.error && tier.status !== "loading" && (
+          <Notice tone="danger" role="note" label="Last error">
+            {tier.error}
+          </Notice>
+        )}
+        <p className="well mono-value rounded-field px-4 py-3 text-sm leading-relaxed text-ink-muted" data-testid={testId}>
+          {manifestLine(key)}
+        </p>
+      </div>
+    );
+  }
+
   return (
-    <section aria-labelledby="models-h" className="grid gap-5">
+    <section aria-labelledby="models-h" className="grid gap-8">
       <SectionHeader
         as="h1"
         id="models-h"
-        eyebrow="04 · HARDWARE"
-        title="Models & Telemetry"
+        eyebrow="04 · Models"
+        title="Models & Diagnostics"
+        lede="Both models run entirely on this device. Download a tier once over Wi-Fi; after that it works with zero bars."
         right={
           <Pill tone={statusTones[fieldId.status]} dot live={fieldId.status === "loading"}>
-            T1 {fieldId.status}
+            T1 {statusWords[fieldId.status]}
           </Pill>
         }
       />
-      {notice && (
-        <div
-          role="status"
-          className="tac-card flex items-start gap-3 border-l-4 border-l-edible p-4 text-edible animate-rise-in"
-        >
-          <Info size={22} aria-hidden className="mt-0.5 shrink-0" />
-          <p className="min-w-0 text-base font-semibold break-words">{notice}</p>
-        </div>
-      )}
+
+      {notice && <Notice tone={notice.tone}>{notice.text}</Notice>}
 
       <DeviceCards activeDevice={fieldId.device} preferredDevice={preferredDevice} />
 
-      <section aria-labelledby="tiers-h" className="grid gap-3">
-        <SectionHeader id="tiers-h" eyebrow="MODEL TIERS" title="On-device models" />
+      <section aria-labelledby="tiers-h" className="grid gap-4">
+        <SectionHeader id="tiers-h" eyebrow="Model tiers" title="On-device models" />
 
         <TierCard
-          title="Tier 1 — Field ID (≈280 MB)"
-          modelId={gemmaClient.modelIds().tier1}
-          meta="EmbeddingGemma 2 · zero-shot retrieval over the safety database · WebGPU or WASM"
-          status={
-            fieldId.status === "loading" ? (
-              <DownloadProgress pct={fieldId.progressPct} currentFile={fieldId.currentFile} bytes={formatBytes(null)} eta={eta1} />
-            ) : (
-              <TierStatus tier={fieldId} />
-            )
-          }
+          eyebrow="Tier 1 · EmbeddingGemma 2"
+          title="Field ID"
+          size="≈280 MB"
+          icon={<Sprout />}
+          modelId={tier1Id}
+          meta="Zero-shot retrieval over the bundled safety database. Runs on WebGPU or WASM."
+          badges={<TierBadges tier={fieldId} cached={cachedState("field-id", tier1Id)} />}
+          status={tierStatus("field-id", fieldId, "tier1-manifest", "amber")}
           actions={
             <>
               <Button variant="primary" disabled={busy !== null} onClick={() => void downloadTier1()}>
-                <Download size={20} aria-hidden /> {fieldId.status === "ready" ? "Re-check" : fieldId.status === "error" ? "Retry" : "Download"}
+                <Download size={20} aria-hidden />{" "}
+                {fieldId.status === "ready" ? "Re-check" : fieldId.status === "error" ? "Retry" : "Download"}
               </Button>
               {fieldId.status === "ready" && fieldId.device === "webgpu" && (
                 <Button variant="secondary" disabled={busy !== null} onClick={() => void downloadTier1()}>
@@ -241,32 +341,30 @@ export default function Models() {
               <Button
                 variant="ghost"
                 disabled={busy !== null}
-                onClick={() => void removeTier("field-id", gemmaClient.modelIds().tier1)}
+                onClick={() => setConfirmRemove({ tier: "field-id", modelId: tier1Id, name: "Tier 1 · Field ID" })}
               >
                 <Trash2 size={20} aria-hidden /> Remove
               </Button>
             </>
           }
         />
-        <p className="mono-label -mt-1 px-2 leading-relaxed text-ink-muted" data-testid="tier1-manifest">
-          {manifestLine("field-id")}
-        </p>
 
         <TierCard
-          title="Tier 2 — Deep Look (≈3.3 GB)"
-          modelId={gemmaClient.modelIds().tier2}
-          meta="Gemma 4 E2B instruction-tuned · constrained-JSON feature verification · WebGPU only · never produces verdicts"
-          status={
-            deepLook.status === "loading" ? (
-              <DownloadProgress pct={deepLook.progressPct} currentFile={deepLook.currentFile} bytes={formatBytes(null)} eta="calculating…" />
-            ) : (
-              <TierStatus tier={deepLook} />
-            )
+          accent="violet"
+          eyebrow="Tier 2 · Gemma 4 E2B"
+          title="Deep Look"
+          size="≈3.3 GB"
+          icon={<Microscope />}
+          modelId={tier2Id}
+          meta="Instruction-tuned, constrained-JSON feature verification. WebGPU only. It never produces a verdict."
+          badges={
+            <TierBadges tier={deepLook} cached={cachedState("deep-look", tier2Id)} incompatible={tier2Blocked} />
           }
+          status={tierStatus("deep-look", deepLook, "tier2-manifest", "violet")}
           actions={
             <>
               <Button
-                variant="primary"
+                variant="violet"
                 disabled={busy !== null || tier2Blocked || !tier2Confirmed}
                 onClick={() => void downloadTier2()}
               >
@@ -275,17 +373,22 @@ export default function Models() {
               <Button
                 variant="ghost"
                 disabled={busy !== null}
-                onClick={() => void removeTier("deep-look", gemmaClient.modelIds().tier2)}
+                onClick={() => setConfirmRemove({ tier: "deep-look", modelId: tier2Id, name: "Tier 2 · Deep Look" })}
               >
                 <Trash2 size={20} aria-hidden /> Remove
               </Button>
             </>
           }
         >
-          <p className="mono-label mb-2 text-ink-faint">Capability gate</p>
+          <p className="mono-label mb-3 text-ink-faint">Capability gate</p>
           <CapabilityGate onResult={setGate} />
-          <p className="mono-label mt-4 text-ink-faint">Confirm size</p>
-          <label htmlFor="tier2-confirm" className="mt-1 block text-base font-semibold">
+          {tier2Blocked && (
+            <p className="mt-3 text-sm leading-snug text-ink-muted">
+              This device does not pass every check, so the Tier 2 download stays locked. Tier 1 is unaffected.
+            </p>
+          )}
+          <p className="mono-label mt-6 text-ink-faint">Confirm size</p>
+          <label htmlFor="tier2-confirm" className="mt-2 block font-semibold text-ink">
             Type “3.3 GB” to confirm you understand the download size:
           </label>
           <input
@@ -294,15 +397,26 @@ export default function Models() {
             onChange={(e) => setTier2Confirm(e.target.value)}
             placeholder="3.3 GB"
             autoComplete="off"
-            className="well mt-2 block min-h-14 w-full rounded-tac px-3 font-mono text-lg text-ink placeholder:text-ink-faint"
+            className="field mono-value mt-3 block min-h-14 w-full px-4 text-lg"
           />
         </TierCard>
-        <p className="mono-label -mt-1 px-2 leading-relaxed text-ink-muted" data-testid="tier2-manifest">
-          {manifestLine("deep-look")}
-        </p>
       </section>
 
-      <QuotaInspector />
+      <QuotaInspector onReport={onCacheReport} />
+
+      {confirmRemove && (
+        <ConfirmDialog
+          title="Remove cached model?"
+          body={`${confirmRemove.name} will be deleted from this device's cache. It must be downloaded again before it can run — which needs a connection.`}
+          confirmLabel="Remove"
+          onCancel={() => setConfirmRemove(null)}
+          onConfirm={() => {
+            const target = confirmRemove;
+            setConfirmRemove(null);
+            void removeTier(target.tier, target.modelId);
+          }}
+        />
+      )}
     </section>
   );
 }

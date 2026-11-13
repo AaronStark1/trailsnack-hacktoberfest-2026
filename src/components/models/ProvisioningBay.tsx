@@ -16,6 +16,10 @@ interface Props {
   startedAt: number;
   device: "webgpu" | "wasm" | null;
   status: ProvisioningStatus;
+  /** Accessible name of the progress bar. */
+  label?: string;
+  /** Cloudberry for Tier 1, elderberry for Tier 2. */
+  accent?: "amber" | "violet";
 }
 
 interface Sample {
@@ -25,34 +29,40 @@ interface Sample {
 
 const GAUGE = 148;
 const CENTER = GAUGE / 2;
-const RADIUS = 58;
+const RADIUS = 60;
 const CIRCUMFERENCE = 2 * Math.PI * RADIUS;
-const LED_BLOCKS = 20;
+const SEGMENTS = 24;
 const SAMPLE_WINDOW_MS = 8000;
 const ALLOCATION_POLL_MS = 5000;
 
 const STATUS_WORD: Record<ProvisioningStatus, string> = {
-  idle: "STANDBY",
-  loading: "PROVISIONING",
-  ready: "READY",
-  error: "FAULT",
+  idle: "Standby",
+  loading: "Downloading",
+  ready: "Ready",
+  error: "Failed",
 };
 
-const STATUS_TONE: Record<ProvisioningStatus, string> = {
-  idle: "text-ink-muted",
-  loading: "text-trail",
-  ready: "text-edible",
-  error: "text-danger",
+const STATUS_INK: Record<ProvisioningStatus, string> = {
+  idle: "text-ink-faint",
+  loading: "text-ink-muted",
+  ready: "text-glow",
+  error: "text-danger-ink",
 };
 
-/** Radial tick marks every 10%, precomputed once (0% and 100% share the top tick). */
-const TICKS = Array.from({ length: 10 }, (_, i) => {
-  const angle = (i / 10) * Math.PI * 2 - Math.PI / 2;
-  const inner = 67;
-  const outer = i % 5 === 0 ? 73 : 71;
+const ACCENTS = {
+  amber: { arc: "stroke-amber", block: "bg-amber", tone: "accent" },
+  violet: { arc: "stroke-violet-ink", block: "bg-violet-ink", tone: "violet" },
+} as const;
+
+/** Twelve hour-marks around the dial, precomputed once. */
+const TICKS = Array.from({ length: 12 }, (_, i) => {
+  const angle = (i / 12) * Math.PI * 2 - Math.PI / 2;
+  const major = i % 3 === 0;
+  const inner = 68.5;
+  const outer = major ? 73 : 71;
   return {
     key: i,
-    major: i % 5 === 0,
+    major,
     x1: (CENTER + Math.cos(angle) * inner).toFixed(2),
     y1: (CENTER + Math.sin(angle) * inner).toFixed(2),
     x2: (CENTER + Math.cos(angle) * outer).toFixed(2),
@@ -83,9 +93,10 @@ function rateOf(samples: Sample[]): number {
 const EMPTY_ESTIMATE: StorageEstimate = { usageBytes: null, quotaBytes: null };
 
 /**
- * On-device model provisioning instrument: ring gauge, LED block strip and a
- * live telemetry cluster. Purely presentational — rate, ETA and storage
- * allocation are derived here from the byte counters the page passes in.
+ * On-device model provisioning instrument: a ring dial, a segmented sap-line
+ * and a small telemetry cluster. Purely presentational — rate, ETA and storage
+ * use are derived here from the byte counters the page passes in, and every
+ * value falls back to "—" or "unknown" when it has not been measured.
  */
 export default function ProvisioningBay({
   pct,
@@ -95,9 +106,12 @@ export default function ProvisioningBay({
   startedAt,
   device,
   status,
+  label = "Tier 1 model download",
+  accent = "amber",
 }: Props) {
   const clamped = Math.max(0, Math.min(100, Math.round(Number.isFinite(pct) ? pct : 0)));
   const loading = status === "loading";
+  const tint = ACCENTS[accent];
 
   const samplesRef = useRef<Sample[]>([]);
   const bytesRef = useRef(loadedBytes);
@@ -105,8 +119,8 @@ export default function ProvisioningBay({
   const [now, setNow] = useState(() => Date.now());
   const [allocation, setAllocation] = useState<StorageEstimate>(EMPTY_ESTIMATE);
 
-  // 1 Hz tick while the link is active so RATE / ETA keep moving even between
-  // progress events (and decay honestly when the stream stalls).
+  // 1 Hz tick while the download is active so rate / ETA keep moving even
+  // between progress events (and decay honestly when the stream stalls).
   useEffect(() => {
     if (!loading) return;
     samplesRef.current = [];
@@ -142,12 +156,13 @@ export default function ProvisioningBay({
   }, [loading]);
 
   const dashOffset = CIRCUMFERENCE * (1 - clamped / 100);
-  const arcStroke = status === "error" ? "stroke-danger" : "stroke-trail-glow";
-  const lit = Math.round(clamped / 5);
-  const litBlock = status === "error" ? "bg-danger" : "bg-trail-glow";
+  const arcStroke = status === "error" ? "stroke-danger" : tint.arc;
+  const litBlock = status === "error" ? "bg-danger" : tint.block;
+  const lit = Math.round((clamped / 100) * SEGMENTS);
 
   const megabytesPerSecond = rate / (1024 * 1024);
-  const rateValue = loading && rate > 0 ? megabytesPerSecond.toFixed(1) : "—";
+  const hasRate = loading && rate > 0;
+  const rateValue = hasRate ? megabytesPerSecond.toFixed(1) : "—";
 
   let etaValue = "—";
   if (loading) {
@@ -165,143 +180,130 @@ export default function ProvisioningBay({
   const receivedValue = `${formatBytes(received)} / ${formatBytes(totalBytes || null)}`;
   const allocationValue = `${formatBytes(allocation.usageBytes)} / ${formatBytes(allocation.quotaBytes)}`;
 
-  const deviceLabel = device === "webgpu" ? "WEBGPU" : device === "wasm" ? "WASM" : "—";
+  const deviceLabel = device === "webgpu" ? "WebGPU" : device === "wasm" ? "WASM" : "Device —";
   const deviceIcon = device === "webgpu" ? <Gpu /> : device === "wasm" ? <Cpu /> : null;
 
   return (
-    <div className="well rounded-tac animate-rise-in">
-      <div className="grid-paper rounded-[inherit] p-4">
-        <div className="flex flex-col items-center gap-5 md:flex-row md:items-start">
-          {/* Ring gauge */}
-          <div className="relative shrink-0 size-[148px]">
-            <svg
-              role="img"
-              aria-label={`Download ${clamped}% complete`}
-              viewBox={`0 0 ${GAUGE} ${GAUGE}`}
-              className="size-full"
-            >
-              {TICKS.map((tick) => (
-                <line
-                  key={tick.key}
-                  x1={tick.x1}
-                  y1={tick.y1}
-                  x2={tick.x2}
-                  y2={tick.y2}
-                  className={tick.major ? "stroke-ink-muted" : "stroke-line-strong"}
-                  strokeWidth={tick.major ? 2.5 : 1.5}
-                  strokeLinecap="round"
-                />
-              ))}
-              <circle
-                cx={CENTER}
-                cy={CENTER}
-                r={50}
-                className="fill-none stroke-line-strong"
-                strokeWidth={1}
-                strokeDasharray="2 4"
+    <div className="well rounded-field p-4 animate-rise-in sm:p-5">
+      <div className="flex flex-col items-center gap-5 sm:flex-row sm:items-center sm:gap-6">
+        {/* Ring dial */}
+        <div className="relative size-[148px] shrink-0">
+          <svg
+            role="img"
+            aria-label={`Download ${clamped}% complete`}
+            viewBox={`0 0 ${GAUGE} ${GAUGE}`}
+            className="size-full"
+          >
+            {TICKS.map((tick) => (
+              <line
+                key={tick.key}
+                x1={tick.x1}
+                y1={tick.y1}
+                x2={tick.x2}
+                y2={tick.y2}
+                className={tick.major ? "stroke-ink-faint" : "stroke-bark"}
+                strokeWidth={tick.major ? 2 : 1.25}
+                strokeLinecap="round"
               />
-              <circle cx={CENTER} cy={CENTER} r={RADIUS} className="fill-none stroke-line-strong" strokeWidth={8} />
-              <g transform={`rotate(-90 ${CENTER} ${CENTER})`}>
+            ))}
+            <circle cx={CENTER} cy={CENTER} r={RADIUS} className="fill-none stroke-line-strong" strokeWidth={6} />
+            <g transform={`rotate(-90 ${CENTER} ${CENTER})`}>
+              {status === "ready" && (
                 <circle
                   cx={CENTER}
                   cy={CENTER}
                   r={RADIUS}
-                  className={`fill-none opacity-30 transition-[stroke-dashoffset] duration-300 ease-out-soft ${arcStroke}`}
+                  className={`fill-none opacity-25 ${arcStroke}`}
                   strokeWidth={14}
                   strokeDasharray={CIRCUMFERENCE}
                   strokeDashoffset={dashOffset}
-                  strokeLinecap={clamped > 0 ? "round" : "butt"}
                 />
-                <circle
-                  cx={CENTER}
-                  cy={CENTER}
-                  r={RADIUS}
-                  className={`fill-none transition-[stroke-dashoffset] duration-300 ease-out-soft ${arcStroke}`}
-                  strokeWidth={8}
-                  strokeDasharray={CIRCUMFERENCE}
-                  strokeDashoffset={dashOffset}
-                  strokeLinecap={clamped > 0 ? "round" : "butt"}
-                />
-              </g>
-            </svg>
-            <div className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center">
-              <p aria-hidden className="mono-value text-4xl font-black leading-none text-ink">
-                {clamped}
-                <span className="text-xl font-bold text-ink-muted">%</span>
-              </p>
-              <p
-                className={`mt-2 font-mono text-[10px] leading-none font-semibold tracking-[0.08em] uppercase ${STATUS_TONE[status]}`}
-              >
-                {STATUS_WORD[status]}
-              </p>
-            </div>
-          </div>
-
-          {/* Telemetry cluster */}
-          <div className="grid w-full min-w-0 flex-1 grid-cols-2 gap-3 md:pt-2">
-            <MonoStat
-              size="sm"
-              label="RATE"
-              value={rateValue}
-              tone={loading && rate > 0 ? "trail" : "default"}
-              {...(loading && rate > 0 ? { unit: "MB/s" } : {})}
-            />
-            <MonoStat size="sm" label="ETA" value={etaValue} />
-            <MonoStat size="sm" label="RECEIVED" value={receivedValue} className="col-span-2 md:col-span-1" />
-            <MonoStat size="sm" label="ALLOCATION" value={allocationValue} className="col-span-2 md:col-span-1" />
-          </div>
-        </div>
-
-        {/* LED block strip */}
-        <div
-          role="progressbar"
-          aria-valuenow={clamped}
-          aria-valuemin={0}
-          aria-valuemax={100}
-          aria-label="Tier 1 model download"
-          className="well mt-5 flex h-6 gap-[3px] rounded-tac-sm p-[3px]"
-        >
-          {Array.from({ length: LED_BLOCKS }, (_, i) => {
-            const isLit = i < lit;
-            const leading = isLit && i === lit - 1 && loading && clamped < 100;
-            return (
-              <span
-                key={i}
-                aria-hidden
-                className={`h-full flex-1 rounded-[2px] transition-colors duration-150 ${
-                  isLit ? `${litBlock}${leading ? " animate-blink" : ""}` : "bg-led-off"
-                }`}
+              )}
+              <circle
+                cx={CENTER}
+                cy={CENTER}
+                r={RADIUS}
+                className={`fill-none transition-[stroke-dashoffset] duration-300 ease-out-soft ${arcStroke}`}
+                strokeWidth={6}
+                strokeDasharray={CIRCUMFERENCE}
+                strokeDashoffset={dashOffset}
+                strokeLinecap={clamped > 0 && clamped < 100 ? "round" : "butt"}
               />
-            );
-          })}
+            </g>
+          </svg>
+          <div className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center">
+            <p aria-hidden className="display text-[2.75rem] leading-none text-ink">
+              {clamped}
+              <span className="ml-0.5 text-xl text-ink-muted">%</span>
+            </p>
+            <p className={`mono-label mt-2 ${STATUS_INK[status]}`}>{STATUS_WORD[status]}</p>
+          </div>
         </div>
 
-        {/* File ticker + status pills */}
-        <div className="mt-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-          <p className="min-w-0 truncate font-mono text-sm font-semibold text-ink-muted">
-            <span className="text-ink-muted">FILE ▸ </span>
-            {currentFile || "—"}
-          </p>
-          <div className="flex shrink-0 flex-wrap items-center gap-2">
-            <Pill tone="trail" title="Inference device" {...(deviceIcon ? { icon: deviceIcon } : {})}>
-              {deviceLabel}
+        {/* Telemetry cluster */}
+        <div className="grid w-full min-w-0 flex-1 grid-cols-2 gap-x-4 gap-y-4">
+          <MonoStat
+            size="sm"
+            label="Rate"
+            value={rateValue}
+            tone={hasRate ? "default" : "muted"}
+            {...(hasRate ? { unit: "MB/s" } : {})}
+          />
+          <MonoStat size="sm" label="ETA" value={etaValue} tone={loading ? "default" : "muted"} />
+          <MonoStat size="sm" label="Received" value={receivedValue} className="col-span-2" />
+          <MonoStat size="sm" label="Storage used" value={allocationValue} className="col-span-2" />
+        </div>
+      </div>
+
+      {/* Segmented sap-line */}
+      <div
+        role="progressbar"
+        aria-valuenow={clamped}
+        aria-valuemin={0}
+        aria-valuemax={100}
+        aria-label={label}
+        className="mt-5 flex h-2 gap-[3px]"
+      >
+        {Array.from({ length: SEGMENTS }, (_, i) => {
+          const isLit = i < lit;
+          const leading = isLit && i === lit - 1 && loading && clamped < 100;
+          return (
+            <span
+              key={i}
+              aria-hidden
+              className={`h-full flex-1 rounded-full transition-colors duration-200 ${
+                isLit ? `${litBlock}${leading ? " animate-pulse-soft" : ""}` : "bg-surface-3"
+              }`}
+            />
+          );
+        })}
+      </div>
+
+      {/* File ticker + status */}
+      <div className="mt-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <p className="mono-value min-w-0 truncate text-sm text-ink-muted">
+          <span className="text-ink-faint">File · </span>
+          {currentFile || "—"}
+        </p>
+        <div className="flex shrink-0 flex-wrap items-center gap-2">
+          <Pill tone="neutral" title="Inference device" {...(deviceIcon ? { icon: deviceIcon } : {})}>
+            {deviceLabel}
+          </Pill>
+          {status === "loading" && (
+            <Pill tone={tint.tone} dot live>
+              Downloading
             </Pill>
-            {status === "loading" && (
-              <Pill tone="trail" dot live>
-                LINK ACTIVE
-              </Pill>
-            )}
-            {status === "ready" && (
-              <Pill tone="ok" dot>
-                PROVISIONED · READY OFFLINE
-              </Pill>
-            )}
-            {status === "error" && (
-              <Pill tone="danger" dot>
-                FAULT — RETRY
-              </Pill>
-            )}
-          </div>
+          )}
+          {status === "ready" && (
+            <Pill tone="ok" dot>
+              Ready
+            </Pill>
+          )}
+          {status === "error" && (
+            <Pill tone="danger" dot>
+              Failed — retry
+            </Pill>
+          )}
         </div>
       </div>
     </div>

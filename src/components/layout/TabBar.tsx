@@ -1,48 +1,72 @@
 import { NavLink } from "react-router-dom";
-import { MemoryStick, NotebookPen, ScanLine, SlidersHorizontal } from "lucide-react";
+import { Cpu, Microscope, NotebookPen, ScanLine, SlidersHorizontal, type LucideIcon } from "lucide-react";
+import { useScanStore } from "../../stores/scanStore.ts";
 
-const tabs = [
-  { to: "/scan", label: "Scan", icon: ScanLine },
-  { to: "/log", label: "Field Log", icon: NotebookPen },
-  { to: "/models", label: "Models", icon: MemoryStick },
-  { to: "/settings", label: "Settings", icon: SlidersHorizontal },
-];
+interface Tab {
+  to: string;
+  label: string;
+  icon: LucideIcon;
+}
 
 const CELL =
-  "relative flex min-h-[64px] w-full flex-col items-center justify-center gap-1 rounded-tac select-none tac-press";
-const ACTIVE = `${CELL} well text-trail`;
-const INACTIVE = `${CELL} border border-transparent text-ink-muted hover:bg-surface/70 hover:text-ink`;
+  "relative flex h-14 min-w-0 flex-1 flex-col items-center justify-center gap-0.5 rounded-full select-none press";
+const ACTIVE = `${CELL} bg-amber/12 text-amber shadow-[inset_0_0_0_1px_color-mix(in_oklab,var(--color-amber)_45%,transparent),0_0_18px_-6px_var(--color-amber)] hc:bg-transparent`;
+const INACTIVE = `${CELL} text-ink-muted hover:bg-surface-3/70 hover:text-ink`;
+const LABEL = "max-w-full truncate px-1 text-[0.6875rem] leading-[1.3] font-semibold tracking-wide";
 
-/** Floating tactile dock: frosted, etched, with an embossed well + haptic glow on the active tab. */
+/**
+ * Floating pill dock. Assess joins the four fixed destinations and points at
+ * the specimen currently in memory; until one has been captured it is shown
+ * disabled rather than leading to a dead end.
+ */
 export default function TabBar() {
+  const draftId = useScanStore((s) => s.draft?.id ?? null);
+
+  const tabs: (Tab & { disabled?: boolean })[] = [
+    { to: "/scan", label: "Scan", icon: ScanLine },
+    draftId
+      ? { to: `/assess/${draftId}`, label: "Assess", icon: Microscope }
+      : { to: "/assess", label: "Assess", icon: Microscope, disabled: true },
+    { to: "/log", label: "Field Log", icon: NotebookPen },
+    { to: "/models", label: "Models", icon: Cpu },
+    { to: "/settings", label: "Settings", icon: SlidersHorizontal },
+  ];
+
   return (
-    <nav aria-label="Primary" className="fixed inset-x-0 bottom-0 z-40 px-3 pb-safe">
-      <div className="mx-auto mb-3 max-w-3xl rounded-tac-lg frosted etched shadow-dock">
-        <div className="grid grid-cols-4 gap-1 p-1.5">
-          {tabs.map((t) => (
+    <nav
+      aria-label="Primary"
+      className="pointer-events-none fixed inset-x-0 bottom-0 z-40 px-3 pb-[max(0.75rem,env(safe-area-inset-bottom))]"
+    >
+      <div className="glass pointer-events-auto mx-auto flex max-w-md items-center gap-0.5 rounded-full border border-line-strong p-1.5 shadow-float">
+        {tabs.map((t) =>
+          t.disabled ? (
+            <span
+              key={t.label}
+              role="link"
+              aria-disabled="true"
+              aria-label={`${t.label} (capture a specimen first)`}
+              title="Capture a specimen first"
+              className={`${CELL} cursor-not-allowed text-ink-faint opacity-45`}
+            >
+              <t.icon size={22} strokeWidth={1.8} aria-hidden />
+              <span className={LABEL}>{t.label}</span>
+            </span>
+          ) : (
             <NavLink
-              key={t.to}
+              key={t.label}
               to={t.to}
               aria-label={t.label}
               className={({ isActive }) => (isActive ? ACTIVE : INACTIVE)}
             >
               {({ isActive }) => (
                 <>
-                  <span
-                    aria-hidden
-                    className={
-                      isActive
-                        ? "absolute top-1.5 size-1.5 rounded-full bg-trail-glow shadow-glow"
-                        : "absolute top-1.5 size-1.5 rounded-full bg-transparent"
-                    }
-                  />
-                  <t.icon size={26} strokeWidth={isActive ? 2.25 : 1.9} aria-hidden />
-                  <span className="mono-label whitespace-nowrap tracking-[0.08em]">{t.label}</span>
+                  <t.icon size={22} strokeWidth={isActive ? 2.1 : 1.8} aria-hidden />
+                  <span className={LABEL}>{t.label}</span>
                 </>
               )}
             </NavLink>
-          ))}
-        </div>
+          ),
+        )}
       </div>
     </nav>
   );

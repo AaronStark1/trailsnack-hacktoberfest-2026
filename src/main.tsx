@@ -4,6 +4,7 @@ import { BrowserRouter } from "react-router-dom";
 import { registerSW } from "virtual:pwa-register";
 import App from "./App.tsx";
 import ErrorBoundary from "./components/layout/ErrorBoundary.tsx";
+import Emblem from "./components/ui/Emblem.tsx";
 import { SW_UPDATE_EVENT } from "./components/layout/UpdatePrompt.tsx";
 import { useSettingsStore } from "./stores/settingsStore.ts";
 import { __setTestHook } from "./ai/gemmaClient.ts";
@@ -56,14 +57,17 @@ function Boot() {
       el.classList.toggle("dark", darkMode);
     }
     const themeColor = document.querySelector<HTMLMetaElement>('meta[name="theme-color"]');
-    if (themeColor) themeColor.content = highContrast ? "#000000" : darkMode ? "#0b0b0a" : "#1a3826";
+    if (themeColor) themeColor.content = highContrast ? "#000000" : darkMode ? "#0a0806" : "#070d09";
   }, [highContrast, darkMode]);
 
   if (!loaded)
     return (
-      <p role="status" className="mono-label p-6 text-ink-muted">
-        Booting TrailSnack…
-      </p>
+      <div className="forest-floor flex min-h-dvh flex-col items-center justify-center gap-5 p-6">
+        <Emblem size={56} className="text-ink animate-pulse-soft" />
+        <p role="status" className="mono-label text-ink-muted">
+          Booting TrailSnack…
+        </p>
+      </div>
     );
   return <App />;
 }

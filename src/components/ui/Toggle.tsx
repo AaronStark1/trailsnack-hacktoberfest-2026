@@ -2,46 +2,46 @@ interface Props {
   checked: boolean;
   onChange: (v: boolean) => void;
   label: string;
+  disabled?: boolean;
 }
 
 /**
- * Chunky physical switch sized for a gloved thumb (56 × 96 px). The knob
- * carries an etched I/O glyph so state reads without colour, and the active
- * state glows trail-green.
+ * Switch sized for a gloved thumb (48 × 84 px). State reads three ways —
+ * knob position, the ON/OFF word and the lit seed in the knob — so it never
+ * depends on colour alone.
  */
-export default function Toggle({ checked, onChange, label }: Props) {
+export default function Toggle({ checked, onChange, label, disabled = false }: Props) {
   return (
     <button
       type="button"
       role="switch"
       aria-checked={checked}
       aria-label={label}
+      disabled={disabled}
       onClick={() => onChange(!checked)}
-      className={`relative inline-flex h-14 w-24 shrink-0 items-center rounded-full border p-1 tac-press ${
+      className={`relative inline-flex h-12 w-[84px] shrink-0 items-center rounded-full border p-1 press disabled:cursor-not-allowed disabled:opacity-40 ${
         checked
-          ? "border-trail-dark bg-trail shadow-[inset_0_2px_6px_rgba(0,0,0,.35)]"
-          : "border-line-strong bg-surface-3 shadow-[inset_0_2px_6px_rgba(0,0,0,.18)]"
+          ? "border-amber/70 bg-amber/20 shadow-[inset_0_2px_8px_rgb(0_0_0/0.45)]"
+          : "border-line-strong bg-surface-2 shadow-inset"
       }`}
     >
       <span
         aria-hidden
         className={`mono-label absolute inset-y-0 flex items-center ${
-          checked ? "left-3 text-on-trail/80" : "right-3 text-ink-faint"
+          checked ? "left-3 text-amber" : "right-2.5 text-ink-faint"
         }`}
       >
         {checked ? "ON" : "OFF"}
       </span>
       <span
         aria-hidden
-        className={`relative flex h-11 w-11 items-center justify-center rounded-full bg-surface bevel-light transition-transform duration-200 ease-spring ${
-          checked ? "translate-x-10" : "translate-x-0"
+        className={`relative flex size-[38px] items-center justify-center rounded-full border transition-transform duration-300 ease-spring ${
+          checked
+            ? "translate-x-9 border-amber-bright bg-amber shadow-glow-amber"
+            : "translate-x-0 border-line-strong bg-surface-3"
         }`}
       >
-        <span
-          className={`h-2.5 w-2.5 rounded-full transition-colors ${
-            checked ? "bg-trail-glow shadow-glow" : "bg-line-strong"
-          }`}
-        />
+        <span className={`size-2 rounded-full ${checked ? "bg-on-amber" : "bg-ink-faint"}`} />
       </span>
     </button>
   );
