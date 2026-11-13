@@ -1,11 +1,14 @@
 import { useEffect, useState } from "react";
-import { Download, Trash2 } from "lucide-react";
+import { Cpu, Download, Gpu, Info, Trash2 } from "lucide-react";
 import TierCard from "../components/models/TierCard.tsx";
 import DownloadProgress from "../components/models/DownloadProgress.tsx";
 import QuotaInspector from "../components/models/QuotaInspector.tsx";
+import DeviceCards from "../components/models/DeviceCards.tsx";
 import CapabilityGate, { checkTier2Gate, type GateResult } from "../components/models/CapabilityGate.tsx";
 import Button from "../components/ui/Button.tsx";
-import { useModelStore } from "../stores/modelStore.ts";
+import Pill, { type PillTone } from "../components/ui/Pill.tsx";
+import SectionHeader from "../components/ui/SectionHeader.tsx";
+import { useModelStore, type TierState } from "../stores/modelStore.ts";
 import { useSettingsStore } from "../stores/settingsStore.ts";
 import { evictModel } from "../db/modelCacheInspector.ts";
 import { requestPersistentStorage } from "../db/persistence.ts";
@@ -13,6 +16,33 @@ import { getModelManifest, listModelManifests, putModelManifest } from "../db/mo
 import type { ModelManifestRecord } from "../db/modelManifest.ts";
 import { gemmaClient } from "../ai/gemmaClient.ts";
 import { formatBytes, formatEta } from "../lib/format.ts";
+
+const statusTones: Record<TierState["status"], PillTone> = {
+  idle: "neutral",
+  loading: "trail",
+  ready: "ok",
+  error: "danger",
+};
+
+/** Idle/ready/error readout for a tier: status pill, device pill, error line. */
+function TierStatus({ tier }: { tier: TierState }) {
+  return (
+    <div>
+      <div className="flex flex-wrap items-center gap-2">
+        <span className="mono-label text-ink-faint">Status</span>
+        <Pill tone={statusTones[tier.status]} dot live={tier.status === "loading"}>
+          {tier.status}
+        </Pill>
+        {tier.device && (
+          <Pill tone="trail" icon={tier.device === "webgpu" ? <Gpu /> : <Cpu />}>
+            {tier.device}
+          </Pill>
+        )}
+      </div>
+      {tier.error && <p className="mt-2 text-base font-semibold break-words text-danger">{tier.error}</p>}
+    </div>
+  );
+}
 
 export default function Models() {
   const fieldId = useModelStore((s) => s.fieldId);
@@ -160,104 +190,117 @@ export default function Models() {
   const tier2Confirmed = tier2Confirm.trim() === "3.3 GB";
 
   return (
-    <section aria-labelledby="models-h" className="grid gap-4">
-      <h1 id="models-h" className="text-3xl font-extrabold">
-        Offline models
-      </h1>
-      {notice && (
-        <p role="status" className="rounded-2xl bg-(--color-edible-bg) p-3 text-(--color-edible)">
-          {notice}
-        </p>
-      )}
-
-      <TierCard
-        title="Tier 1 — Field ID (≈280 MB)"
-        modelId={gemmaClient.modelIds().tier1}
-        meta="EmbeddingGemma 2 · zero-shot retrieval over the safety database · WebGPU or WASM"
-        status={
-          fieldId.status === "loading" ? (
-            <DownloadProgress pct={fieldId.progressPct} currentFile={fieldId.currentFile} bytes={formatBytes(null)} eta={eta1} />
-          ) : (
-            <p>
-              Status: <strong>{fieldId.status}</strong>
-              {fieldId.device ? ` · ${fieldId.device}` : ""}
-              {fieldId.error ? ` · ${fieldId.error}` : ""}
-            </p>
-          )
-        }
-        actions={
-          <>
-            <Button variant="primary" disabled={busy !== null} onClick={() => void downloadTier1()}>
-              <Download size={20} aria-hidden /> {fieldId.status === "ready" ? "Re-check" : fieldId.status === "error" ? "Retry" : "Download"}
-            </Button>
-            {fieldId.status === "ready" && fieldId.device === "webgpu" && (
-              <Button variant="secondary" disabled={busy !== null} onClick={() => void downloadTier1()}>
-                Retry on WASM
-              </Button>
-            )}
-            <Button
-              variant="ghost"
-              disabled={busy !== null}
-              onClick={() => void removeTier("field-id", gemmaClient.modelIds().tier1)}
-            >
-              <Trash2 size={20} aria-hidden /> Remove
-            </Button>
-          </>
+    <section aria-labelledby="models-h" className="grid gap-5">
+      <SectionHeader
+        as="h1"
+        id="models-h"
+        eyebrow="04 · HARDWARE"
+        title="Models & Telemetry"
+        right={
+          <Pill tone={statusTones[fieldId.status]} dot live={fieldId.status === "loading"}>
+            T1 {fieldId.status}
+          </Pill>
         }
       />
-      <p className="text-base opacity-70" data-testid="tier1-manifest">
-        {manifestLine("field-id")}
-      </p>
+      {notice && (
+        <div
+          role="status"
+          className="tac-card flex items-start gap-3 border-l-4 border-l-edible p-4 text-edible animate-rise-in"
+        >
+          <Info size={22} aria-hidden className="mt-0.5 shrink-0" />
+          <p className="min-w-0 text-base font-semibold break-words">{notice}</p>
+        </div>
+      )}
 
-      <TierCard
-        title="Tier 2 — Deep Look (≈3.3 GB)"
-        modelId={gemmaClient.modelIds().tier2}
-        meta="Gemma 4 E2B instruction-tuned · constrained-JSON feature verification · WebGPU only · never produces verdicts"
-        status={
-          deepLook.status === "loading" ? (
-            <DownloadProgress pct={deepLook.progressPct} currentFile={deepLook.currentFile} bytes={formatBytes(null)} eta="calculating…" />
-          ) : (
-            <p>
-              Status: <strong>{deepLook.status}</strong>
-              {deepLook.error ? ` · ${deepLook.error}` : ""}
-            </p>
-          )
-        }
-        actions={
-          <>
-            <Button
-              variant="primary"
-              disabled={busy !== null || tier2Blocked || !tier2Confirmed}
-              onClick={() => void downloadTier2()}
-            >
-              <Download size={20} aria-hidden /> Download Tier 2
-            </Button>
-            <Button
-              variant="ghost"
-              disabled={busy !== null}
-              onClick={() => void removeTier("deep-look", gemmaClient.modelIds().tier2)}
-            >
-              <Trash2 size={20} aria-hidden /> Remove
-            </Button>
-          </>
-        }
-      >
-        <CapabilityGate onResult={setGate} />
-        <label htmlFor="tier2-confirm" className="mt-2 block font-semibold">
-          Type “3.3 GB” to confirm you understand the download size:
-        </label>
-        <input
-          id="tier2-confirm"
-          value={tier2Confirm}
-          onChange={(e) => setTier2Confirm(e.target.value)}
-          placeholder="3.3 GB"
-          autoComplete="off"
-          className="mt-1 block min-h-14 w-full rounded-xl border border-black/20 bg-white px-3 text-lg"
+      <DeviceCards activeDevice={fieldId.device} preferredDevice={preferredDevice} />
+
+      <section aria-labelledby="tiers-h" className="grid gap-3">
+        <SectionHeader id="tiers-h" eyebrow="MODEL TIERS" title="On-device models" />
+
+        <TierCard
+          title="Tier 1 — Field ID (≈280 MB)"
+          modelId={gemmaClient.modelIds().tier1}
+          meta="EmbeddingGemma 2 · zero-shot retrieval over the safety database · WebGPU or WASM"
+          status={
+            fieldId.status === "loading" ? (
+              <DownloadProgress pct={fieldId.progressPct} currentFile={fieldId.currentFile} bytes={formatBytes(null)} eta={eta1} />
+            ) : (
+              <TierStatus tier={fieldId} />
+            )
+          }
+          actions={
+            <>
+              <Button variant="primary" disabled={busy !== null} onClick={() => void downloadTier1()}>
+                <Download size={20} aria-hidden /> {fieldId.status === "ready" ? "Re-check" : fieldId.status === "error" ? "Retry" : "Download"}
+              </Button>
+              {fieldId.status === "ready" && fieldId.device === "webgpu" && (
+                <Button variant="secondary" disabled={busy !== null} onClick={() => void downloadTier1()}>
+                  Retry on WASM
+                </Button>
+              )}
+              <Button
+                variant="ghost"
+                disabled={busy !== null}
+                onClick={() => void removeTier("field-id", gemmaClient.modelIds().tier1)}
+              >
+                <Trash2 size={20} aria-hidden /> Remove
+              </Button>
+            </>
+          }
         />
-      </TierCard>
-      <p className="text-base opacity-70" data-testid="tier2-manifest">
-        {manifestLine("deep-look")}
-      </p>
+        <p className="mono-label -mt-1 px-2 leading-relaxed text-ink-muted" data-testid="tier1-manifest">
+          {manifestLine("field-id")}
+        </p>
+
+        <TierCard
+          title="Tier 2 — Deep Look (≈3.3 GB)"
+          modelId={gemmaClient.modelIds().tier2}
+          meta="Gemma 4 E2B instruction-tuned · constrained-JSON feature verification · WebGPU only · never produces verdicts"
+          status={
+            deepLook.status === "loading" ? (
+              <DownloadProgress pct={deepLook.progressPct} currentFile={deepLook.currentFile} bytes={formatBytes(null)} eta="calculating…" />
+            ) : (
+              <TierStatus tier={deepLook} />
+            )
+          }
+          actions={
+            <>
+              <Button
+                variant="primary"
+                disabled={busy !== null || tier2Blocked || !tier2Confirmed}
+                onClick={() => void downloadTier2()}
+              >
+                <Download size={20} aria-hidden /> Download Tier 2
+              </Button>
+              <Button
+                variant="ghost"
+                disabled={busy !== null}
+                onClick={() => void removeTier("deep-look", gemmaClient.modelIds().tier2)}
+              >
+                <Trash2 size={20} aria-hidden /> Remove
+              </Button>
+            </>
+          }
+        >
+          <p className="mono-label mb-2 text-ink-faint">Capability gate</p>
+          <CapabilityGate onResult={setGate} />
+          <p className="mono-label mt-4 text-ink-faint">Confirm size</p>
+          <label htmlFor="tier2-confirm" className="mt-1 block text-base font-semibold">
+            Type “3.3 GB” to confirm you understand the download size:
+          </label>
+          <input
+            id="tier2-confirm"
+            value={tier2Confirm}
+            onChange={(e) => setTier2Confirm(e.target.value)}
+            placeholder="3.3 GB"
+            autoComplete="off"
+            className="well mt-2 block min-h-14 w-full rounded-tac px-3 font-mono text-lg text-ink placeholder:text-ink-faint"
+          />
+        </TierCard>
+        <p className="mono-label -mt-1 px-2 leading-relaxed text-ink-muted" data-testid="tier2-manifest">
+          {manifestLine("deep-look")}
+        </p>
+      </section>
 
       <QuotaInspector />
     </section>

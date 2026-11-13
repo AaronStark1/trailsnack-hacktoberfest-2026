@@ -1,7 +1,11 @@
 import type { ReactNode } from "react";
-import { Cpu } from "lucide-react";
-import Card from "../ui/Card.tsx";
+import { MemoryStick } from "lucide-react";
 
+/**
+ * Model tier housing: a header strip with the memory-module glyph, then a
+ * body holding the model id, meta line, a recessed status well, optional
+ * gate content and the action rack.
+ */
 export default function TierCard({
   title,
   modelId,
@@ -18,16 +22,21 @@ export default function TierCard({
   children?: ReactNode;
 }) {
   return (
-    <Card>
-      <div className="flex items-center gap-2">
-        <Cpu size={24} aria-hidden />
-        <h3 className="text-xl font-bold">{title}</h3>
+    <article className="tac-card overflow-hidden p-0">
+      <header className="flex items-center gap-3 border-b border-line bg-surface-2 px-4 py-3">
+        <span className="well flex size-11 shrink-0 items-center justify-center rounded-tac text-trail">
+          <MemoryStick size={22} aria-hidden />
+        </span>
+        <h3 className="min-w-0 text-xl font-extrabold leading-tight">{title}</h3>
+      </header>
+      <div className="p-4">
+        <p className="mono-label text-ink-faint">Model ID</p>
+        <p className="mt-1 font-mono text-sm break-all text-ink-muted">{modelId}</p>
+        <p className="mt-3 text-base">{meta}</p>
+        <div className="well mt-3 rounded-tac p-3">{status}</div>
+        {children && <div className="mt-3">{children}</div>}
+        <div className="mt-4 flex flex-wrap gap-2">{actions}</div>
       </div>
-      <p className="mt-1 font-mono text-base break-all">{modelId}</p>
-      <p className="text-base opacity-80">{meta}</p>
-      <div className="mt-2">{status}</div>
-      {children && <div className="mt-2">{children}</div>}
-      <div className="mt-3 flex flex-wrap gap-2">{actions}</div>
-    </Card>
+    </article>
   );
 }

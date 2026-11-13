@@ -35,6 +35,11 @@ export async function checkTier2Gate(): Promise<GateResult> {
   };
 }
 
+const ledTones = {
+  pass: "bg-edible-bg text-edible border-edible/40",
+  fail: "bg-danger-bg text-danger border-danger/50",
+} as const;
+
 export default function CapabilityGate({ onResult }: { onResult?: (g: GateResult) => void }) {
   const [gate, setGate] = useState<GateResult | null>(null);
   useEffect(() => {
@@ -44,7 +49,14 @@ export default function CapabilityGate({ onResult }: { onResult?: (g: GateResult
     });
   }, [onResult]);
 
-  if (!gate) return <p>Checking device capabilities…</p>;
+  if (!gate) {
+    return (
+      <p className="mono-label flex min-h-12 items-center gap-2 text-ink-muted">
+        <span aria-hidden className="size-2.5 shrink-0 rounded-full bg-trail-glow shadow-glow animate-breathe" />
+        Checking device capabilities…
+      </p>
+    );
+  }
   const rows: [string, string, boolean][] = [
     ["WebGPU available", gate.webgpu ? "yes" : "WebGPU unavailable", gate.webgpu],
     [
@@ -59,11 +71,18 @@ export default function CapabilityGate({ onResult }: { onResult?: (g: GateResult
     ],
   ];
   return (
-    <ul aria-label="Tier 2 capability checks" className="grid gap-1">
+    <ul aria-label="Tier 2 capability checks" className="grid">
       {rows.map(([label, value, ok]) => (
-        <li key={label} className="flex items-center gap-2">
-          <span aria-hidden>{ok ? "✓" : "✗"}</span>
-          <span>
+        <li key={label} className="flex min-h-12 items-center gap-3 border-b border-line py-2 last:border-0">
+          <span
+            className={`mono-label inline-flex h-7 shrink-0 items-center gap-1.5 rounded-tac-sm border px-2 ${
+              ok ? ledTones.pass : ledTones.fail
+            }`}
+          >
+            <span aria-hidden>{ok ? "✓" : "✗"}</span>
+            {ok ? "PASS" : "FAIL"}
+          </span>
+          <span className="min-w-0 text-base leading-snug">
             <strong>{label}:</strong> {value}
           </span>
         </li>

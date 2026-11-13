@@ -2,20 +2,39 @@ import type { ButtonHTMLAttributes, ReactNode } from "react";
 
 interface Props extends ButtonHTMLAttributes<HTMLButtonElement> {
   variant?: "primary" | "secondary" | "danger" | "ghost";
+  /** md = 56px (default), lg = 64px for the single most important action. */
+  size?: "md" | "lg";
   children: ReactNode;
 }
 
-export default function Button({ variant = "primary", children, className = "", ...rest }: Props) {
+const styles: Record<NonNullable<Props["variant"]>, string> = {
+  primary: "bg-trail text-on-trail bevel hover:bg-trail-dark border border-trail-dark/60",
+  secondary:
+    "bg-surface text-trail border-2 border-trail bevel-light hover:bg-surface-2 dark:border-trail",
+  danger: "bg-danger text-on-trail bevel border border-black/20",
+  ghost:
+    "bg-transparent text-ink underline decoration-2 underline-offset-4 decoration-line-strong hover:bg-surface-2 hover:decoration-ink",
+};
+
+const sizes: Record<NonNullable<Props["size"]>, string> = {
+  md: "min-h-14 px-5 text-lg",
+  lg: "min-h-16 px-6 text-xl",
+};
+
+export default function Button({
+  variant = "primary",
+  size = "md",
+  children,
+  className = "",
+  type = "button",
+  ...rest
+}: Props) {
   const base =
-    "inline-flex min-h-14 items-center justify-center gap-2 rounded-xl px-5 text-lg font-semibold transition-colors focus-visible:outline-3 focus-visible:outline-offset-2 disabled:opacity-50";
-  const styles: Record<string, string> = {
-    primary: "bg-(--color-trail) text-white hover:bg-(--color-trail-dark)",
-    secondary: "border-2 border-(--color-trail) text-(--color-trail)",
-    danger: "bg-(--color-danger) text-white",
-    ghost: "text-(--color-ink) underline",
-  };
+    "inline-flex items-center justify-center gap-2 rounded-tac font-bold tracking-tight select-none tac-press " +
+    "focus-visible:outline-3 focus-visible:outline-offset-2 " +
+    "disabled:cursor-not-allowed disabled:opacity-45 disabled:shadow-none disabled:active:transform-none";
   return (
-    <button className={`${base} ${styles[variant]} ${className}`} {...rest}>
+    <button type={type} className={`${base} ${sizes[size]} ${styles[variant]} ${className}`} {...rest}>
       {children}
     </button>
   );

@@ -1,9 +1,18 @@
 import type { ReactNode } from "react";
 
-export default function Card({ children, className = "" }: { children: ReactNode; className?: string }) {
-  return (
-    <div className={`rounded-2xl border border-black/10 bg-white/60 p-4 shadow-sm ${className}`}>
-      {children}
-    </div>
-  );
+interface Props {
+  children: ReactNode;
+  className?: string;
+  /** raised = default card; inset = recessed well; flat = hairline only. */
+  variant?: "raised" | "inset" | "flat";
+}
+
+const variants: Record<NonNullable<Props["variant"]>, string> = {
+  raised: "tac-card",
+  inset: "well rounded-tac-lg",
+  flat: "rounded-tac-lg border border-line bg-transparent",
+};
+
+export default function Card({ children, className = "", variant = "raised" }: Props) {
+  return <div className={`${variants[variant]} p-4 ${className}`}>{children}</div>;
 }

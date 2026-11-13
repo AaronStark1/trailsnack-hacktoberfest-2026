@@ -49,11 +49,22 @@ function Boot() {
   }, [load]);
 
   useEffect(() => {
-    document.body.classList.toggle("hc", highContrast);
-    document.body.classList.toggle("dark", darkMode);
+    // Mode classes go on <html> too so the overscroll/background outside <body>
+    // and the browser UI (theme-color) follow Night Camp / high-contrast mode.
+    for (const el of [document.documentElement, document.body]) {
+      el.classList.toggle("hc", highContrast);
+      el.classList.toggle("dark", darkMode);
+    }
+    const themeColor = document.querySelector<HTMLMetaElement>('meta[name="theme-color"]');
+    if (themeColor) themeColor.content = highContrast ? "#000000" : darkMode ? "#0b0b0a" : "#1a3826";
   }, [highContrast, darkMode]);
 
-  if (!loaded) return <p role="status" className="p-6 text-lg">Loading TrailSnack…</p>;
+  if (!loaded)
+    return (
+      <p role="status" className="mono-label p-6 text-ink-muted">
+        Booting TrailSnack…
+      </p>
+    );
   return <App />;
 }
 

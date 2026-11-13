@@ -1,17 +1,37 @@
-import { Wifi, WifiOff } from "lucide-react";
+import { Plane, Wifi } from "lucide-react";
+import Pill from "../ui/Pill.tsx";
 import { useOnlineStatus } from "../../lib/pwa.ts";
 
+/** Plain-language signal state for the telemetry rack's accessible name. */
+export function describeSignal(online: boolean): string {
+  return online ? "Online, link up" : "Offline, 0 bars";
+}
+
+/**
+ * Signal pill. Offline is the designed state for a field unit, so it reads
+ * as OK ("airplane ready"); online is merely neutral. Keeps the role="status"
+ * + aria-label "Online"/"Offline" contract.
+ */
 export default function OnlineBadge() {
   const online = useOnlineStatus();
   return (
     <span
-      className="inline-flex items-center gap-1 rounded-full border px-2 py-1 text-base"
       role="status"
       aria-label={online ? "Online" : "Offline"}
-      title={online ? "Online — setup downloads available" : "Offline — on-device identification still works after setup"}
+      className="inline-flex shrink-0 items-center"
     >
-      {online ? <Wifi size={18} aria-hidden /> : <WifiOff size={18} aria-hidden />}
-      {online ? "Online" : "Offline"}
+      <Pill
+        tone={online ? "neutral" : "ok"}
+        icon={online ? <Wifi /> : <Plane />}
+        title={
+          online
+            ? "Online — setup downloads available"
+            : "Offline — on-device identification still works after setup"
+        }
+      >
+        <span className="sm:hidden">{online ? "LINK" : "0 BARS"}</span>
+        <span className="hidden sm:inline">{online ? "LINK · ONLINE" : "0 BARS · AIRPLANE READY"}</span>
+      </Pill>
     </span>
   );
 }
