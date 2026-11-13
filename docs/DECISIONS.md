@@ -206,3 +206,14 @@ Format: ID · date · decision · rationale · alternatives rejected.
   Mid-session the author rewrote author emails, re-hashing all history, so
   every commit hash cited in Section 11 was refreshed to the rewritten
   values; content verified identical via diff. A2-8 required no change.
+- **D-027 · 2026-11-13 · India added as an emergency region; flora DB bumped to 2026.11.1.**
+  Rationale: the landing page already listed India's poison line, but the
+  bundled database had no India region, so the in-app emergency card could
+  never show it — a hiker there could only pick "Global" and was shown the
+  first region's numbers instead. `emergency.regions` now carries
+  `india` (NPIC AIIMS New Delhi 1800-116-117, emergency 112; number checked
+  against the AIIMS and NCDC pages cited in SOURCES.md) and the Welcome and
+  Settings pickers offer it. Species data is unchanged (still 81), so the
+  bump is a minor one; `flora-db.test.ts` pins the new version and asserts
+  the region. Species `regions` arrays do not mention India — the engine
+  uses a region only to choose emergency numbers.

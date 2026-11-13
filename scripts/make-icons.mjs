@@ -5,11 +5,25 @@ mkdirSync(dir, { recursive: true });
 const toPath = (n) => new URL(`../public/icons/${n}`, import.meta.url).pathname;
 
 const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
-<rect width="512" height="512" rx="116" fill="#1E5A3A"/>
-<path d="M256 84c-84 52-128 122-128 202 0 26 6 52 18 74 60-8 150-46 196-132 16-30 22-62 22-94 44 8 80 32 104 68-8-48-40-92-92-118-36-18-80-22-120 0z" fill="#FAFAF6"/>
-<path d="M148 330c40 58 110 98 190 98 30 0 58-6 82-16-24 4- gap" fill="none"/>
-<path d="M170 372c44 22 96 30 146 22" stroke="#FAFAF6" stroke-width="18" stroke-linecap="round" fill="none"/>
-<path d="M256 250l34 70 76 11-55 54 13 76-68-36-68 36 13-76-55-54 76-11z" fill="#FFE7A8"/>
+<defs>
+<radialGradient id="g" cx="0.22" cy="0.1" r="1">
+<stop offset="0" stop-color="#1d4d33"/>
+<stop offset="0.55" stop-color="#0d1712"/>
+<stop offset="1" stop-color="#070d09"/>
+</radialGradient>
+</defs>
+<rect width="512" height="512" fill="url(#g)"/>
+<g transform="translate(96 88) scale(10)" fill="none" stroke="#f5efe2" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+<path d="M7 29c.6-8 4.6-14.6 13-19"/>
+<path d="M20 10c-.4-4.2 2.8-7.6 8.500-7.500.3 5.400-3 8.700-8.500 7.500Z"/>
+<path d="M11.600 18.200c-4.300.6-7.600-2-8.300-6.700 4.700-.5 7.900 2.200 8.300 6.700Z"/>
+<path d="M14.200 14.600c1.900.2 3.300 1 4.200 2.300M10.300 21.400c1.600.3 2.800 1 3.600 2M20.500 21.300l1.700 1.800" stroke-width="1.2"/>
+<g stroke="none" fill="#e59a34">
+<circle cx="20.300" cy="19.200" r="3.300"/>
+<circle cx="15.600" cy="25.200" r="3"/>
+<circle cx="24" cy="25.400" r="2.700"/>
+</g>
+</g>
 </svg>`;
 
 writeFileSync(toPath("favicon.svg"), svg);

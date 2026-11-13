@@ -40,7 +40,7 @@ The Blueprint sets these behaviours automatically:
 | `Cross-Origin-Opener-Policy: same-origin` and `Cross-Origin-Embedder-Policy: require-corp` on every path | Enables cross-origin isolation, which the browser requires for `SharedArrayBuffer`. Without it, multi-threaded WASM and WebGPU inference do not work and the model runs single-threaded or fails. |
 | `Cache-Control: no-cache` on `/sw.js` | The service worker must be re-checked on every visit, or users never receive updates. |
 | `Cache-Control: public, max-age=31536000, immutable` on `/ort/*` and `/assets/*` | The runtime binaries and hashed bundles never change at the same URL, so browsers can keep them for a year. |
-| Rewrite `/*` to `/index.html` | Deep links such as `/assess/abc` or `/models` load the app instead of a 404. |
+| Rewrite `/*` to `/app.html` | Deep links such as `/assess/abc` or `/models` load the app shell instead of a 404. `/` itself is a real file (`index.html`, the landing page), and Render serves real files before applying rewrites. |
 | `pullRequestPreviewsEnabled: true` | Every pull request gets its own preview URL. |
 
 ## Deploy manually (if you prefer the dashboard)
@@ -49,7 +49,7 @@ If you do not want to use the Blueprint, you can recreate the same configuration
 
 1. **New + → Static Site**, pick the repository.
 2. Build command: `npm ci && npm run build`. Publish directory: `dist`.
-3. Under **Redirects/Rewrites** add one rule: source `/*`, destination `/index.html`, action **Rewrite**.
+3. Under **Redirects/Rewrites** add one rule: source `/*`, destination `/app.html`, action **Rewrite**.
 4. Under **Headers** add five rules, one per row of the table above. Path patterns are `/*`, `/*`, `/sw.js`, `/ort/*`, `/assets/*`.
 5. Save and deploy.
 
@@ -105,7 +105,7 @@ In the service page open **Settings → Custom Domains**, add your domain, and c
 | `crossOriginIsolated` is `false` | COOP/COEP headers missing | Confirm both `/*` header rules exist in Render. If you deployed manually, the Blueprint route is the quickest fix. |
 | Console shows `SharedArrayBuffer is not defined` | Same as above | Same as above. |
 | Requests to `cdn.jsdelivr.net` appear | The `wasmPaths` override did not apply, usually because `public/ort/` was empty at build time | The `prebuild` script copies the binaries; confirm `dist/ort/` is non-empty in the build log. |
-| Deep links return the Render 404 page | Rewrite rule missing | Add the `/*` → `/index.html` rewrite. |
+| Deep links return the Render 404 page | Rewrite rule missing | Add the `/*` → `/app.html` rewrite. |
 | App never updates after a deploy | Service worker cached | Confirm `/sw.js` has `Cache-Control: no-cache`, then see the update-prompt note above. |
 | Model download restarts from zero | Browser evicted the cache | Ask the user to install the app and grant persistent storage from the Models screen. On iOS, only an installed app is protected from eviction. |
 | Second scan hangs | Worker bug fixed in commit 6667e31 | Make sure the deployed build includes that commit or later. |

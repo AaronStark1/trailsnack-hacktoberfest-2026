@@ -1,24 +1,694 @@
 <!doctype html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/icons/favicon.svg" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-    <meta name="theme-color" content="#1E5A3A" />
-    <meta name="description" content="TrailSnack — offline-first trail companion. Identify wild berries, plants and mushrooms with on-device Gemma AI and a deterministic safety database." />
-    <meta name="mobile-web-app-capable" content="yes" />
-    <meta name="apple-mobile-web-app-capable" content="yes" />
-    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
-    <meta name="apple-mobile-web-app-title" content="TrailSnack" />
-    <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png" />
-    <title>TrailSnack — Offline Trail Forager</title>
-  </head>
-  <body>
-    <div id="root"></div>
-    <noscript>
-      TrailSnack needs JavaScript to run on-device identification. Please enable
-      JavaScript and reload. The safety reference database requires the app shell.
-    </noscript>
-    <script type="module" src="/src/main.tsx"></script>
-  </body>
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<meta name="theme-color" content="#060b08" />
+<meta name="color-scheme" content="dark" />
+<meta name="description" content="TrailSnack — the offline trail companion that never says “eat this.” On-device Gemma AI, a deterministic safety engine, and regional poison-control hotlines." />
+<title>TrailSnack — Wild, not reckless.</title>
+
+<link rel="icon" type="image/svg+xml" href="/icons/favicon.svg" />
+<link rel="apple-touch-icon" href="/icons/apple-touch-icon.png" />
+
+<style>
+/* ------------------------------------------------------------------ */
+/* Typefaces — the same locally bundled files the app uses (SIL OFL).  */
+/* No font CDN: this page is the front door of an offline-first PWA.   */
+/* ------------------------------------------------------------------ */
+@font-face {
+  font-family: "Antonio"; font-style: normal; font-weight: 400; font-display: swap;
+  src: url("./src/assets/fonts/antonio-latin-400-normal.woff2") format("woff2");
+}
+@font-face {
+  font-family: "Manrope"; font-style: normal; font-weight: 200 800; font-display: swap;
+  src: url("./src/assets/fonts/manrope-latin-wght-normal.woff2") format("woff2-variations");
+}
+@font-face {
+  font-family: "JetBrains Mono"; font-style: normal; font-weight: 100 800; font-display: swap;
+  src: url("./src/assets/fonts/jetbrains-mono-latin-wght-normal.woff2") format("woff2-variations");
+}
+
+/* ------------------------------------------------------------------ */
+/* Tokens                                                              */
+/* ------------------------------------------------------------------ */
+:root {
+  /* Fluid unit: 1u = 1px on a 1600 × 900 stage. Body text and touch targets
+     carry pixel floors so a small window never shrinks them out of reach. */
+  --u: min(calc(100vw / 1600), calc(100vh / 900));
+
+  --bg: #060b08;        /* pitch forest */
+  --cream: #f5efe2;     /* spore cream */
+  --muted: #8c9990;     /* herbal lichen */
+  --amber: #e59a34;     /* cloudberry */
+  --crimson: #d9383a;   /* cranberry */
+  --crimson-ink: #ff7b74;
+  --spruce: #2fe68b;
+  --violet: #7a4db8;
+  --violet-ink: #b99cf0;
+  --moss: rgba(11, 19, 14, 0.78);  /* frosted moss: header, footer and cards, as in the app */
+  --line: rgba(245, 239, 226, 0.14);
+  --line-strong: rgba(245, 239, 226, 0.3);
+
+  --display: "Antonio", "Oswald", "Arial Narrow", Impact, sans-serif;
+  --sans: "Manrope", system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --mono: "JetBrains Mono", ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+
+  --ease: cubic-bezier(0.2, 0.8, 0.2, 1);
+  --spring: cubic-bezier(0.22, 1.2, 0.36, 1);
+}
+@media (max-width: 820px) {
+  :root { --u: 1px; }
+}
+
+/* ------------------------------------------------------------------ */
+/* Base                                                                */
+/* ------------------------------------------------------------------ */
+*, *::before, *::after { box-sizing: border-box; }
+html {
+  background: var(--bg);
+  color: var(--cream);
+  color-scheme: dark;
+  -webkit-text-size-adjust: 100%;
+  scroll-behavior: smooth;
+  scroll-padding-top: 88px;
+}
+body {
+  margin: 0;
+  min-height: 100vh;
+  font: 400 max(16px, calc(18 * var(--u))) / 1.6 var(--sans);
+  -webkit-font-smoothing: antialiased;
+  -webkit-tap-highlight-color: transparent;
+  overflow-x: hidden;
+  /* Static fallback for when WebGL never starts: still a twilight thicket. */
+  background:
+    radial-gradient(80% 55% at 14% -6%, rgba(29, 77, 51, 0.55), transparent 70%),
+    radial-gradient(55% 40% at 104% 6%, rgba(122, 77, 184, 0.28), transparent 72%),
+    radial-gradient(50% 38% at 92% 104%, rgba(229, 154, 52, 0.14), transparent 70%),
+    var(--bg);
+  background-attachment: fixed;
+}
+a { color: inherit; }
+h1, h2, h3, p { margin: 0; }
+:focus-visible { outline: 2px solid var(--amber); outline-offset: 4px; border-radius: 6px; }
+::selection { background: var(--amber); color: #1a1206; }
+
+.sr-only {
+  position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0;
+  overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0;
+}
+.skip {
+  position: fixed; top: 12px; left: 12px; z-index: 60; padding: 12px 20px; border-radius: 999px;
+  background: var(--amber); color: #1a1206; font-weight: 600; text-decoration: none;
+  transform: translateY(-200%);
+}
+.skip:focus-visible { transform: none; }
+
+/* The living backdrop: the same canvas rule is used by the app shell. */
+#thicket {
+  position: fixed; inset: 0; z-index: 0; width: 100%; height: 100%;
+  display: block; pointer-events: none; opacity: 1;
+}
+
+main, .site-header, .ambient, footer { position: relative; z-index: 1; }
+/* Shell container — identical in the app shell (AppShell.tsx, SiteFooter.tsx):
+   16px gutters on phones, 20px from 821px up, never wider than 1152px. */
+.wrap { width: min(100% - 32px, 1152px); margin-inline: auto; }
+@media (min-width: 821px) { .wrap { width: min(100% - 40px, 1152px); } }
+
+.mono {
+  font: 500 max(11px, calc(12 * var(--u))) / 1.3 var(--mono);
+  letter-spacing: 0.14em; text-transform: uppercase;
+}
+
+/* ------------------------------------------------------------------ */
+/* Header                                                              */
+/* ------------------------------------------------------------------ */
+/* Header metrics shared with the app shell: 64px tall (72px from 821px up),
+   32px emblem, 26px Antonio wordmark, one frosted-moss recipe. */
+.site-header {
+  position: fixed; inset: 0 0 auto 0; z-index: 30;
+  padding-top: env(safe-area-inset-top);
+  background: var(--moss);
+  -webkit-backdrop-filter: blur(14px) saturate(1.3);
+  backdrop-filter: blur(14px) saturate(1.3);
+  border-bottom: 1px solid var(--line);
+}
+.site-header .wrap { display: flex; align-items: center; gap: 16px; min-height: 64px; }
+@media (min-width: 821px) { .site-header .wrap { min-height: 72px; } }
+.brand { display: flex; align-items: center; gap: 10px; text-decoration: none; min-height: 48px; flex: none; }
+.brand svg { width: 32px; height: 32px; flex: none; }
+.brand-name { font: 400 26px / 1 var(--display); letter-spacing: 0.04em; text-transform: uppercase; }
+.badge {
+  display: inline-flex; align-items: center; gap: 8px; height: 26px; padding: 0 10px;
+  border: 1px solid var(--line-strong); border-radius: 999px;
+  color: var(--muted); white-space: nowrap;
+  font: 500 10px / 1 var(--mono); letter-spacing: 0.14em; text-transform: uppercase;
+}
+.badge::before {
+  content: ""; width: 6px; height: 6px; border-radius: 50%;
+  background: var(--spruce); box-shadow: 0 0 8px var(--spruce);
+}
+.nav { margin-left: auto; display: flex; align-items: center; gap: 4px; }
+.nav a.link, .foot-nav a {
+  display: inline-flex; align-items: center; min-height: 48px; padding: 0 14px; border-radius: 999px;
+  color: var(--muted); text-decoration: none;
+  font: 500 15px / 1 var(--sans);
+  transition: color 0.25s var(--ease);
+}
+.nav a.link:hover, .foot-nav a:hover { color: var(--cream); }
+.nav .pill { margin-left: 8px; }
+.pill {
+  display: inline-flex; align-items: center; justify-content: center; gap: 10px;
+  min-height: 48px; padding: 0 22px; border-radius: 999px;
+  background: var(--cream); color: #0b130e; text-decoration: none; white-space: nowrap;
+  font: 600 max(14px, calc(15 * var(--u))) / 1 var(--sans);
+  box-shadow: inset 0 -2px 0 rgba(0, 0, 0, 0.14), 0 10px 30px -14px rgba(245, 239, 226, 0.7);
+  transition: transform 0.2s var(--ease), background-color 0.25s var(--ease);
+}
+.pill:hover { background: #fff; }
+.pill:active { transform: scale(0.97); }
+.pill svg { width: 16px; height: 16px; }
+@media (max-width: 820px) {
+  .nav a.link, .badge { display: none; }
+}
+
+/* ------------------------------------------------------------------ */
+/* Hero                                                                */
+/* ------------------------------------------------------------------ */
+.hero {
+  position: relative; min-height: 100vh; min-height: 100svh;
+  display: grid; place-items: center; text-align: center;
+  padding: max(96px, calc(120 * var(--u))) 20px max(110px, calc(120 * var(--u)));
+}
+/* Soft scrim so the headline holds over bright fruit. */
+.hero::before {
+  content: ""; position: absolute; inset: 0; pointer-events: none;
+  background: radial-gradient(60% 46% at 50% 50%, rgba(6, 11, 8, 0.62), transparent 72%);
+}
+.hero-inner { position: relative; display: grid; justify-items: center; gap: max(22px, calc(30 * var(--u))); }
+.hero .mono { color: var(--amber); display: inline-flex; align-items: center; gap: 12px; }
+.hero .mono::before, .hero .mono::after { content: ""; width: 26px; height: 1px; background: currentColor; opacity: 0.7; }
+h1 {
+  font: 400 calc(158 * var(--u)) / 0.92 var(--display);
+  letter-spacing: -0.012em;
+  text-wrap: balance;
+  text-shadow: 0 2px 40px rgba(6, 11, 8, 0.8);
+}
+.caption {
+  max-width: 36em; color: var(--cream); text-wrap: balance;
+  font-size: max(17px, calc(21 * var(--u))); line-height: 1.5;
+  text-shadow: 0 1px 18px rgba(6, 11, 8, 0.9);
+}
+.caption span { display: block; color: var(--muted); }
+.caption strong { color: var(--cream); font-weight: 600; }
+
+/* Round invitation down into the story. */
+.cta {
+  position: relative; display: grid; place-items: center; overflow: hidden;
+  width: max(56px, calc(58 * var(--u))); height: max(56px, calc(58 * var(--u)));
+  margin-top: max(6px, calc(10 * var(--u)));
+  border: 1px solid var(--cream); border-radius: 50%;
+  color: var(--cream); text-decoration: none;
+  transition: color 0.35s var(--ease), transform 0.2s var(--ease), box-shadow 0.4s var(--ease);
+}
+.cta::before {
+  content: ""; position: absolute; inset: -1px; border-radius: 50%; background: var(--cream);
+  transform: translateY(101%); transition: transform 0.45s var(--spring);
+}
+.cta svg { position: relative; width: 22px; height: 22px; transition: transform 0.45s var(--spring); }
+.cta:hover, .cta:focus-visible, .cta.is-held { color: #0b130e; box-shadow: 0 0 34px -6px rgba(245, 239, 226, 0.75); }
+.cta:hover::before, .cta:focus-visible::before, .cta.is-held::before { transform: none; }
+.cta:hover svg, .cta:focus-visible svg, .cta.is-held svg { transform: translateY(3px); }
+.cta:active { transform: scale(0.94); }
+
+/* ------------------------------------------------------------------ */
+/* Sections and cards                                                  */
+/* ------------------------------------------------------------------ */
+section.block { padding: max(56px, calc(110 * var(--u))) 0; }
+.block-head { display: grid; gap: 14px; margin-bottom: max(26px, calc(44 * var(--u))); max-width: 46em; }
+.block-head .mono { color: var(--amber); display: flex; align-items: center; gap: 12px; }
+.block-head .mono::before { content: ""; width: 26px; height: 1px; background: currentColor; opacity: 0.7; }
+h2 {
+  font: 400 max(38px, calc(72 * var(--u))) / 0.96 var(--display);
+  letter-spacing: -0.012em; text-wrap: balance;
+}
+/* Section intros sit directly on the thicket: lift them off bright fruit. */
+.block-head { text-shadow: 0 1px 22px rgba(6, 11, 8, 0.95), 0 0 6px rgba(6, 11, 8, 0.8); }
+.block-head p { color: rgba(245, 239, 226, 0.82); }
+
+.card {
+  position: relative;
+  padding: max(22px, calc(34 * var(--u)));
+  border: 1px solid var(--line); border-radius: max(18px, calc(24 * var(--u)));
+  background: var(--moss);
+  -webkit-backdrop-filter: blur(12px) saturate(1.25);
+  backdrop-filter: blur(12px) saturate(1.25);
+  box-shadow: inset 0 1px 0 rgba(245, 239, 226, 0.06), 0 30px 60px -36px rgba(0, 0, 0, 0.9);
+  transition: transform 0.5s var(--spring), border-color 0.4s var(--ease), box-shadow 0.5s var(--ease);
+}
+.card:hover, .card.is-centered {
+  transform: translateY(-4px);
+  border-color: var(--line-strong);
+  box-shadow: inset 0 1px 0 rgba(245, 239, 226, 0.1), 0 34px 70px -34px rgba(0, 0, 0, 0.95),
+    0 0 44px -18px rgba(229, 154, 52, 0.45);
+}
+
+/* Covenant */
+.covenant {
+  overflow: hidden;
+  border-color: rgba(229, 154, 52, 0.55);
+  padding: 0;
+}
+.covenant:hover, .covenant.is-centered { border-color: var(--amber); }
+/* Hazard rim: a row of bramble thorns in amber. */
+.covenant .rim {
+  height: 9px; background: var(--amber);
+  -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='18' height='9'%3E%3Cpath d='M0 0h18L9 9z'/%3E%3C/svg%3E") repeat-x;
+  mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='18' height='9'%3E%3Cpath d='M0 0h18L9 9z'/%3E%3C/svg%3E") repeat-x;
+}
+.covenant .body {
+  display: grid; gap: max(18px, calc(26 * var(--u)));
+  padding: max(24px, calc(48 * var(--u))) max(22px, calc(52 * var(--u))) max(26px, calc(52 * var(--u)));
+}
+.covenant .mono { color: var(--amber); }
+.covenant h3 {
+  font: 400 max(32px, calc(60 * var(--u))) / 1 var(--display);
+  letter-spacing: -0.012em; text-wrap: balance; max-width: 20em;
+}
+.covenant h3 b { font-weight: 400; color: var(--amber); }
+.covenant p { max-width: 44em; color: var(--muted); }
+.covenant p strong { color: var(--cream); font-weight: 600; }
+.rules { display: flex; flex-wrap: wrap; gap: 10px; padding: 0; margin: 0; list-style: none; }
+.rules li {
+  display: inline-flex; align-items: center; gap: 8px; min-height: 34px; padding: 0 14px;
+  border: 1px solid var(--line-strong); border-radius: 999px; color: var(--cream);
+  font: 500 11px / 1 var(--mono); letter-spacing: 0.12em; text-transform: uppercase;
+}
+.rules li::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: var(--amber); }
+
+/* Steps */
+.steps { display: grid; gap: max(16px, calc(22 * var(--u))); grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.step { display: grid; align-content: start; gap: 14px; }
+.step .glyph {
+  display: grid; place-items: center; width: 56px; height: 56px; border-radius: 50%;
+  border: 1px solid var(--line-strong); color: var(--amber); background: rgba(6, 11, 8, 0.5);
+}
+.step .glyph svg { width: 26px; height: 26px; }
+.step .mono { color: var(--amber); }
+.step h3 { font: 400 max(28px, calc(36 * var(--u))) / 1.02 var(--display); letter-spacing: -0.008em; }
+.step h3 small { display: block; margin-top: 8px; color: var(--muted); font: 500 11px / 1.3 var(--mono); letter-spacing: 0.14em; text-transform: uppercase; }
+.step p { color: var(--muted); font-size: max(15px, calc(16.5 * var(--u))); }
+.step p strong { color: var(--cream); font-weight: 600; }
+.step .tags { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 6px; padding-top: 16px; border-top: 1px solid var(--line); }
+.step .tags span {
+  padding: 6px 9px; border-radius: 999px; border: 1px solid var(--line); color: var(--muted);
+  font: 500 10px / 1 var(--mono); letter-spacing: 0.12em; text-transform: uppercase;
+}
+.step.tier2 .glyph, .step.tier2 .mono { color: var(--violet-ink); }
+.step.verify .glyph, .step.verify .mono { color: var(--crimson-ink); }
+
+/* Hotlines */
+.hotlines { display: grid; gap: max(16px, calc(22 * var(--u))); grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.hotline { display: grid; align-content: start; gap: 14px; }
+.hotline header { display: flex; align-items: center; gap: 14px; }
+.hotline .flag { font-size: 30px; line-height: 1; }
+.hotline h3 { font: 400 max(26px, calc(34 * var(--u))) / 1 var(--display); letter-spacing: -0.008em; }
+.hotline .service { color: var(--muted); font-size: max(14px, calc(15.5 * var(--u))); }
+.tel {
+  display: flex; align-items: center; gap: 12px; min-height: 56px; padding: 8px 20px; border-radius: 999px;
+  background: var(--crimson); color: #fff; text-decoration: none;
+  font: 500 max(17px, calc(20 * var(--u))) / 1.2 var(--mono); letter-spacing: 0.02em;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.25);
+  transition: transform 0.2s var(--ease), filter 0.25s var(--ease);
+}
+.tel:hover { filter: brightness(1.1); }
+.tel:active { transform: scale(0.98); }
+.tel svg { width: 20px; height: 20px; flex: none; }
+.tel small { display: block; font: 500 10px / 1.2 var(--mono); letter-spacing: 0.14em; text-transform: uppercase; opacity: 0.85; margin-bottom: 3px; }
+.tel.alt { background: rgba(6, 11, 8, 0.5); color: var(--crimson-ink); border: 1px solid rgba(217, 56, 58, 0.7); box-shadow: none; }
+.tel-row { display: grid; gap: 10px; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); }
+.hotline .note { color: var(--muted); font-size: 14px; line-height: 1.45; }
+.hotline.featured { border-color: rgba(229, 154, 52, 0.5); }
+.hotline.featured::before {
+  content: "Featured region"; position: absolute; top: 16px; right: 18px; color: var(--amber);
+  font: 500 10px / 1 var(--mono); letter-spacing: 0.14em; text-transform: uppercase;
+}
+.disclaimer { margin-top: max(18px, calc(26 * var(--u))); color: var(--muted); font-size: 14px; max-width: 60em; }
+
+@media (max-width: 820px) {
+  h1 { font-size: clamp(58px, 17vw, 96px); }
+  .hero .mono { white-space: nowrap; letter-spacing: 0.1em; }
+  .hero .mono::before, .hero .mono::after { display: none; }
+  .steps, .hotlines { grid-template-columns: 1fr; }
+  .hotline.featured::before { position: static; }
+}
+
+/* Closing call */
+.closing { text-align: center; display: grid; justify-items: center; gap: 22px; }
+.closing h2 { max-width: 14em; }
+.closing p { color: var(--muted); max-width: 34em; }
+.pill.lg { min-height: 60px; padding: 0 30px; font-size: max(16px, calc(18 * var(--u))); }
+
+/* Footer — the same layout and metrics as the app shell's footer. */
+footer {
+  border-top: 1px solid var(--line); color: var(--muted);
+  background: var(--moss);
+  -webkit-backdrop-filter: blur(14px) saturate(1.3);
+  backdrop-filter: blur(14px) saturate(1.3);
+  padding-bottom: calc(96px + env(safe-area-inset-bottom));   /* clears the sound control */
+}
+footer .wrap { display: grid; gap: 24px; padding-block: 32px 0; }
+.foot-about p { margin-top: 12px; max-width: 30em; font-size: 13.5px; line-height: 1.5; }
+.foot-nav { display: flex; flex-wrap: wrap; margin-inline: -14px; }
+.foot-base {
+  display: flex; flex-wrap: wrap; justify-content: space-between; gap: 8px 24px;
+  padding-top: 16px; border-top: 1px solid var(--line);
+}
+@media (min-width: 821px) {
+  footer .wrap { grid-template-columns: minmax(0, 1fr) auto; align-items: start; }
+  .foot-nav { margin-inline: 0; justify-content: flex-end; }
+  .foot-base { grid-column: 1 / -1; }
+}
+
+/* ------------------------------------------------------------------ */
+/* Ambient control                                                     */
+/* ------------------------------------------------------------------ */
+.ambient {
+  position: fixed; z-index: 25;
+  right: max(18px, calc(40 * var(--u))); bottom: max(18px, calc(36 * var(--u)));
+  display: flex; align-items: center; gap: 14px; padding: 4px 4px 4px 18px;
+  border: 1px solid var(--line); border-radius: 999px;
+  background: rgba(6, 11, 8, 0.6);
+  -webkit-backdrop-filter: blur(12px); backdrop-filter: blur(12px);
+}
+.ambient { transition: padding 0.45s var(--ease), gap 0.45s var(--ease); }
+.ambient .mono {
+  color: var(--cream); white-space: nowrap; overflow: hidden; max-width: 14em;
+  transition: max-width 0.45s var(--ease), opacity 0.3s var(--ease);
+}
+.ambient .rule { width: 1px; height: 22px; background: var(--cream); opacity: 0.55; transition: opacity 0.3s var(--ease); }
+/* Once the walk has begun the hint steps aside so it never sits on the content. */
+.ambient.is-walking { padding-left: 4px; gap: 0; }
+.ambient.is-walking .mono { max-width: 0; opacity: 0; }
+.ambient.is-walking .rule { width: 0; opacity: 0; }
+.sound {
+  display: grid; place-items: center; width: 48px; height: 48px; padding: 0;
+  border: 0; border-radius: 50%; background: transparent; color: var(--cream); cursor: pointer;
+  transition: background-color 0.25s var(--ease), color 0.25s var(--ease);
+}
+.sound:hover { background: rgba(245, 239, 226, 0.1); }
+.sound svg { width: 24px; height: 24px; overflow: visible; }
+.sound .wave { opacity: 0; transform-origin: 13px 12px; }
+.sound .mute { transition: opacity 0.25s var(--ease); }
+.sound[aria-pressed="true"] { color: var(--amber); }
+.sound[aria-pressed="true"] .mute { opacity: 0; }
+.sound[aria-pressed="true"] .wave { animation: wave 1.8s ease-in-out infinite; }
+.sound[aria-pressed="true"] .wave.w2 { animation-delay: 0.28s; }
+@keyframes wave {
+  0%, 100% { opacity: 0.25; transform: scale(0.9); }
+  50% { opacity: 1; transform: scale(1.06); }
+}
+@media (max-width: 820px) {
+  .ambient {
+    right: auto; left: 50%; transform: translateX(-50%);
+    bottom: max(14px, env(safe-area-inset-bottom));
+  }
+}
+
+/* ------------------------------------------------------------------ */
+/* Touch: nothing waits for a hover that will never come               */
+/* ------------------------------------------------------------------ */
+@media (hover: none) {
+  /* Perpetual, quiet light on the invitation and on every card rim. */
+  .cta { animation: cta-shimmer 3.4s ease-in-out infinite; }
+  .card::after {
+    content: ""; position: absolute; inset: -1px; border-radius: inherit; padding: 1px; pointer-events: none;
+    background: linear-gradient(115deg, transparent 32%, rgba(245, 239, 226, 0.55) 50%, transparent 68%) 0 0 / 280% 100%;
+    -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+    -webkit-mask-composite: xor;
+    mask: linear-gradient(#000 0 0) content-box exclude, linear-gradient(#000 0 0);
+    animation: rim-sweep 7s linear infinite;
+  }
+  .steps .card:nth-child(2)::after, .hotlines .card:nth-child(2)::after { animation-delay: -2.3s; }
+  .steps .card:nth-child(3)::after, .hotlines .card:nth-child(3)::after { animation-delay: -4.6s; }
+  .card:hover { transform: none; }
+  .card.is-centered { transform: translateY(-4px); }
+}
+@keyframes cta-shimmer {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(245, 239, 226, 0), 0 0 18px -8px rgba(245, 239, 226, 0.5); }
+  50% { box-shadow: 0 0 0 9px rgba(245, 239, 226, 0.07), 0 0 30px -6px rgba(245, 239, 226, 0.75); }
+}
+@keyframes rim-sweep {
+  from { background-position: 140% 0; }
+  to { background-position: -140% 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  *, *::before, *::after { animation: none !important; transition-duration: 0.001ms !important; }
+}
+</style>
+</head>
+
+<body>
+<a class="skip" href="#covenant">Skip to content</a>
+<canvas id="thicket" aria-hidden="true"></canvas>
+
+<header class="site-header" id="top">
+  <div class="wrap">
+    <a class="brand" href="#top" aria-label="TrailSnack — back to top">
+      <svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M7 29c.6-8 4.6-14.6 13-19" />
+        <path d="M20 10c-.4-4.2 2.800-7.600 8.500-7.500.3 5.400-3 8.700-8.500 7.500Z" />
+        <path d="M11.600 18.200c-4.300.6-7.600-2-8.300-6.700 4.700-.5 7.900 2.200 8.300 6.700Z" />
+        <path d="M14.200 14.600c1.900.2 3.300 1 4.200 2.300M10.300 21.400c1.600.3 2.800 1 3.600 2M20.500 21.300l1.700 1.800" stroke-width="1.2" />
+        <g stroke="none" fill="#e59a34"><circle cx="20.300" cy="19.200" r="3.300" /><circle cx="15.600" cy="25.200" r="3" /><circle cx="24" cy="25.400" r="2.700" /></g>
+      </svg>
+      <span class="brand-name">TrailSnack</span>
+    </a>
+    <span class="badge">OFFLINE · ON-DEVICE GEMMA</span>
+    <nav class="nav" aria-label="Primary">
+      <a class="link" href="#covenant">Covenant</a>
+      <a class="link" href="#how">How It Works</a>
+      <a class="link" href="#hotlines">Hotlines</a>
+      <!-- The scanner is the TrailSnack app: every path except "/" is served by app.html. -->
+      <a class="pill" href="/scan" data-transition>Launch Scanner</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <!-- A · Hero -->
+  <section class="hero" aria-labelledby="hero-h">
+    <div class="hero-inner">
+      <p class="mono">Offline wild foraging companion</p>
+      <h1 id="hero-h">Wild, not reckless.</h1>
+      <p class="caption">
+        Point your phone at a wild berry, fruit, or mushroom with zero bars of signal.
+        <span>The offline trail companion that <strong>never says “eat this.”</strong></span>
+      </p>
+      <a class="cta" href="#covenant" aria-label="Read the safety covenant" data-transition>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M12 4v16M5.500 13.500 12 20l6.500-6.500" />
+        </svg>
+      </a>
+    </div>
+  </section>
+
+  <!-- B · The Safety Covenant -->
+  <section class="block" id="covenant" aria-labelledby="covenant-h">
+    <div class="wrap">
+      <div class="block-head">
+        <p class="mono">The safety covenant</p>
+        <h2 id="covenant-h">Why it exists.</h2>
+      </div>
+      <article class="card covenant" data-transition>
+        <div class="rim" aria-hidden="true"></div>
+        <div class="body">
+          <p class="mono">Read before use</p>
+          <h3>“The default answer is always: <b>Unidentified — do not ingest.</b>”</h3>
+          <p>
+            TrailSnack is an <strong>educational reference, not a permission slip.</strong> The app never declares
+            any wild find safe. On-device AI only ranks your photo against a bundled database; a deterministic
+            safety engine then applies worst-case rules, where <strong>toxic lookalikes always win.</strong>
+            Confirm everything with a qualified local expert before touching or tasting anything wild.
+          </p>
+          <ul class="rules" aria-label="Engine rules">
+            <li>Worst case wins</li>
+            <li>No app confirms mushrooms</li>
+            <li>AI can only lower a verdict</li>
+          </ul>
+        </div>
+      </article>
+    </div>
+  </section>
+
+  <!-- C · Three steps -->
+  <section class="block" id="how" aria-labelledby="how-h">
+    <div class="wrap">
+      <div class="block-head">
+        <p class="mono">How it works</p>
+        <h2 id="how-h">Three steps, zero signal.</h2>
+      </div>
+      <div class="steps">
+        <article class="card step" data-transition>
+          <span class="glyph" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M3 8V5a2 2 0 0 1 2-2h3M16 3h3a2 2 0 0 1 2 2v3M21 16v3a2 2 0 0 1-2 2h-3M8 21H5a2 2 0 0 1-2-2v-3" /><circle cx="12" cy="12" r="3.500" /></svg>
+          </span>
+          <p class="mono">01 · Capture</p>
+          <h3>Frame &amp; Capture <small>Zero signal</small></h3>
+          <p>Point your trail camera at a berry cluster, unfamiliar fruit, or leaf. Runs <strong>100% offline</strong> in airplane mode.</p>
+          <div class="tags"><span>Airplane mode</span><span>1:1 · 1024 px</span></div>
+        </article>
+
+        <article class="card step tier2" data-transition>
+          <span class="glyph" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="6" width="12" height="12" rx="2" /><path d="M9 2v4M15 2v4M9 18v4M15 18v4M2 9h4M2 15h4M18 9h4M18 15h4" /><circle cx="10" cy="10.500" r=".9" fill="currentColor" /><circle cx="14" cy="13.500" r=".9" fill="currentColor" /><circle cx="10.500" cy="14" r=".9" fill="currentColor" /></svg>
+          </span>
+          <p class="mono">02 · Identify</p>
+          <h3>On-Device Gemma AI <small>Nothing leaves the phone</small></h3>
+          <p>EmbeddingGemma 2 runs locally in your browser via WebGPU or WASM, projecting photos into a <strong>768-d embedding space</strong> matched against a bundled <strong>81-species safety database.</strong></p>
+          <div class="tags"><span>WebGPU / WASM</span><span>768-d</span><span>81 species</span></div>
+        </article>
+
+        <article class="card step verify" data-transition>
+          <span class="glyph" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20c0-9 5-15 16-16-1 11-7 16-16 16Z" /><path d="M4 20 13 11" /><path d="m14.500 17.500 2 2 4-4.500" /></svg>
+          </span>
+          <p class="mono">03 · Verify</p>
+          <h3>Verify in the Field <small>Lookalikes first</small></h3>
+          <p>The app surfaces <strong>hazardous lookalikes first</strong>, provides a tap-to-tick physical checklist (stem, vein pattern, cluster structure), and keeps emergency hotlines available offline.</p>
+          <div class="tags"><span>Checklist</span><span>Lookalikes</span><span>Hotlines</span></div>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <!-- D · Regional safety matrix -->
+  <section class="block" id="hotlines" aria-labelledby="hotlines-h">
+    <div class="wrap">
+      <div class="block-head">
+        <p class="mono">Regional safety matrix</p>
+        <h2 id="hotlines-h">If something was eaten.</h2>
+        <p>Direct access to regional poison control centres. Every number is a tap-to-call link.</p>
+      </div>
+      <div class="hotlines">
+        <article class="card hotline featured" data-transition>
+          <header><span class="flag" aria-hidden="true">🇮🇳</span><h3>India</h3></header>
+          <p class="service">National Poisons Information Centre — AIIMS, New Delhi</p>
+          <a class="tel" href="tel:1800116117">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 16.900v3a2 2 0 0 1-2.200 2 19.800 19.800 0 0 1-8.600-3.100 19.500 19.500 0 0 1-6-6A19.800 19.800 0 0 1 2.100 4.200 2 2 0 0 1 4.100 2h3a2 2 0 0 1 2 1.700c.1 1 .4 1.900.7 2.800a2 2 0 0 1-.5 2.100L8.100 9.900a16 16 0 0 0 6 6l1.300-1.300a2 2 0 0 1 2.100-.4c.9.300 1.800.6 2.800.7a2 2 0 0 1 1.700 2Z" /></svg>
+            <span><small>Poison control · toll-free</small>1800-116-117</span>
+          </a>
+          <div class="tel-row">
+            <a class="tel alt" href="tel:112"><span><small>Emergency</small>112</span></a>
+            <a class="tel alt" href="tel:108"><span><small>Ambulance</small>108</span></a>
+          </div>
+        </article>
+
+        <article class="card hotline" data-transition>
+          <header><span class="flag" aria-hidden="true">🇺🇸</span><h3>North America</h3></header>
+          <p class="service">Poison Help (United States)</p>
+          <a class="tel" href="tel:18002221222">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 16.900v3a2 2 0 0 1-2.200 2 19.800 19.800 0 0 1-8.600-3.100 19.500 19.500 0 0 1-6-6A19.800 19.800 0 0 1 2.100 4.200 2 2 0 0 1 4.100 2h3a2 2 0 0 1 2 1.700c.1 1 .4 1.900.7 2.800a2 2 0 0 1-.5 2.100L8.100 9.900a16 16 0 0 0 6 6l1.300-1.300a2 2 0 0 1 2.100-.4c.9.300 1.800.6 2.800.7a2 2 0 0 1 1.700 2Z" /></svg>
+            <span><small>Poison control</small>1-800-222-1222</span>
+          </a>
+          <div class="tel-row">
+            <a class="tel alt" href="tel:911"><span><small>Emergency</small>911</span></a>
+          </div>
+          <p class="note">Canadian provinces use regional poison centres.</p>
+        </article>
+
+        <article class="card hotline" data-transition>
+          <header><span class="flag" aria-hidden="true">🇬🇧</span><h3>UK &amp; Ireland</h3></header>
+          <p class="service">NHS 111 (UK) · National Poisons Information Centre (Ireland)</p>
+          <div class="tel-row">
+            <a class="tel" href="tel:111"><span><small>NHS · UK</small>111</span></a>
+            <a class="tel" href="tel:018092166"><span><small>Poisons line · IE</small>01 809 2166</span></a>
+          </div>
+          <div class="tel-row">
+            <a class="tel alt" href="tel:999"><span><small>Emergency</small>999</span></a>
+            <a class="tel alt" href="tel:112"><span><small>Emergency</small>112</span></a>
+          </div>
+        </article>
+
+        <article class="card hotline" data-transition>
+          <header><span class="flag" aria-hidden="true">🇪🇺</span><h3>Europe &amp; AU / NZ</h3></header>
+          <p class="service">National poison centres vary by country — dial the local emergency number.</p>
+          <div class="tel-row">
+            <a class="tel alt" href="tel:112"><span><small>Emergency · Europe</small>112</span></a>
+            <a class="tel alt" href="tel:000"><span><small>Emergency · Australia</small>000</span></a>
+          </div>
+          <div class="tel-row">
+            <a class="tel" href="tel:131126"><span><small>Poisons · Australia</small>13 11 26</span></a>
+            <a class="tel" href="tel:0800764766"><span><small>Poisons · New Zealand</small>0800 764 766</span></a>
+          </div>
+        </article>
+      </div>
+      <p class="disclaimer">
+        Numbers can change. Check the line for where you are walking before you lose signal, and if someone has
+        trouble breathing, a seizure, or loses consciousness, call the local emergency number first.
+      </p>
+    </div>
+  </section>
+
+  <section class="block" aria-labelledby="closing-h">
+    <div class="wrap closing">
+      <h2 id="closing-h">Take the thicket with you.</h2>
+      <p>Set it up once over Wi-Fi. After that the scanner, the safety database and the hotlines all work with zero bars.</p>
+      <a class="pill lg" href="/scan" data-transition>
+        Launch Scanner
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6" /></svg>
+      </a>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <div class="foot-about">
+      <a class="brand" href="#top" aria-label="TrailSnack — back to top">
+        <svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M7 29c.6-8 4.6-14.6 13-19" />
+          <path d="M20 10c-.4-4.2 2.800-7.600 8.500-7.500.3 5.400-3 8.700-8.500 7.500Z" />
+          <path d="M11.600 18.200c-4.300.6-7.600-2-8.300-6.700 4.700-.5 7.900 2.200 8.300 6.700Z" />
+          <path d="M14.200 14.600c1.900.2 3.300 1 4.200 2.300M10.300 21.400c1.600.3 2.800 1 3.600 2M20.500 21.300l1.700 1.800" stroke-width="1.2" />
+          <g stroke="none" fill="#e59a34"><circle cx="20.300" cy="19.200" r="3.300" /><circle cx="15.600" cy="25.200" r="3" /><circle cx="24" cy="25.400" r="2.700" /></g>
+        </svg>
+        <span class="brand-name">TrailSnack</span>
+      </a>
+      <p>TrailSnack is an educational reference. It never clears anything for eating.</p>
+    </div>
+    <nav class="foot-nav" aria-label="Footer">
+      <a href="#top">Home</a>
+      <a href="/scan">Scan</a>
+      <a href="/log">Field Log</a>
+      <a href="/models">Models</a>
+      <a href="/settings">Settings</a>
+    </nav>
+    <div class="foot-base">
+      <span class="mono">Wild, not reckless.</span>
+      <span class="mono">Offline-first · On-device Gemma</span>
+    </div>
+  </div>
+</footer>
+
+<!-- E · Audio and ambient controls -->
+<div class="ambient">
+  <span class="mono">Scroll to wander</span>
+  <span class="rule" aria-hidden="true"></span>
+  <button class="sound" id="sound" type="button" aria-pressed="false" aria-label="Ambient forest sound">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+      <path d="M3 9.500v5h3.500L11 18.500v-13L6.500 9.500H3Z" />
+      <path class="wave w1" d="M14.500 9.300a4 4 0 0 1 0 5.400" />
+      <path class="wave w2" d="M17.300 6.700a8 8 0 0 1 0 10.600" />
+      <path class="mute" d="m15 9.500 5 5M20 9.500l-5 5" />
+    </svg>
+  </button>
+</div>
+
+<!-- Thicket engine (shared with the app), soundscape and interactions. -->
+<script type="module" src="/src/landing/main.ts"></script>
+</body>
 </html>

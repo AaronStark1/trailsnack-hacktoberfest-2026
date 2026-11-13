@@ -1,7 +1,11 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { Crop } from "lucide-react";
 import CameraView from "../components/scan/CameraView.tsx";
 import FilePickerFallback from "../components/scan/FilePickerFallback.tsx";
+import Notice from "../components/ui/Notice.tsx";
+import Pill from "../components/ui/Pill.tsx";
+import SectionHeader from "../components/ui/SectionHeader.tsx";
 import { fileToSquareFrame, videoFrameToSquare } from "../lib/image.ts";
 import { useScanStore } from "../stores/scanStore.ts";
 
@@ -68,18 +72,37 @@ export default function Scan() {
   }
 
   return (
-    <section aria-labelledby="scan-h" className="grid gap-4">
-      <h1 id="scan-h" className="text-3xl font-extrabold">
-        Trail Camera
-      </h1>
+    <section aria-labelledby="scan-h" className="grid gap-6">
+      <SectionHeader
+        as="h1"
+        id="scan-h"
+        eyebrow="01 · Capture"
+        title="Trail Camera"
+        right={
+          <Pill tone="neutral" icon={<Crop />} title="Every capture is centre-cropped to a 1024 px square">
+            1:1 · 1024 px
+          </Pill>
+        }
+      />
       <CameraView onFrame={(v) => void handleVideo(v)} />
-      <FilePickerFallback onFile={(f) => void handleFile(f)} />
-      {working && <p role="status">Preparing your specimen…</p>}
-      {error && (
-        <p role="alert" className="rounded-2xl bg-(--color-caution-bg) p-3 text-(--color-caution)">
-          {error}
-        </p>
+      {working && (
+        <div role="status" className="well relative overflow-hidden rounded-field px-4 py-3.5">
+          <span
+            aria-hidden
+            className="pointer-events-none absolute inset-y-0 left-0 w-1/3 animate-sweep bg-linear-to-r from-transparent via-amber/25 to-transparent"
+          />
+          <p className="mono-label relative flex items-center gap-2.5 text-amber">
+            <span aria-hidden className="size-1.5 shrink-0 rounded-full bg-current animate-pulse-soft" />
+            Cropping to a 1024 px square · preparing specimen
+          </p>
+        </div>
       )}
+      {error && (
+        <Notice tone="warn" role="alert" label="Could not use that photo">
+          {error}
+        </Notice>
+      )}
+      <FilePickerFallback onFile={(f) => void handleFile(f)} />
     </section>
   );
 }

@@ -1,0 +1,110 @@
+@import "../../src/index.css";
+@source "./";
+
+/* The stage is laid out at 432 × 768 CSS pixels and captured at a device scale
+   of 2.5 (1080 × 1920). Nothing below animates on its own: every opacity,
+   transform and variable is written by seek(t). */
+*,
+*::before,
+*::after {
+  animation: none !important;
+  transition: none !important;
+}
+
+:root {
+  /* iOS safe areas: the device's own when it reports them, a notched phone's otherwise. */
+  --safe-top: max(env(safe-area-inset-top, 0px), 44px);
+  --safe-bottom: max(env(safe-area-inset-bottom, 0px), 30px);
+}
+
+html,
+body {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background: #060b08;
+}
+
+#frame {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+}
+
+#stage {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 432px;
+  height: 768px;
+  overflow: hidden;
+  background: var(--color-bg);
+  transform-origin: 0 0;
+  isolation: isolate;
+  user-select: none;
+  cursor: default;
+}
+
+#stage canvas {
+  display: block;
+}
+
+.layer {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+/* Text set straight on the thicket: the app's .on-thicket shadow, a touch deeper for video. */
+.on-film {
+  text-shadow:
+    0 1px 18px rgb(6 11 8 / 0.95),
+    0 0 6px rgb(6 11 8 / 0.8);
+}
+
+/* Title cards: Antonio, towering and tight. */
+.title {
+  font-family: var(--font-display);
+  font-weight: 400;
+  line-height: 0.92;
+  letter-spacing: -0.012em;
+  text-transform: uppercase;
+  color: var(--color-ink);
+  text-shadow:
+    0 2px 40px rgb(6 11 8 / 0.9),
+    0 0 8px rgb(6 11 8 / 0.7);
+}
+
+/* Preview transport (never part of a captured frame). */
+#transport {
+  position: fixed;
+  left: 50%;
+  bottom: 14px;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  transform: translateX(-50%);
+  padding: 8px 14px;
+  border: 1px solid var(--color-line-strong);
+  border-radius: 999px;
+  background: rgb(11 19 14 / 0.9);
+  color: var(--color-ink);
+  font: 500 12px/1 var(--font-mono);
+  letter-spacing: 0.06em;
+}
+#transport button {
+  min-height: 32px;
+  padding: 0 14px;
+  border: 1px solid var(--color-amber);
+  border-radius: 999px;
+  background: var(--color-amber);
+  color: var(--color-on-amber);
+  font: 600 12px/1 var(--font-sans);
+  cursor: pointer;
+}
+#transport input {
+  width: min(46vw, 420px);
+  min-height: 0;
+  accent-color: var(--color-amber);
+}

@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { Check, X } from "lucide-react";
 import { getStorageEstimate } from "../../db/persistence.ts";
 import { formatBytes } from "../../lib/format.ts";
 import { hasUsableWebGPU } from "../../ai/detectDevice.ts";
@@ -35,6 +36,11 @@ export async function checkTier2Gate(): Promise<GateResult> {
   };
 }
 
+const marks = {
+  pass: "border-glow/35 bg-spruce/45 text-glow",
+  fail: "border-danger/60 bg-danger-bg text-danger-ink",
+} as const;
+
 export default function CapabilityGate({ onResult }: { onResult?: (g: GateResult) => void }) {
   const [gate, setGate] = useState<GateResult | null>(null);
   useEffect(() => {
@@ -44,7 +50,16 @@ export default function CapabilityGate({ onResult }: { onResult?: (g: GateResult
     });
   }, [onResult]);
 
-  if (!gate) return <p>Checking device capabilities…</p>;
+  if (!gate) {
+    return (
+      <div role="status" className="grid gap-2.5">
+        <span className="sr-only">Checking device capabilities…</span>
+        <span aria-hidden className="skeleton h-12" />
+        <span aria-hidden className="skeleton h-12" />
+        <span aria-hidden className="skeleton h-12" />
+      </div>
+    );
+  }
   const rows: [string, string, boolean][] = [
     ["WebGPU available", gate.webgpu ? "yes" : "WebGPU unavailable", gate.webgpu],
     [
@@ -59,12 +74,19 @@ export default function CapabilityGate({ onResult }: { onResult?: (g: GateResult
     ],
   ];
   return (
-    <ul aria-label="Tier 2 capability checks" className="grid gap-1">
+    <ul aria-label="Tier 2 capability checks" className="well divide-y divide-line rounded-field">
       {rows.map(([label, value, ok]) => (
-        <li key={label} className="flex items-center gap-2">
-          <span aria-hidden>{ok ? "✓" : "✗"}</span>
-          <span>
-            <strong>{label}:</strong> {value}
+        <li key={label} className="flex min-h-14 items-center gap-3 px-3.5 py-3">
+          <span
+            className={`mono-label inline-flex h-7 w-[4.25rem] shrink-0 items-center justify-center gap-1 rounded-full border ${
+              ok ? marks.pass : marks.fail
+            }`}
+          >
+            {ok ? <Check size={13} strokeWidth={3} aria-hidden /> : <X size={13} strokeWidth={3} aria-hidden />}
+            {ok ? "Pass" : "Fail"}
+          </span>
+          <span className="min-w-0 leading-snug text-ink-muted">
+            <strong className="font-semibold text-ink">{label}:</strong> {value}
           </span>
         </li>
       ))}

@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
-import { Cpu, MapPin, Save } from "lucide-react";
+import { CameraOff, CloudDownload, MapPin, Microscope, Save, TriangleAlert } from "lucide-react";
 import VerdictBadge from "../components/assess/VerdictBadge.tsx";
 import CandidateList from "../components/assess/CandidateList.tsx";
 import LookalikeCards from "../components/assess/LookalikeCards.tsx";
@@ -8,10 +8,15 @@ import Checklist from "../components/assess/Checklist.tsx";
 import ReasonTrace from "../components/assess/ReasonTrace.tsx";
 import EmergencyCard from "../components/assess/EmergencyCard.tsx";
 import DeepLookPanel from "../components/assess/DeepLookPanel.tsx";
-import Button from "../components/ui/Button.tsx";
+import SpecimenFrame from "../components/assess/SpecimenFrame.tsx";
+import Button, { buttonClass } from "../components/ui/Button.tsx";
+import Emblem from "../components/ui/Emblem.tsx";
+import Pill from "../components/ui/Pill.tsx";
+import SectionHeader from "../components/ui/SectionHeader.tsx";
 import { useScanStore } from "../stores/scanStore.ts";
 import { useSettingsStore } from "../stores/settingsStore.ts";
 import { useModelStore } from "../stores/modelStore.ts";
+import { useThicketHold } from "../stores/atmosphereStore.ts";
 import { computeVerdict } from "../engine/safetyEngine.ts";
 import type { FloraDB, SafetyVerdict, Species, TierScore } from "../engine/types.ts";
 import type { DeepLookJson } from "../engine/deepLookSchema.ts";
@@ -20,9 +25,12 @@ import { getSpeciesEmbeddings, makeCacheKey, putSpeciesEmbeddings } from "../db/
 import { addFieldLogEntry, makeFieldLogId } from "../db/fieldLog.ts";
 import { getCurrentFix, type GpsFix } from "../lib/geo.ts";
 import { __getTestHook, gemmaClient } from "../ai/gemmaClient.ts";
-import { formatDateTime } from "../lib/format.ts";
 
 type Phase = "loading" | "needs-setup" | "identifying" | "done" | "error" | "expired";
+
+/** Shared frame for the non-result states (expired, needs setup, failed, working). */
+const STATE_PLATE = "plate mx-auto grid w-full max-w-xl justify-items-start gap-4 p-6 animate-rise-in sm:p-8";
+const STATE_ICON = "flex size-14 items-center justify-center rounded-full border";
 
 export default function Assess() {
   const { id } = useParams();
@@ -32,6 +40,7 @@ export default function Assess() {
   const gpsEnabled = useSettingsStore((s) => s.gpsEnabled);
   const setTier = useModelStore((s) => s.setTier);
   const deepLookState = useModelStore((s) => s.deepLook);
+  const fieldIdDevice = useModelStore((s) => s.fieldId.device);
 
   const [phase, setPhase] = useState<Phase>("loading");
   const [db, setDb] = useState<FloraDB | null>(null);
@@ -47,17 +56,42 @@ export default function Assess() {
   const [deepLookText, setDeepLookText] = useState("");
   const [deepLookJson, setDeepLookJson] = useState<DeepLookJson | null>(null);
   const [deepLooking, setDeepLooking] = useState(false);
+  const [imageHash, setImageHash] = useState<string | null>(null);
 
-  const photoUrl = useMemo(() => {
-    if (!draft || draft.id !== id) return null;
-    return URL.createObjectURL(draft.blob);
+  // Decorative backdrop yields the GPU while identification or Deep Look is running.
+  useThicketHold(phase === "loading" || phase === "identifying" || deepLooking);
+
+  // Object URL for the specimen photo. Created and revoked inside one effect so
+  // the URL in state is always live (a memoised URL is left revoked when React
+  // re-runs effects, which showed a broken image in development).
+  const [photoUrl, setPhotoUrl] = useState<string | null>(null);
+  useEffect(() => {
+    if (!draft || draft.id !== id) {
+      setPhotoUrl(null);
+      return;
+    }
+    const url = URL.createObjectURL(draft.blob);
+    setPhotoUrl(url);
+    return () => URL.revokeObjectURL(url);
   }, [draft, id]);
 
+  // Display-only fingerprint of the stored image bytes for the specimen label.
+  // Unavailable (e.g. no SubtleCrypto) simply means the row is not shown.
   useEffect(() => {
+    if (!draft || draft.id !== id) return;
+    let cancelled = false;
+    setImageHash(null);
+    void draft.blob
+      .arrayBuffer()
+      .then((bytes) => sha256Hex(bytes))
+      .then((hex) => {
+        if (!cancelled) setImageHash(shortHash(hex));
+      })
+      .catch(() => undefined);
     return () => {
-      if (photoUrl) URL.revokeObjectURL(photoUrl);
+      cancelled = true;
     };
-  }, [photoUrl]);
+  }, [draft, id]);
 
   useEffect(() => {
     const currentDraft = draft;
@@ -260,16 +294,20 @@ export default function Assess() {
 
   if (phase === "expired") {
     return (
-      <section aria-labelledby="exp-h" className="grid gap-3">
-        <h1 id="exp-h" className="text-3xl font-extrabold">
+      <section aria-labelledby="exp-h" className={STATE_PLATE}>
+        <span className={`${STATE_ICON} border-line-strong bg-surface-2 text-ink-muted`}>
+          <CameraOff size={26} aria-hidden />
+        </span>
+        <p className="mono-label text-ink-faint">Nothing to assess</p>
+        <h1 id="exp-h" className="display text-display-md">
           Draft expired
         </h1>
-        <p>
+        <p className="text-ink-muted">
           This assessment draft is no longer in memory (reloads clear unsaved drafts to
           protect your privacy). Take or pick a fresh photo — your saved Field Log entries
           are unaffected.
         </p>
-        <Link to="/scan" className="min-h-14 rounded-xl bg-(--color-trail) px-5 text-center text-lg font-semibold text-white">
+        <Link to="/scan" className={`${buttonClass("primary")} mt-2 w-full sm:w-auto`}>
           Back to Scan
         </Link>
       </section>
@@ -278,10 +316,18 @@ export default function Assess() {
 
   if (phase === "needs-setup") {
     return (
-      <section className="grid gap-3">
-        <h1 className="text-3xl font-extrabold">Offline ID not ready</h1>
-        <p>The Tier 1 model is not downloaded yet. Set it up once over Wi-Fi, then identify offline.</p>
-        <Link to="/models" className="min-h-14 rounded-xl bg-(--color-trail) px-5 text-center text-lg font-semibold text-white">
+      <section aria-labelledby="setup-h" className={STATE_PLATE}>
+        <span className={`${STATE_ICON} border-caution/50 bg-caution-bg text-caution`}>
+          <CloudDownload size={26} aria-hidden />
+        </span>
+        <p className="mono-label text-caution">Tier 1 model missing</p>
+        <h1 id="setup-h" className="display text-display-md">
+          Offline ID not ready
+        </h1>
+        <p className="text-ink-muted">
+          The Tier 1 model is not downloaded yet. Set it up once over Wi-Fi, then identify offline.
+        </p>
+        <Link to="/models" className={`${buttonClass("primary")} mt-2 w-full sm:w-auto`}>
           Go to Models
         </Link>
       </section>
@@ -290,108 +336,189 @@ export default function Assess() {
 
   if (phase === "error") {
     return (
-      <section className="grid gap-3">
-        <h1 className="text-3xl font-extrabold">Assessment failed</h1>
-        <p role="alert" className="rounded-2xl bg-(--color-caution-bg) p-3 text-(--color-caution)">
-          {error ?? "Unknown error."} When in doubt: do not ingest.
-        </p>
-        <Link to="/scan" className="min-h-14 rounded-xl bg-(--color-trail) px-5 text-center text-lg font-semibold text-white">
-          Try another photo
-        </Link>
+      <section aria-labelledby="fault-h" className="plate mx-auto w-full max-w-xl overflow-hidden border-danger/50 animate-rise-in">
+        <div aria-hidden className="thorn-edge text-danger" />
+        <div className="grid justify-items-start gap-4 p-6 sm:p-8">
+          <span className={`${STATE_ICON} border-danger/50 bg-danger-bg text-danger-ink`}>
+            <TriangleAlert size={26} aria-hidden />
+          </span>
+          <p className="mono-label text-danger-ink">No verdict was produced</p>
+          <h1 id="fault-h" className="display text-display-md">
+            Assessment failed
+          </h1>
+          <p
+            role="alert"
+            className="w-full rounded-field border border-caution/60 bg-caution-bg p-4 leading-snug font-semibold break-words text-caution"
+          >
+            {error ?? "Unknown error."} When in doubt: do not ingest.
+          </p>
+          <Link to="/scan" className={`${buttonClass("primary")} mt-2 w-full sm:w-auto`}>
+            Try another photo
+          </Link>
+        </div>
       </section>
     );
   }
 
   if (!verdict || !db) {
     return (
-      <section aria-labelledby="assess-loading" aria-live="polite" className="grid gap-3">
-        <h1 id="assess-loading" className="text-3xl font-extrabold">
+      <section aria-labelledby="assess-loading" aria-live="polite" className={STATE_PLATE}>
+        <Emblem size={52} className="text-ink animate-pulse-soft" />
+        <p className="mono-label text-amber">On-device · nothing leaves this device</p>
+        <h1 id="assess-loading" className="display text-display-md">
           Assessing…
         </h1>
-        <p role="status">{statusLine}</p>
+        <p role="status" className="well w-full rounded-field px-4 py-3.5 font-mono text-[0.9375rem] text-ink-muted">
+          {statusLine}
+        </p>
+        {/* Placeholder shapes for the result that is still being computed. */}
+        <div aria-hidden className="grid w-full gap-3 pt-1">
+          <span className="skeleton h-16 w-3/4" />
+          <span className="skeleton h-4 w-full" />
+          <span className="skeleton h-4 w-5/6" />
+        </div>
+        <p className="text-[0.9375rem] text-ink-muted">Until a verdict appears: unidentified — do not ingest.</p>
       </section>
     );
   }
 
   const deepLookReady = deepLookState.status === "ready";
+  const deepLookPill = deepLooking
+    ? { tone: "violet" as const, live: true, text: "Inspecting" }
+    : deepLookReady
+      ? { tone: "violet" as const, live: false, text: "Model ready" }
+      : { tone: "neutral" as const, live: false, text: "Model not loaded" };
   return (
-    <article aria-labelledby="assess-h" className="grid gap-4" data-testid="assessment">
+    <article
+      aria-labelledby="assess-h"
+      data-testid="assessment"
+      className="grid gap-6 lg:grid-cols-[minmax(0,5fr)_minmax(0,7fr)] lg:items-start lg:gap-10"
+    >
       <h1 id="assess-h" className="sr-only">
         Instant assessment
       </h1>
-      {photoUrl && (
-        <img src={photoUrl} alt="Your specimen photo" className="aspect-square w-full rounded-2xl object-cover" />
-      )}
-      <div data-testid="verdict">
-        <VerdictBadge badge={verdict.badge} headline={verdict.headline} confidence={verdict.confidence} />
-      </div>
-      <p className="text-base opacity-70">
-        Assessed {formatDateTime(Date.now())} · {inferenceMs} ms on-device · database {db.version}
-      </p>
 
-      <CandidateList scores={scores} species={speciesMap} />
-      <LookalikeCards lookalikes={verdict.hazardousLookalikes} tellApart={tellApart} />
-      <Checklist items={verdict.checklist} />
-      <ReasonTrace reasons={verdict.reasons} />
-      <EmergencyCard universal={verdict.emergency.universal} regional={verdict.emergency.regional} />
-
-      <section aria-labelledby="deeplook-cta-h" className="rounded-2xl border border-black/10 p-4">
-        <h2 id="deeplook-cta-h" className="flex items-center gap-2 text-xl font-bold">
-          <Cpu size={22} aria-hidden /> Deep Look (Tier 2)
-        </h2>
-        {deepLookReady ? (
-          <Button
-            variant="secondary"
-            className="mt-2 w-full"
-            disabled={deepLooking}
-            onClick={() => void runDeepLook()}
-          >
-            {deepLooking ? "Describing features…" : "Describe visible features"}
-          </Button>
-        ) : (
-          <p className="mt-1">
-            Deep Look needs the ≈3.3 GB Tier 2 model on a WebGPU device.{" "}
-            <Link to="/models" className="font-semibold text-(--color-trail) underline">
-              Open Models to review the requirements
-            </Link>
-            .
-          </p>
-        )}
-      </section>
-      <DeepLookPanel streaming={deepLookText} result={deepLookJson} cancellable={deepLooking} onCancel={cancelDeepLook} />
-
-      <section aria-labelledby="save-h" className="grid gap-2 rounded-2xl border border-black/10 p-4">
-        <h2 id="save-h" className="text-xl font-bold">
-          Save to Field Log
-        </h2>
-        <label htmlFor="notes" className="font-semibold">
-          Notes (optional)
-        </label>
-        <textarea
-          id="notes"
-          value={notes}
-          onChange={(e) => setNotes(e.target.value)}
-          rows={3}
-          placeholder="Where, how many, what the patch looked like…"
-          className="rounded-xl border border-black/20 p-3 text-lg"
+      {/* Left on desktop, first on phones: the specimen and its capture label. */}
+      <div className="lg:sticky lg:top-24">
+        <SpecimenFrame
+          photoUrl={photoUrl}
+          capturedAt={draft?.createdAt ?? Date.now()}
+          width={draft?.width ?? 0}
+          height={draft?.height ?? 0}
+          inferenceMs={inferenceMs}
+          imageHash={imageHash}
+          device={fieldIdDevice}
+          dbVersion={db.version}
         />
-        {gpsEnabled && (
-          <div>
-            <Button variant="secondary" onClick={() => void captureGps()}>
-              <MapPin size={20} aria-hidden /> {gps ? "Refresh GPS fix" : "Add GPS fix"}
-            </Button>
-            {gps && (
-              <p className="mt-1 text-base">
-                {gps.lat.toFixed(5)}, {gps.lon.toFixed(5)} (±{Math.round(gps.accuracyM)} m)
+      </div>
+
+      <div className="grid min-w-0 gap-9">
+        <div data-testid="verdict">
+          <VerdictBadge badge={verdict.badge} headline={verdict.headline} confidence={verdict.confidence} />
+        </div>
+
+        <LookalikeCards lookalikes={verdict.hazardousLookalikes} tellApart={tellApart} />
+        <CandidateList scores={scores} species={speciesMap} />
+        <Checklist items={verdict.checklist} />
+        <ReasonTrace reasons={verdict.reasons} />
+
+        {/* Tier 2 Deep Look: one elderberry panel holding the trigger and its transcript. */}
+        <div className="relative overflow-hidden rounded-plate border border-violet-ink/35 bg-violet-bg shadow-plate">
+          <span
+            aria-hidden
+            className="pointer-events-none absolute -top-24 -right-16 size-64 rounded-full bg-violet opacity-25 blur-3xl hc:hidden"
+          />
+          <div className="relative grid gap-5 p-5 sm:p-6">
+            <section aria-labelledby="deeplook-cta-h" className="grid gap-4">
+              <div className="flex items-start gap-4">
+                <span className="flex size-12 shrink-0 items-center justify-center rounded-full border border-violet-ink/45 bg-bg/40 text-violet-ink">
+                  <Microscope size={22} aria-hidden />
+                </span>
+                <div className="min-w-0 flex-1">
+                  <p className="mono-label text-violet-ink">Tier 2 · feature inspection</p>
+                  <h2 id="deeplook-cta-h" className="display mt-2 text-display-md text-ink">
+                    Deep Look
+                  </h2>
+                  <Pill tone={deepLookPill.tone} dot live={deepLookPill.live} className="mt-3">
+                    {deepLookPill.text}
+                  </Pill>
+                </div>
+              </div>
+              <p className="text-ink-muted">
+                Describes what is visible and checks it against the top candidates. It can only lower
+                the verdict, never raise it.
               </p>
-            )}
-            {gpsError && <p role="alert" className="text-base text-(--color-danger)">{gpsError}</p>}
+              {deepLookReady ? (
+                <Button
+                  variant="violet"
+                  className="w-full"
+                  disabled={deepLooking}
+                  onClick={() => void runDeepLook()}
+                >
+                  <Microscope size={20} aria-hidden />
+                  {deepLooking ? "Describing features…" : "Describe visible features"}
+                </Button>
+              ) : (
+                <div className="grid gap-3">
+                  <p className="text-ink">Deep Look needs the ≈3.3 GB Tier 2 model on a WebGPU device.</p>
+                  <Link to="/models" className={`${buttonClass("secondary")} w-full border-violet-ink/45`}>
+                    Open Models to review the requirements
+                  </Link>
+                </div>
+              )}
+            </section>
+            <DeepLookPanel
+              streaming={deepLookText}
+              result={deepLookJson}
+              cancellable={deepLooking}
+              onCancel={cancelDeepLook}
+            />
           </div>
-        )}
-        <Button variant="primary" onClick={() => void save()} disabled={saving} className="min-h-16 text-xl">
-          <Save size={22} aria-hidden /> {saving ? "Saving…" : "Save to Field Log"}
-        </Button>
-      </section>
+        </div>
+
+        <EmergencyCard universal={verdict.emergency.universal} regional={verdict.emergency.regional} />
+
+        <section aria-labelledby="save-h" className="plate grid gap-5 p-5 sm:p-6">
+          <SectionHeader id="save-h" eyebrow="Field journal" title="Save to Field Log" />
+          <div className="grid gap-2">
+            <label htmlFor="notes" className="mono-label text-ink-faint">
+              Field notes (optional)
+            </label>
+            <textarea
+              id="notes"
+              value={notes}
+              onChange={(e) => setNotes(e.target.value)}
+              rows={3}
+              placeholder="Where, how many, what the patch looked like…"
+              className="field min-h-28 w-full p-4 leading-relaxed"
+            />
+          </div>
+          {gpsEnabled && (
+            <div className="grid gap-3">
+              <Button variant="secondary" className="w-full" onClick={() => void captureGps()}>
+                <MapPin size={20} aria-hidden /> {gps ? "Refresh GPS fix" : "Add GPS fix"}
+              </Button>
+              {gps && (
+                <p className="well flex flex-wrap items-center gap-x-3 gap-y-1 rounded-field px-4 py-3">
+                  <span className="mono-label text-glow">Geotag</span>
+                  <span className="mono-value text-[0.9375rem] text-ink">
+                    {Math.abs(gps.lat).toFixed(5)}° {gps.lat >= 0 ? "N" : "S"} · {Math.abs(gps.lon).toFixed(5)}°{" "}
+                    {gps.lon >= 0 ? "E" : "W"} ±{Math.round(gps.accuracyM)} m
+                  </span>
+                </p>
+              )}
+              {gpsError && (
+                <p role="alert" className="leading-snug font-semibold text-danger-ink">
+                  {gpsError}
+                </p>
+              )}
+            </div>
+          )}
+          <Button variant="primary" size="lg" className="w-full" onClick={() => void save()} disabled={saving}>
+            <Save size={22} aria-hidden /> {saving ? "Saving…" : "Save to Field Log"}
+          </Button>
+        </section>
+      </div>
     </article>
   );
 }

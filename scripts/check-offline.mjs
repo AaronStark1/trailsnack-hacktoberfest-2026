@@ -47,7 +47,8 @@ try {
     const page = await context.newPage();
 
     // --- Header assertions on the document response ---
-    const docResponse = await page.goto(`${BASE}/`, { waitUntil: "domcontentloaded" });
+    // "/" is the landing page; the app (and its disclaimer gate) starts at /scan.
+    const docResponse = await page.goto(`${BASE}/scan`, { waitUntil: "domcontentloaded" });
     const headers = docResponse?.headers() ?? {};
     const coop = headers["cross-origin-opener-policy"];
     const coep = headers["cross-origin-embedder-policy"];

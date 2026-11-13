@@ -4,6 +4,7 @@ import { BrowserRouter } from "react-router-dom";
 import { registerSW } from "virtual:pwa-register";
 import App from "./App.tsx";
 import ErrorBoundary from "./components/layout/ErrorBoundary.tsx";
+import Emblem from "./components/ui/Emblem.tsx";
 import { SW_UPDATE_EVENT } from "./components/layout/UpdatePrompt.tsx";
 import { useSettingsStore } from "./stores/settingsStore.ts";
 import { __setTestHook } from "./ai/gemmaClient.ts";
@@ -49,11 +50,25 @@ function Boot() {
   }, [load]);
 
   useEffect(() => {
-    document.body.classList.toggle("hc", highContrast);
-    document.body.classList.toggle("dark", darkMode);
+    // Mode classes go on <html> too so the overscroll/background outside <body>
+    // and the browser UI (theme-color) follow Night Camp / high-contrast mode.
+    for (const el of [document.documentElement, document.body]) {
+      el.classList.toggle("hc", highContrast);
+      el.classList.toggle("dark", darkMode);
+    }
+    const themeColor = document.querySelector<HTMLMetaElement>('meta[name="theme-color"]');
+    if (themeColor) themeColor.content = highContrast ? "#000000" : darkMode ? "#0a0806" : "#060b08";
   }, [highContrast, darkMode]);
 
-  if (!loaded) return <p role="status" className="p-6 text-lg">Loading TrailSnack…</p>;
+  if (!loaded)
+    return (
+      <div className="forest-floor flex min-h-dvh flex-col items-center justify-center gap-5 p-6">
+        <Emblem size={56} className="text-ink animate-pulse-soft" />
+        <p role="status" className="mono-label text-ink-muted">
+          Booting TrailSnack…
+        </p>
+      </div>
+    );
   return <App />;
 }
 
